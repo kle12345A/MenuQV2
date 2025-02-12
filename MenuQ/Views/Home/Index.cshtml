@@ -1,0 +1,40 @@
+﻿@model IEnumerable<DataAccess.Models.MenuItem>
+
+<h2>Danh sách món ăn</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên món</th>
+            <th>Giá</th>
+            <th>Hình ảnh</th>
+            <th>Trạng thái</th>
+            <th>Hot</th>
+            <th>Món mới</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ItemId</td>
+                <td>@item.ItemName</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="@item.ItemName" width="100">
+                    }
+                    else
+                    {
+                        <span>Không có ảnh</span>
+                    }
+                </td>
+                <td>@(item.Status == true ? "Có sẵn" : "Hết hàng")</td>
+                <td>@(item.IsHot ? "🔥" : "")</td>
+                <td>@(item.IsNew ? "🆕" : "")</td>
+            </tr>
+        }
+    </tbody>
+</table>
