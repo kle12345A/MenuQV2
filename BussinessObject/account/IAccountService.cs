@@ -14,9 +14,11 @@ namespace BussinessObject.account
         
         Task<bool> IsAccountExists(string username, string email);
         Task<Account?> GetByEmailAsync(string email);
+        Task<int> AddWithDetailsAsync(Account accountModel, Employee? employee, Admin? admin);
 
         Task<int> AddAsync(Account accountmodel);
-        Task<int> UpdateAsync(Account accountmodel, int id);
+        Task<int> UpdateAccountAsync(Account accountmodel, int id);
+        Task<IEnumerable<Account>> GetAllAccount();
         Task<int> DeleteAsync(int id);
     }
 }

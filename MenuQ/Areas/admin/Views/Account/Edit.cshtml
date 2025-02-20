@@ -1,0 +1,72 @@
+﻿@model DataAccess.Models.Account
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Cập nhật tài khoản";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Cập nhật tài khoản</li>
+        </ol>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Cập nhật tài khoản</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-area="Admin" asp-controller="Account" asp-action="Edit" asp-route-id="@Model.AccountId">
+                            <div class="form-group">
+                                <label asp-for="Email" class="control-label"></label>
+                                <input asp-for="Email" class="form-control" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="UserName" class="control-label"></label>
+                                <input asp-for="UserName" class="form-control" required />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PhoneNumber" class="control-label"></label>
+                                <input asp-for="PhoneNumber" class="form-control" required />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Password" class="control-label"></label>
+                                <input asp-for="Password" class="form-control" />
+                                <small class="form-text text-muted">Để trống nếu không thay đổi mật khẩu</small>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RoleId" class="control-label"></label>
+                                <select asp-for="RoleId" class="form-control" asp-items="ViewBag.RoleId"></select>
+                                <span asp-validation-for="RoleId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Active" class="control-label"></label>
+                                <select asp-for="Active" class="form-control" required>
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
+                                <span asp-validation-for="Active" class="text-danger"></span>
+                            </div>
+                            <button style="margin-top:2%;" type="submit" class="btn btn-primary">Cập nhật tài khoản</button>
+                            <a asp-area="Admin" asp-controller="Account" asp-action="Index" class="btn btn-secondary" style="margin-left: 10px;">
+                                Quay lại
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

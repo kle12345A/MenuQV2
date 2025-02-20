@@ -1,0 +1,62 @@
+﻿@model DataAccess.Models.Employee
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Chỉnh sửa nhân viên";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Chỉnh sửa thông tin nhân viên</li>
+        </ol>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Chỉnh sửa thông tin nhân viên</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Edit" method="post">
+                            <input type="hidden" asp-for="EmployeeId" />
+
+                            <div class="form-group">
+                                <label asp-for="FullName">Họ và tên</label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="AccountId">Tài khoản</label>
+                                <select asp-for="AccountId" asp-items="ViewBag.AccountList" class="form-control">
+                                    <option value="">-- Chọn tài khoản --</option>
+                                </select>
+                                <span asp-validation-for="AccountId" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Position">Chức vụ</label>
+                                <input asp-for="Position" class="form-control" />
+                                <span asp-validation-for="Position" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="HireDate">Ngày vào làm</label>
+                                <input asp-for="HireDate" type="date" class="form-control" />
+                                <span asp-validation-for="HireDate" class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -10,5 +10,7 @@ namespace DataAccess.Repository.menuitem
 {
     public interface IMenuItemRepository : IBaseRepository<MenuItem>
     {
+        IQueryable<MenuItem> GetAll();
+
     }
 }

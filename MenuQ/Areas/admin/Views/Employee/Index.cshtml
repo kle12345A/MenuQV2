@@ -1,0 +1,107 @@
+﻿@model IEnumerable<DataAccess.Models.Employee>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Danh sách nhân viên";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Danh sách nhân viên</li>
+        </ol>
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="card-title">Danh sách nhân viên</h3>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <a asp-action="Create" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Thêm nhân viên
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered text-center align-middle">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>ID </th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Họ và tên</th>
+                                    <th>Chức vụ</th>
+                                    <th>Ngày tuyển dụng</th>
+                                    <th>Trạng thái tài khoản</th>
+                                    <th style="width: 20%;">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.EmployeeId</td>
+                                        <td>@item.Account.Email</td>
+                                        <td>@item.Account.PhoneNumber</td>
+                                        <td>@item.FullName</td>
+                                        <td>@item.Position</td>
+                                        <td>@item.HireDate</td>
+                                        <td>
+                                            @if (item.Account.Active == true)
+                                            {
+                                                @:Hoạt động
+                                            }
+                                            else
+                                            {
+                                                @:Nghỉ việc
+                                            }
+                                        </td>
+
+                                        <td>
+                                          
+                                            <a class="btn btn-primary" asp-area="Admin" asp-controller="employee" asp-action="Edit" asp-route-id="@item.EmployeeId">Sửa</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .img-thumbnail {
+        border-radius: 8px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .text-success {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+</style>

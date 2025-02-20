@@ -1,0 +1,62 @@
+﻿@model MenuQ.Models.QrCodeViewModel
+
+@{
+    ViewData["Title"] = "In QR Code";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/QrPrint.css" />
+
+<div class="qr-page-container">
+    <h1 class="qr-title">In QR Codes</h1>
+    <h2 class="qr-subtitle">Khu vực: @Model.AreaName</h2> <!-- Hiển thị tên khu vực -->
+
+    <div class="qr-container">
+        @if (Model.QrCodes != null && Model.QrCodes.Any())
+        {
+            foreach (var qrCode in Model.QrCodes)
+            {
+                <div class="qr-item">
+                    <div class="text-top">@qrCode.TopText</div>
+                    <div class="table-name">Bàn: @qrCode.TableName</div> <!-- Hiển thị tên bàn -->
+                    <canvas id="qrcode-@qrCode.TableId"></canvas>
+                    <div class="text-bottom">@qrCode.BottomText</div>
+                   
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-qr-message">Không có QR Code nào để in.</p>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+<script>
+    window.onload = function () {
+        var qrCodes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.QrCodes));
+        qrCodes.forEach(qrCode => {
+            generateQRCode("qrcode-" + qrCode.TableId, qrCode.Url, qrCode.Color, qrCode.BackgroundColor);
+        });
+    };
+
+    function generateQRCode(canvasId, text, color, backgroundColor) {
+        const canvas = document.getElementById(canvasId);
+        if (canvas) {
+            const qrSize = 200;
+            canvas.width = qrSize;
+            canvas.height = qrSize;
+
+            QRCode.toCanvas(canvas, text, {
+                color: {
+                    dark: color,
+                    light: backgroundColor
+                },
+                width: qrSize,
+            }, function (error) {
+                if (error) console.error(error);
+            });
+        }
+    }
+</script>

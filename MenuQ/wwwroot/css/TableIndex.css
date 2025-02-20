@@ -1,0 +1,57 @@
+﻿/* File: style.css */
+.table-container {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    min-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#editTableBtn {
+    border-left: none;
+}
+
+#TableInput {
+    background-color: white;
+    cursor: pointer;
+}
+
+.table-tag {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+}
+
+    .table-tag button {
+        background: none;
+        border: none;
+        color: white;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+
+.container {
+    max-width: 900px;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.qr-preview {
+    text-align: center;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.edit-icon {
+    font-size: 1.2rem;
+    color: white;
+}

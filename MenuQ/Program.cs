@@ -6,6 +6,7 @@ using BussinessObject.cancellreason;
 using BussinessObject.category;
 using BussinessObject.customer;
 using BussinessObject.employee;
+using BussinessObject.file;
 using BussinessObject.menu;
 using BussinessObject.operatinghour;
 using BussinessObject.orderdetail;
@@ -80,6 +81,7 @@ services.AddScoped<IRequestTypeService, RequestTypeService>();
 services.AddScoped<IServiceCallService, ServiceCallService>();
 services.AddScoped<IServiceReasonService, ServiceReasonService>();
 services.AddScoped<ITableService, TableService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
@@ -103,8 +105,12 @@ builder.Services.AddControllersWithViews();
             app.UseRouting();
 
             app.UseAuthorization();
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
+);
 
-            app.MapControllerRoute(
+app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 

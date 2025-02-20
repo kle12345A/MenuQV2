@@ -1,0 +1,119 @@
+﻿@model IEnumerable<DataAccess.Models.MenuItem>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Danh sách món ăn";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Thực đơn</li>
+        </ol>
+        <div class="row mb-2">
+            
+            <div class="col-sm-6">
+               
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+          
+            <div class="col-12">
+                <h3 class="card-title">Danh sách thực đơn</h3>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        
+                        <a asp-action="Create" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Thêm món
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered text-center align-middle">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Tên món</th>
+                                    <th>Giá</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Trạng thái</th>
+                                    <th>Danh mục</th>
+                                    <th style="width: 20%;">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.ItemName</td>
+                                        <td><strong class="text-success">@item.Price.ToString("N0")₫</strong></td>
+                                        <td>
+                                            <img src="@item.ImageUrl" alt="@item.ItemName" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                                        </td>
+                                 
+
+                                        <td>
+                                          @if(item.Status == true)
+										  {
+											<span class="badge bg-success">Có sẵn</span>
+										  }
+										  else
+										  {
+											<span class="badge bg-danger">Hết hàng</span>
+										  }
+                                        </td>
+
+
+
+                                        <td>@item.Category.CategoryName</td>
+                                        <td>
+                                            <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-sm btn-info">
+                                                <i class="fas fa-info-circle"></i> Chi tiết
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .img-thumbnail {
+        border-radius: 8px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .text-success {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+</style>
+                                            <

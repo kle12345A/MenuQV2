@@ -1,0 +1,157 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<MenuQ.Models.TableArea>
+
+@{
+    ViewData["Title"] = "Thiết lập mã QR";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<!-- Font Awesome để hiển thị icon -->
+<link />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="~/css/TableIndex.css">
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Thiết lập mã QR</li>
+        </ol>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Phần Tạo mã QR -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Tạo mã QR</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" id="qrForm">
+                            <div class="form-group">
+                                <label for="area-input">Chọn khu vực</label>
+                                <select id="area-input" class="form-control" name="areaId" required onchange="updateMaxTableNumber()">
+                                    @if (Model != null && Model.Any())
+                                    {
+                                        @foreach (var area in Model)
+                                        {
+                                            <option value="@area.AreaId" data-max="@area.TableCount">@area.AreaName</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option value="">Không có khu vực</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="table-input">Số Lượng bàn</label>
+                                <input type="number" id="table-input" class="form-control" name="tableNumber" placeholder="Nhập số bàn" required min="1" max="100" onchange="validateForm()" />
+
+                                <span id="table-error" style="color: red; font-size: 10px"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="TableInput">Bàn</label>
+                                <div class="input-group">
+                                    <input id="TableInput" type="text" class="form-control" placeholder="Chọn bàn" readonly name="SelectedTables">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="editTableBtn" data-toggle="modal" data-target="#tableModal">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="top-text">Chữ trên QR</label>
+                                <input type="text" id="top-text" class="form-control" name="topText" placeholder="Nhập chữ trên QR" onchange="generateQRCodeWithCustomOptions()" maxlength="50" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="bottom-text">Chữ dưới QR</label>
+                                <input type="text" id="bottom-text" class="form-control" name="bottomText" placeholder="Nhập chữ dưới QR" onchange="generateQRCodeWithCustomOptions()" maxlength="50" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="color-input">Màu QR</label>
+                                <input type="color" id="color-input" class="form-control" name="color" value="#000000" onchange="generateQRCodeWithCustomOptions()" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="background-color-input">Màu nền</label>
+                                <input type="color" id="background-color-input" class="form-control" name="backgroundColor" value="#ffffff" onchange="generateQRCodeWithCustomOptions()" />
+                            </div>
+
+                            <button type="button" class="btn btn-primary btn-block" onclick="generateQRCodeWithCustomOptions()">Tạo mã QR</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phần Mẫu in -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Mẫu in</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="qr-container">
+                            <div class="text-top" id="textTop"></div>
+                            <div class="text-top1" id="textTop1"></div>
+
+                            <canvas id="qrcode1"></canvas>
+                            <div class="text-bottom" id="textBottom"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                        <button type="button" id="printButton" class="btn btn-secondary" style="display:none" onclick="redirectToPrintQR()">Tải mẫu in</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Modal chọn bàn -->
+<div class="modal fade" id="tableModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chọn bàn</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                @foreach (var area in Model)
+                {
+                    <div class="area-section" data-area-id="@area.AreaId">
+                        <strong>@area.AreaName</strong>
+                        <div class="d-flex flex-wrap">
+                            @for (var i = 0; i < area.Tables.Count; i++)
+                            {
+                                <label class="m-1">
+                                    <input type="checkbox" class="table-checkbox" value="@area.TableNumbers[i]">
+                                    @area.TableNumbers[i]
+                                </label>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="confirmTables">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+<script src="~/js/TableIndex.js"></script>

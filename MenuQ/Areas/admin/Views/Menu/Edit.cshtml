@@ -1,0 +1,65 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model DataAccess.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Chỉnh Sửa Món Ăn";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<h2>Chỉnh Sửa Món Ăn</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="ItemId" />
+
+    <div class="mb-3">
+        <label class="form-label">Tên món ăn</label>
+        <input asp-for="ItemName" class="form-control" required />
+        <span asp-validation-for="ItemName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mô tả</label>
+        <textarea asp-for="Descriptions" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Giá</label>
+        <input asp-for="Price" type="number" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh hiện tại</label><br>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="Ảnh món ăn" class="img-thumbnail" style="max-width: 200px;" />
+        }
+        else
+        {
+            <p>Chưa có ảnh</p>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Cập nhật ảnh mới (tùy chọn)</label>
+        <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+        <span class="text-danger">@ViewData["ImageError"]</span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CategoryId" class="control-label"></label>
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+            <option value="">Chọn loại món ăn</option>
+        </select>
+    </div>
+    <span asp-validation-for="CategoryId" class="text-danger"></span>
+    <div class="mb-3">
+        <label class="form-label">Trạng thái</label>
+        <select asp-for="Status" class="form-control">
+            <option value="true">Hoạt động</option>
+            <option value="false">Ngừng hoạt động</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>
