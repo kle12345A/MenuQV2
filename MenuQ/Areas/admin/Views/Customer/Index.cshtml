@@ -1,5 +1,9 @@
-﻿@model IEnumerable<DataAccess.Models.Customer>
+﻿@model IPagedList<DataAccess.Models.Customer>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using X.PagedList;
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Mvc.Core.Common
+@using X.PagedList.Web.Common
 
 @{
     ViewData["Title"] = "Danh sách khách hàng";
@@ -14,10 +18,8 @@
             <li class="breadcrumb-item active">Khách hàng</li>
         </ol>
         <div class="row mb-2">
-
             <div class="col-sm-6">
             </div>
-
         </div>
     </div>
 </section>
@@ -26,15 +28,14 @@
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-
             <div class="col-12">
                 <h3 class="card-title">Danh sách khách hàng</h3>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-
-                       @*  <a asp-action="Create" class="btn btn-success">
-                            <i class="fas fa-plus"></i> Thêm món
-                        </a> *@
+                        <!-- Nút (nếu cần) -->
+                        <a asp-action="Create" class="btn btn-success" style="display:none;">
+                            <i class="fas fa-plus"></i> Thêm khách hàng
+                        </a>
                     </div>
 
                     <div class="card-body">
@@ -43,8 +44,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Tên khách hàng</th>
-                                    <th>Liên hệ</th> 
-                                    
+                                    <th>Liên hệ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -54,11 +54,22 @@
                                         <td>@item.CustomerId</td>
                                         <td>@item.CustomerName</td>
                                         <td>@item.PhoneNumber</td>
-                                        
-                                        </tr>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
+
+                        <!-- Phân trang -->
+                        <div class="d-flex justify-content-center">
+                            @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+                                     new PagedListRenderOptions
+                            {
+                                Display = PagedListDisplayMode.IfNeeded,
+                                UlElementClasses = new[] { "pagination" },
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" }
+                            })
+                        </div>
                     </div>
                 </div>
             </div>
@@ -71,11 +82,6 @@
         background-color: #f8f9fa;
     }
 
-    .img-thumbnail {
-        border-radius: 8px;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
     .badge {
         font-size: 14px;
         padding: 5px 10px;
@@ -86,6 +92,4 @@
         color: #28a745;
         font-weight: bold;
     }
-
 </style>
-                                            <

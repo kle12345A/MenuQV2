@@ -2,11 +2,13 @@
 using BussinessObject.file;
 using BussinessObject.menu;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MenuQ.Areas.admin.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Area("Admin")]
     public class MenuController : Controller
     {

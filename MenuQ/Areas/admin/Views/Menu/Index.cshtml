@@ -116,4 +116,22 @@
     }
 
 </style>
-                                            <
+            @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            var errorMessage = '@TempData["ErrorMessage"]';
+
+            if (successMessage) {
+                toastr.success(successMessage, 'Thành công!', { timeOut: 3000 });
+            }
+            if (errorMessage) {
+                toastr.error(errorMessage, 'Lỗi!', { timeOut: 3000 });
+            }
+        });
+    </script>
+}
+                                <

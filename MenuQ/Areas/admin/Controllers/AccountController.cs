@@ -3,8 +3,8 @@ using BussinessObject.role;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-namespace MenuQ.Areas.admin.Controllers
+using X.PagedList;
+namespace MenuQ.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class AccountController : Controller
@@ -16,15 +16,21 @@ namespace MenuQ.Areas.admin.Controllers
             _roleService = roleService;
             _accountService = accountService;
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
-            var account = await _accountService.GetAllAccount();
-            var roles = await _roleService.GetAllAsync(); 
+            var accounts = await _accountService.GetAllAccount();
+            var roles = await _roleService.GetAllAsync();
 
-           
-            ViewBag.Roles = roles;
+          
+            int pageNumber = page ?? 1; 
+            int pageSize = 5;
 
-            return View(account);
+          
+            var pagedAccounts = accounts.ToPagedList(pageNumber, pageSize);
+
+            ViewBag.Roles = roles; 
+
+            return View(pagedAccounts);
         }
         public async Task<IActionResult> Create()
         {
@@ -32,20 +38,20 @@ namespace MenuQ.Areas.admin.Controllers
             ViewBag.Roles = roles;  
             return View(); 
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Account accountModel, Employee? employee, Admin? admin)
-        {
-            int result = await _accountService.AddWithDetailsAsync(accountModel, employee, admin);
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create(Account accountModel, Employee? employee, Admin? admin)
+        //{
+        //    int result = await _accountService.AddWithDetailsAsync(accountModel, employee, admin);
 
-            if (result == -1)
-            {
-                ModelState.AddModelError("", "Tài khoản đã tồn tại.");
-                return View(accountModel);
-            }
+        //    if (result == -1)
+        //    {
+        //        ModelState.AddModelError("", "Tài khoản đã tồn tại.");
+        //        return View(accountModel);
+        //    }
 
-            return RedirectToAction("Index");
-        }
+        //    return RedirectToAction("Index");
+        //}
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)

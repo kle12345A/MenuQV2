@@ -1,11 +1,14 @@
 ﻿using BussinessObject.account;
 using BussinessObject.employee;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using X.PagedList;
 
 namespace MenuQ.Areas.admin.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Area("Admin")]
     public class EmployeeController : Controller
     {
@@ -18,10 +21,18 @@ namespace MenuQ.Areas.admin.Controllers
             _accountService = accountService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
             var employees = await _employeeService.GetAllEmployee();
-            return View(employees);
+
+            // Cấu hình phân trang
+            int pageNumber = page ?? 1; // Trang hiện tại, mặc định là 1 nếu không có tham số
+            int pageSize = 3; // Số mục trên mỗi trang, bạn có thể thay đổi
+
+            // Chuyển danh sách nhân viên thành PagedList
+            var pagedEmployees = employees.ToPagedList(pageNumber, pageSize);
+
+            return View(pagedEmployees);
         }
 
         // Hiển thị form tạo nhân viên

@@ -7,8 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace BussinessObject.account
 {
@@ -38,7 +41,7 @@ namespace BussinessObject.account
                     AccountId = accountModel.AccountId,
                     UserName = accountModel.UserName,
                     Email = accountModel.Email,
-                    Password = accountModel.Password,
+                    Password = HashPassword(accountModel.Password), 
                     PhoneNumber = accountModel.PhoneNumber,
                     RoleId = accountModel.RoleId,
                     Active = accountModel.Active,
@@ -73,17 +76,21 @@ namespace BussinessObject.account
                 .AnyAsync(a => a.UserName.ToLower() == username.ToLower() || a.Email.ToLower() == email.ToLower());
         }
 
-        public Account? Login(string email, string password)
+        public async Task<Account?> LoginAsync(string username, string password)
         {
-            var account = _accountRepository.GetByEmail(email);
+            var account = await _accountRepository.GetQuery()
+     .Include(a => a.Role)
+     .FirstOrDefaultAsync(a => a.UserName.ToLower() == username.ToLower());
 
-            if (account == null || account.Password != password)
+
+            if (account == null || !VerifyPassword(password, account.Password) || !(bool)account.Active)
             {
                 return null;
             }
 
             return account;
         }
+
 
         public async Task<int> UpdateAccountAsync(Account accountmodel, int id)
         {
@@ -168,6 +175,47 @@ namespace BussinessObject.account
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        private bool VerifyPassword(string password, string storedHash)
+        {
+            var parts = storedHash.Split(':');
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            byte[] salt = Convert.FromBase64String(parts[0]);
+            byte[] storedPasswordHash = Convert.FromBase64String(parts[1]);
+
+            byte[] computedHash = KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 10000,
+                numBytesRequested: 32
+            );
+
+            return storedPasswordHash.SequenceEqual(computedHash);
+        }
+
+        private string HashPassword(string password)
+        {
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            byte[] hash = KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 10000,
+                numBytesRequested: 32
+            );
+
+            return $"{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
         }
     }
 }

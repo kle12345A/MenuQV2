@@ -1,6 +1,9 @@
-﻿@model IEnumerable<DataAccess.Models.Employee>
+﻿@model IPagedList<DataAccess.Models.Employee>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
+@using X.PagedList;
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Mvc.Core.Common
+@using X.PagedList.Web.Common
 @{
     ViewData["Title"] = "Danh sách nhân viên";
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
@@ -37,7 +40,7 @@
                         <table class="table table-hover table-bordered text-center align-middle">
                             <thead class="thead-dark">
                                 <tr>
-                                    <th>ID </th>
+                                    <th>ID</th>
                                     <th>Email</th>
                                     <th>Số điện thoại</th>
                                     <th>Họ và tên</th>
@@ -67,15 +70,25 @@
                                                 @:Nghỉ việc
                                             }
                                         </td>
-
                                         <td>
-                                          
-                                            <a class="btn btn-primary" asp-area="Admin" asp-controller="employee" asp-action="Edit" asp-route-id="@item.EmployeeId">Sửa</a>
+                                            <a class="btn btn-primary" asp-area="Admin" asp-controller="Employee" asp-action="Edit" asp-route-id="@item.EmployeeId">Sửa</a>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
+
+                        <!-- Phân trang -->
+                        <div class="d-flex justify-content-center">
+                            @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+                                     new PagedListRenderOptions
+                            {
+                                Display = PagedListDisplayMode.IfNeeded,
+                                UlElementClasses = new[] { "pagination" },
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" }
+                            })
+                        </div>
                     </div>
                 </div>
             </div>
@@ -103,5 +116,4 @@
         color: #28a745;
         font-weight: bold;
     }
-
 </style>

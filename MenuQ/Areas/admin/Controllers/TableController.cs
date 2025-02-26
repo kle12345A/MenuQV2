@@ -77,7 +77,7 @@ namespace MenuQ.Areas.admin.Controllers
                 TopText = topText,
                 BottomText = bottomText,
                 Color = color,
-                
+
                 BackgroundColor = backgroundColor,
                 Url = $"https://localhost:7239/Menu/Menu?areaId={areaId}&tableId={table.TableId}",
                 TableName = tableNames.ElementAtOrDefault(index) // Thêm tên bàn tương ứng từ danh sách
