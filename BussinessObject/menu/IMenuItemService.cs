@@ -12,6 +12,10 @@ namespace BussinessObject.menu
     public interface IMenuItemService : IBaseService<MenuItem>
     {
        
+        Task<IEnumerable<MenuItem>> GetAllAsync();
+        Task<int> AddAsync(MenuItem menuItem);
+        Task<int> UpdateAsync(MenuItem menuItem);
+
 
     }
 }

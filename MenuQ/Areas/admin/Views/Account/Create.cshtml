@@ -1,0 +1,129 @@
+﻿@model DataAccess.Models.Account
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Thêm tài khoản";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Thêm tài khoản</li>
+        </ol>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="card-title">Thêm tài khoản</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" asp-area="Admin" asp-controller="Account" asp-action="Create">
+                            <!-- Trường nhập chung -->
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" name="Email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tên người dùng</label>
+                                <input type="text" class="form-control" name="UserName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="text" class="form-control" name="PhoneNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mật khẩu</label>
+                                <input type="password" class="form-control" name="Password" required>
+                            </div>
+
+                            <!-- Chọn vai trò -->
+                            <div class="form-group">
+                                <label>Vai trò</label>
+                                <select class="form-control" id="role" name="RoleId" required>
+                                    @foreach (var role in ViewBag.Roles)
+                                    {
+                                        <option value="@role.RoleId">@role.RoleName</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Trạng thái -->
+                            <div class="form-group">
+                                <label>Trạng thái</label>
+                                <select class="form-control" name="Active">
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
+                            </div>
+
+                            <!-- Trường dành riêng cho Employee -->
+                            <div id="employeeFields" style="display: none;">
+                                <hr>
+                                <h4>Thông tin Nhân viên</h4>
+                                <div class="form-group">
+                                    <label>Họ và Tên</label>
+                                    <input type="text" class="form-control" name="Employee.FullName">
+                                </div>
+                                <div class="form-group">
+                                    <label>Chức vụ</label>
+                                    <input type="text" class="form-control" name="Employee.Position">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ngày vào làm</label>
+                                    <input type="date" class="form-control" name="Employee.HireDate">
+                                </div>
+                                
+                            </div>
+
+                            <!-- Trường dành riêng cho Admin -->
+                            <div id="adminFields" style="display: none;">
+                                <hr>
+                                <h4>Thông tin Quản trị viên</h4>
+                                <div class="form-group">
+                                    <label>Họ và Tên</label>
+                                    <input type="text" class="form-control" name="Admin.FullName">
+                                </div>
+                                <div class="form-group">
+                                    <label>Chức vụ</label>
+                                    <input type="text" class="form-control" name="Admin.Position">
+                                </div>
+                              
+                            </div>
+
+                            <button style="margin-top: 2%;" type="submit" class="btn btn-primary">Thêm tài khoản</button>
+                            <a asp-area="Admin" asp-controller="Account" asp-action="Index" class="btn btn-secondary" style="margin-top: 2%; margin-left: 10px;">
+                                Quay lại
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript để hiển thị/ẩn trường dựa vào Role -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#role").change(function () {
+            var selectedRole = $(this).find("option:selected").text().toLowerCase();
+
+            if (selectedRole.includes("employee")) {
+                $("#employeeFields").show();
+                $("#adminFields").hide();
+            } else if (selectedRole.includes("admin")) {
+                $("#employeeFields").hide();
+                $("#adminFields").show();
+            } else {
+                $("#employeeFields").hide();
+                $("#adminFields").hide();
+            }
+        });
+    });
+</script>

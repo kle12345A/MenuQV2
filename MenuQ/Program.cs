@@ -5,7 +5,9 @@ using BussinessObject.area;
 using BussinessObject.cancellreason;
 using BussinessObject.category;
 using BussinessObject.customer;
+using BussinessObject.email;
 using BussinessObject.employee;
+using BussinessObject.file;
 using BussinessObject.menu;
 using BussinessObject.operatinghour;
 using BussinessObject.orderdetail;
@@ -35,10 +37,33 @@ using DataAccess.Repository.role;
 using DataAccess.Repository.servicecall;
 using DataAccess.Repository.servicereason;
 using DataAccess.Repository.table;
+using MenuQ.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+
+
+// Cấu hình Session
+services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(3); // Thời gian session tồn tại
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+
+services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Admin/Auth/Index"; // Đường dẫn trang đăng nhập
+        options.LogoutPath = "/Admin/Auth/Logout"; // Đường dẫn đăng xuất
+        options.AccessDeniedPath = "/Home/AccessDenied"; // Đường dẫn khi bị từ chối quyền truy cập
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    });
 
 // Cấu hình DbContext với SQL Server
 builder.Services.AddDbContext<MenuQContext>(options =>
@@ -62,6 +87,7 @@ services.AddScoped<IRequestTypeRepository, RequestTypeRepository>();
 services.AddScoped<IServiceCallRepository, ServiceCallRepository>();
 services.AddScoped<IServiceReasonRepository, ServiceReasonRepository>();
 services.AddScoped<ITableRepository, TableRepository>();
+builder.Services.AddSingleton<IEmailService, EmailService>();
 
 services.AddScoped<ICancellReasonService, CancellReasonService>();
 services.AddScoped<IEmployeeService, EmployeeService>();
@@ -80,6 +106,7 @@ services.AddScoped<IRequestTypeService, RequestTypeService>();
 services.AddScoped<IServiceCallService, ServiceCallService>();
 services.AddScoped<IServiceReasonService, ServiceReasonService>();
 services.AddScoped<ITableService, TableService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
@@ -102,9 +129,15 @@ builder.Services.AddControllersWithViews();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseSession();
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
+);
 
-            app.MapControllerRoute(
+app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 

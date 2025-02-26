@@ -11,6 +11,9 @@ namespace BussinessObject.employee
 {
     public interface IEmployeeService : IBaseService<Employee>
     {
-        
+        Task<IEnumerable<Employee>> GetAllEmployee();
+        Task<int> AddAsync(Employee employee);
+        Task<int> UpdateAsync(Employee employee);
+
     }
 }

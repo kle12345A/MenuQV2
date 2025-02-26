@@ -9,11 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccessLayer", "DataAcce
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PresentationLayer", "PresentationLayer", "{6144C81B-A93C-409C-BE56-889F1D1B03EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{1AE68F95-94E0-46E7-9D14-700D8FB15445}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{1AE68F95-94E0-46E7-9D14-700D8FB15445}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenuQ", "MenuQ\MenuQ.csproj", "{48BB4763-DD02-423E-88A1-12C22582FDB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MenuQ", "MenuQ\MenuQ.csproj", "{48BB4763-DD02-423E-88A1-12C22582FDB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BussinessObject", "BussinessObject\BussinessObject.csproj", "{E6D509C2-A25C-4CE8-B921-FB3A73E2912D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BussinessObject", "BussinessObject\BussinessObject.csproj", "{E6D509C2-A25C-4CE8-B921-FB3A73E2912D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
