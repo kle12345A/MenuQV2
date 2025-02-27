@@ -16,6 +16,9 @@ namespace BussinessObject.table
             _tableRepository = tableRepository;
         }
 
-        
+        public async Task<Table> GetTableByIdAsync(int id)
+        {
+            return await _tableRepository.GetTableByIdAsync(id);
+        }
     }
 }

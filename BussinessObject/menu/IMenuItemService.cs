@@ -11,7 +11,14 @@ namespace BussinessObject.menu
 {
     public interface IMenuItemService : IBaseService<MenuItem>
     {
-       
+        //hau
+        Task<IEnumerable<MenuItem>> GetAllAsync();
+        Task<int> UpdateModelAsync(MenuItem menuItemModel, int id);
+        Task<int> DeleteAsync(int id);
+       //kien
+        Task<int> AddAsync(MenuItem menuItem);
+        Task<int> UpdateAsync(MenuItem menuItem);
+
 
     }
 }

@@ -1,0 +1,31 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model DataAccess.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Chi Tiết Món Ăn";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<h2>Chi Tiết Món Ăn</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">@Model.ItemName</h4>
+        <p class="card-text"><strong>Mô tả:</strong> @Model.Descriptions</p>
+        <p class="card-text"><strong>Giá:</strong> @Model.Price VNĐ</p>
+        <p class="card-text"><strong>Loại:</strong> @Model.Category?.CategoryName</p>
+@*         <p class="card-text"><strong>Trạng thái:</strong> @(Model.Status ? "Hoạt động" : "Ngừng hoạt động")</p>
+ *@
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="Ảnh món ăn" class="img-thumbnail" style="max-width: 300px;" />
+        }
+        else
+        {
+            <p><em>Chưa có ảnh</em></p>
+        }
+    </div>
+</div>
+
+<a asp-action="Edit" asp-route-id="@Model.ItemId" class="btn btn-primary mt-3">Chỉnh Sửa</a>
+<a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>

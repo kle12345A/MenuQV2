@@ -66,7 +66,7 @@ namespace BussinessObject.orderdetail
                 {
                     await _orderDetailRepository.DeleteAsync(orderDetail);
                 }
-                await _invoiceRepository.UpdateInvoiceTotal((int)orderDetail.RequestId, 
+                await _invoiceRepository.UpdateInvoiceTotal((int)orderDetail.RequestId,
                     await _orderDetailRepository.GetOrderDetailsByRequestId((int)orderDetail.RequestId).ContinueWith(t => t.Result.Sum(od => od.Quantity * od.Price)));
                 return ServiceResult<bool>.CreateSuccess(true, "Order item updated successfully.");
             }

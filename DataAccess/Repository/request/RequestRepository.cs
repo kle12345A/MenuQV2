@@ -24,6 +24,16 @@ namespace DataAccess.Repository.request
         }
 
 
+        public async Task<List<Request>> GetCustomerInProcessRequests(int customerId, int? accountId = null)
+        {
+            return await _context.Requests
+            .Where(r => r.CustomerId == customerId &&
+                       r.RequestStatusId == 2 &&
+                       r.RequestTypeId == 1 &&
+                       r.AccountId == accountId)
+            .ToListAsync();
+        }
+
         public async Task<List<Request>> GetPendingRequests(string type = "All")
         {
             var query = _context.Requests
@@ -180,6 +190,19 @@ namespace DataAccess.Repository.request
                 return false;
             }
         }
+
+        public async Task<Request> GetPendingFoodOrderRequest(int customerId)
+        {
+            return await _context.Requests
+                .Include(r => r.Customer)
+                .Include(r => r.RequestStatus)
+                .Include(r => r.Table)
+                .Include(r => r.OrderDetails)
+                    .ThenInclude(od => od.Item)
+               .Where(r => r.CustomerId == customerId && r.RequestTypeId == 1 && r.RequestStatusId == 3)
+               .FirstOrDefaultAsync();
+        }
+
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using DataAccess.Models;
+﻿using BussinessObject;
+using DataAccess.Models;
 
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,7 @@ namespace BussinessObject.orderdetail
         Task<List<OrderDetail>> GetOrderDetailsByRequestId(int requestId);
         Task<ServiceResult<bool>> UpdateOrderItemQuantity(int orderDetailId, int newQuantity);
         Task UpdateInvoiceTotal(int requestId);
+       // Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync();
+
     }
 }

@@ -16,5 +16,6 @@ namespace DataAccess.Repository.orderdetail
         Task<bool> DeleteOrderDetail(int orderDetailId);
 
         Task<bool> SaveChanges();
+        //Task<IEnumerable<OrderDetail>> GetAllWithDetailsAsync();
     }
 }

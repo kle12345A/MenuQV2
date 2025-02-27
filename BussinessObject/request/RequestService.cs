@@ -1,9 +1,11 @@
-﻿using BussinessObject.invoice;
+using BussinessObject;
+using BussinessObject.Dto;
 using DataAccess.Enum;
 using DataAccess.Models;
 using DataAccess.Repository.Base;
 using DataAccess.Repository.cancellation;
 using DataAccess.Repository.invoice;
+using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
 using Microsoft.Extensions.Logging;
@@ -23,10 +25,10 @@ namespace BussinessObject.request
         private readonly ICancellationReasonRepository _cancellationReasonRepository;
         private readonly ILogger<RequestService> _logger;
 
-        public RequestService(IUnitOfWork unitOfWork, 
+        public RequestService(IUnitOfWork unitOfWork,
             IRequestRepository requestRepository,
             IOrderDetailRepository orderDetailRepository,
-            ICancellationReasonRepository cancellationReasonRepository, 
+            ICancellationReasonRepository cancellationReasonRepository,
             IInvoiceRepository invoiceRepository,
             ILogger<RequestService> logger) : base(unitOfWork)
         {
@@ -35,7 +37,7 @@ namespace BussinessObject.request
             _cancellationReasonRepository = cancellationReasonRepository;
             _invoiceRepository = invoiceRepository;
             _logger = logger;
-        }  
+        }
 
         public async Task<List<CancellationReason>> GetActiveCancellationReasons()
         {
@@ -85,7 +87,7 @@ namespace BussinessObject.request
             }
         }
 
-        //method to process request 
+        //method to process request
         //change requeststatusId = 2 (in process) meaning an employee is viewing the request
         public async Task<ServiceResult<Request>> ProcessRequest(int requestId, int? accountId = null)
         {
@@ -113,7 +115,7 @@ namespace BussinessObject.request
             }
         }
 
-        //trả trạng thái của đơn về 1 nếu không thao tác gì cả 
+        //trả trạng thái của đơn về 1 nếu không thao tác gì cả
         public async Task<ServiceResult<Request>> ResetPendingRequest(int requestId)
         {
             try
@@ -145,7 +147,7 @@ namespace BussinessObject.request
             }
         }
 
-        //method to accpet request 
+        //method to accpet request
         //change requestStatusId = 3 (completed)
         public async Task<ServiceResult<Request>> AcceptRequest(int requestId, int? accountId = null)
         {
@@ -213,7 +215,7 @@ namespace BussinessObject.request
 
 
         //Method to reject request
-        //change requestStatusId = 4 (canacelled) 
+        //change requestStatusId = 4 (canacelled)
         public async Task<ServiceResult<Request>> RejectRequest(int requestId, int reasonId, int? accountId = null)
         {
             var request = await _requestRepository.GetRequestById(requestId);
@@ -282,6 +284,52 @@ namespace BussinessObject.request
             return await _requestRepository.GetAcceptedOrdersAsync(filter);
         }
 
+        public async Task<int> AddRequestOrder(List<OrderItemDto> orderItems, OrderByDto orderBy)
+                {
+                    await _unitOfWork.BeginTransactionAsync();
+                    try
+                    {
+                        var newRequest = new Request
+                        {
+                            TableId = orderBy.TableId,
+                            CustomerId = orderBy.CustomerId,
+                            RequestTypeId = 1,
+                            RequestStatusId = 1,
+                            CreatedAt = DateTime.Now,
+                        };
+                        await _requestRepository.AddAsync(newRequest);
+                        await _unitOfWork.SaveChangesAsync();
 
+                        var requesetId = newRequest.RequestId;
+                        foreach(var orderItem in orderItems)
+                        {
+                            var newOrderDetail = new OrderDetail
+                            {
+                                RequestId = requesetId,
+                                ItemId = orderItem.Id,
+                                Quantity = orderItem.Quantity,
+                                Price = orderItem.Price * orderItem.Quantity,
+                                Note = "N/A"
+                            };
+
+                            await _orderDetailRepository.AddAsync(newOrderDetail);
+                        }
+
+                        await _unitOfWork.SaveChangesAsync();
+                        await _unitOfWork.CommitTransactionAsync();
+
+                        return 1;
+                    }
+                    catch
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        throw;
+                    }
+                }
+
+        public async Task<Request> GetPendingFoodOrderRequest(int customerId)
+        {
+            return await _requestRepository.GetPendingFoodOrderRequest(customerId);
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace DataAccess.Repository.area
 {
     public interface IAreaRepository : IBaseRepository<Area>
     {
+        Task<List<Area>> GetAllWithTablesAsync();
     }
 }

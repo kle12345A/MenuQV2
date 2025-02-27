@@ -8,5 +8,6 @@ namespace BussinessObject.table
 {
     public interface ITableService : IBaseService<Table>
     {
+        Task<Table> GetTableByIdAsync(int id);
     }
 }

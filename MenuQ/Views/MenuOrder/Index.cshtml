@@ -1,0 +1,70 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "~/Views/Shared/_MenuOrderLayout.cshtml";
+}
+@model IEnumerable<DataAccess.Models.MenuItem>
+    <section class="py-3">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bootstrap-tabs product-tabs">
+                        <div class="tabs-header d-flex justify-content-between border-bottom my-5">
+                            <h3>Menu</h3>
+                            <nav>
+                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <a href="#" class="nav-link text-uppercase fs-6 active" data-bs-toggle="tab" data-bs-target="#nav-all">Tất cả</a>
+                                </div>
+                            </nav>
+                        </div>
+
+                        <div class="tab-content" id="nav-tabContent">
+                            <div class="tab-pane fade show active" id="nav-all" role="tabpanel">
+                                <div class="product-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+
+                                @foreach (var product in Model)
+                                    {
+                                        <div class="col">
+                                            <div class="product-item">
+                                            @if (product.IsNew)
+                                            {
+                                                <span class="badge bg-success  position-absolute m-3">Mới</span>
+                                               }
+                                            @if (product.IsHot)
+                                            {
+                                                <span class="btn-wishlist active">
+                                                    <svg width="20" height="20">
+                                                        <use xlink:href="#heart"></use>
+                                                    </svg>
+                                                </span>
+                                            }
+                                                <figure>
+                                                    <a href="#" title="@product.ItemName">
+                                                        <img src="@product.ImageUrl" class="tab-image">
+                                                    </a>
+                                                </figure>
+                                                <h3>@product.ItemName</h3>
+                                                <span class="qyt">@product.Descriptions</span>
+                                                <span class="price">@(product.Price)0</span>
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                <a href="#" class="nav-link add-to-cart"
+                                                   data-name="@product.ItemName"
+                                                   data-price="@product.Price"
+                                                   data-description="@product.Descriptions"
+                                                    data-id="@product.ItemId">
+                                                    Add to Cart <iconify-icon icon="uil:shopping-cart"></iconify-icon>
+                                                </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
