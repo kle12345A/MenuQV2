@@ -13,5 +13,10 @@ namespace DataAccess.Repository.menuitem
         {
             throw new NotImplementedException();
         }
+
+        public IQueryable<MenuItem> GetAll()
+        {
+            return _context.MenuItems.Include(m => m.Category);
+        }
     }
 }

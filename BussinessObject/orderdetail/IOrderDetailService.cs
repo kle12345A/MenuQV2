@@ -11,7 +11,7 @@ namespace BussinessObject.orderdetail
 {
     public interface IOrderDetailService : IBaseService<OrderDetail>
     {
-      
+        Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync();
 
     }
 }

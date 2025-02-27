@@ -1,0 +1,84 @@
+﻿/* Tổng thể trang */
+.qr-page-container {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.qr-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 8px 15px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+}
+
+    .back-button:hover {
+        background-color: #0056b3;
+    }
+
+/* QR Code Grid */
+.qr-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    padding: 20px;
+}
+
+/* QR Code Item */
+.qr-item {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+    .qr-item:hover {
+        transform: scale(1.05);
+    }
+
+/* Văn bản QR Code */
+.text-top,
+.text-bottom {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 5px 0;
+    color: #555;
+}
+
+/* Thông báo khi không có QR Code */
+.no-qr-message {
+    font-size: 18px;
+    color: #888;
+    margin-top: 20px;
+}
+.download-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .download-btn:hover {
+        background-color: #218838;
+    }

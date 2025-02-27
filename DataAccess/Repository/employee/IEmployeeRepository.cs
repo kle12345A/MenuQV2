@@ -10,5 +10,6 @@ namespace DataAccess.Repository.employee
 {
     public interface IEmployeeRepository : IBaseRepository<Employee>
     {
+        IQueryable<Employee> GetAll();
     }
 }

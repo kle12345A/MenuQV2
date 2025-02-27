@@ -1,5 +1,6 @@
 ﻿using DataAccess.Models;
 using DataAccess.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repository.account
 {
@@ -10,6 +11,14 @@ namespace DataAccess.Repository.account
         {
             _context = context;
         }
+
+        public async Task<IEnumerable<Account>> GetAll()
+        {
+            return await _context.Accounts
+                .Include(a => a.Role) 
+                .ToListAsync();
+        }
+
 
         //vidu
         public Account GetByEmail(string email)

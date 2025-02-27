@@ -1,0 +1,108 @@
+﻿/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background-color: #e0f7fa;
+}
+
+h1 {
+    color: #333;
+}
+
+input[type="text"], input[type="url"], input[type="color"], input[type="file"], input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+select:focus {
+    border-color: #0056b3;
+    outline: none;
+}
+
+#area-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+.container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    max-width: 800px;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+form {
+    width: 45%;
+}
+
+.qr-container {
+    width: 45%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.text-top, .text-bottom {
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    width: 150px;
+    word-wrap: break-word;
+}
+
+.text-top {
+    font-weight: bold;
+}
+
+.text-bottom {
+    font-weight: bold;
+}
+
+#qrcode1 {
+    width: 100%;
+    height: auto;
+    display: block;
+    flex: 1;
+}
+
+#qrForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

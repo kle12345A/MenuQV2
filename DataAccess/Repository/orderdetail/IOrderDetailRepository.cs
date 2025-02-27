@@ -10,5 +10,6 @@ namespace DataAccess.Repository.orderdetail
 {
     public interface IOrderDetailRepository : IBaseRepository<OrderDetail>
     {
+        Task<IEnumerable<OrderDetail>> GetAllWithDetailsAsync();
     }
 }

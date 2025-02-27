@@ -13,5 +13,6 @@ namespace DataAccess.Repository.account
         //muốn thêm phương thức mới thì viết ở đây và triển khai nó ở AccountRepository
         //vdu
         Account GetByEmail(string email);
+        Task<IEnumerable<Account>> GetAll();    
     }
 }

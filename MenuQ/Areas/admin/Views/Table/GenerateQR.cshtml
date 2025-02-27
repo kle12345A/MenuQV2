@@ -1,0 +1,188 @@
+﻿@model List<MenuQ.Models.TableArea>
+
+@{
+    ViewData["Title"] = "Thiết lập mã QR";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+<link rel="stylesheet" href="~/css/QRCss.css" />
+<h1>QR Code Generator</h1>
+<div class="container">
+    <form method="post" enctype="multipart/form-data" id="qrForm">
+        <select id="area-input" name="areaId" required onchange="updateMaxTableNumber()">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var area in Model)
+                {
+                    <option value="@area.AreaId" data-max="@area.TableCount">@area.AreaName</option>
+                }
+            }
+            else
+            {
+                <option value="">No areas available</option>
+            }
+        </select>
+
+        <input type="number" id="table-input" name="tableNumber" placeholder="Enter table number" required min="1" max="100" onchange="validateForm()" />
+        <span id="table-error" style="color: red; display: block; font-size: 10px"></span>
+
+        <input type="text" id="top-text" name="topText" placeholder="Enter text above QR code" onchange="generateQRCodeWithCustomOptions()" maxlength="50" />
+        <input type="text" id="bottom-text" name="bottomText" placeholder="Enter text below QR code" onchange="generateQRCodeWithCustomOptions()" maxlength="50" />
+        <input type="color" id="color-input" name="color" value="#000000" onchange="generateQRCodeWithCustomOptions()" />
+        <input type="color" id="background-color-input" name="backgroundColor" value="#ffffff" onchange="generateQRCodeWithCustomOptions()" />
+        <button type="button" onclick="generateQRCodeWithCustomOptions()">Generate QR Code</button>
+    </form>
+    <div class="qr-container">
+        <div class="text-top" id="textTop"></div>
+        <div class="text-top1" id="textTop1"></div>
+
+        <canvas id="qrcode1"></canvas>
+        <div class="text-bottom" id="textBottom"></div>
+        <button type="button" id="printButton" style="display:none" onclick="redirectToPrintQR()">Print</button>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const areaSelect = document.getElementById("area-input");
+        const tableInput = document.getElementById("table-input");
+        const textTop1 = document.getElementById("textTop1");
+        const textTop = document.getElementById("textTop");
+        function UpdateTextop = 
+
+        function updateTextTop1() {
+            const areaName = areaSelect.options[areaSelect.selectedIndex].text;
+            const tableNumber = tableInput.value;
+
+            if (areaName && tableNumber) {
+                textTop1.innerText = `${areaName} - Bàn ${tableNumber}`;
+            } else {
+                textTop1.innerText = "";
+            }
+        }
+
+        areaSelect.addEventListener("change", updateTextTop1);
+        tableInput.addEventListener("input", updateTextTop1);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updateMaxTableNumber();
+        document.getElementById("area-input").addEventListener("change", updateMaxTableNumber);
+    });
+
+    function validateForm() {
+        const tableInput = document.getElementById("table-input");
+        const tableError = document.getElementById("table-error");
+        const table = parseInt(tableInput.value, 10);
+        const maxTableNumber = parseInt(tableInput.max, 10);
+        let isValid = true;
+
+        if (isNaN(table) || table < 1 || table > maxTableNumber) {
+            tableError.style.display = "inline";
+            tableError.textContent = `Please enter a valid table number (1-${maxTableNumber}).`;
+            isValid = false;
+            clearQRCode();
+        } else {
+            tableError.style.display = "none";
+            generateQRCodeWithCustomOptions();
+        }
+        return isValid;
+    }
+
+    function updateMaxTableNumber() {
+        const areaSelect = document.getElementById("area-input");
+        const selectedOption = areaSelect.options[areaSelect.selectedIndex];
+        const maxTableNumber = selectedOption.getAttribute("data-max");
+        const tableInput = document.getElementById("table-input");
+
+        tableInput.setAttribute("max", maxTableNumber);
+        tableInput.value = "";
+        document.getElementById("table-error").style.display = "none";
+    }
+
+    function generateQRCodeWithCustomOptions() {
+        const color = document.getElementById("color-input").value;
+        const backgroundColor = document.getElementById("background-color-input").value;
+        const areaSelect = document.getElementById("area-input");
+        const tableNumber = document.getElementById("table-input").value.trim();
+
+        if (!tableNumber || isNaN(tableNumber)) {
+            alert("Vui lòng nhập số bàn hợp lệ.");
+            return;
+        }
+
+        if (areaSelect.selectedIndex === -1 || areaSelect.value === "") {
+            alert("Vui lòng chọn khu vực.");
+            return;
+        }
+
+        const areaName = areaSelect.options[areaSelect.selectedIndex].text;
+        document.getElementById("textTop1").innerText = `${areaName} - Bàn ${tableNumber}`;
+        document.getElementById("textBottom").innerText = document.getElementById("bottom-text").value;
+
+        const baseURL = "https://sample.com"; // Thay URL gốc nếu cần
+        if (baseURL.trim() !== "") {
+            const urlWithParams = `Thank For Use MenuQ`;
+            generateQRCode("qrcode1", urlWithParams, color, backgroundColor);
+        } else {
+            alert("Please enter a base URL to generate a QR code.");
+        }
+    }
+
+    function generateQRCode(canvasId, text, color, backgroundColor) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        QRCode.toCanvas(canvas, text, {
+            color: { dark: color, light: backgroundColor },
+            width: 200,
+        }, function (error) {
+            if (error) console.error(error);
+            else document.getElementById("printButton").style.display = "block";
+        });
+    }
+
+    function clearQRCode() {
+        const canvas = document.getElementById("qrcode1");
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById("textTop").innerText = "";
+        document.getElementById("textBottom").innerText = "";
+        document.getElementById("printButton").style.display = "none";
+    }
+
+    function redirectToPrintQR() {
+        const areaSelect = document.getElementById("area-input");
+        const tableNumber = document.getElementById("table-input").value;
+
+        if (!areaSelect.value || !tableNumber) {
+            alert("Vui lòng chọn khu vực và nhập số bàn.");
+            return;
+        }
+
+        const params = new URLSearchParams({
+            areaId: areaSelect.value,
+            areaName: encodeURIComponent(areaSelect.options[areaSelect.selectedIndex].text),
+            tableCount: tableNumber,
+            topText: encodeURIComponent(document.getElementById("top-text").value),
+            bottomText: encodeURIComponent(document.getElementById("bottom-text").value),
+            color: encodeURIComponent(document.getElementById("color-input").value),
+            backgroundColor: encodeURIComponent(document.getElementById("background-color-input").value)
+        });
+
+        window.location.href = `/Admin/Table/PrintQR?${params.toString()}`;
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const textTop1 = document.getElementById("textTop1");
+        if (textTop1) {
+            textTop1.innerText = "Khu vực A - Bàn 1";
+        } else {
+            console.error("Không tìm thấy phần tử textTop1!");
+        }
+    });
+
+
+
+</script>

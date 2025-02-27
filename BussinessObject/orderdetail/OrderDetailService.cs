@@ -18,7 +18,12 @@ namespace BussinessObject.orderdetail
         {
             _orderDetailRepository = orderDetailRepository;
         }
-        
+
+        public async Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync()
+        {
+            return await _orderDetailRepository.GetAllWithDetailsAsync();
+        }
+
     }
 }
 

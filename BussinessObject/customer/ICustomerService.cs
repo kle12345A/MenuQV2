@@ -1,6 +1,6 @@
 ﻿using BussinessObject;
 using DataAccess.Models;
-
+using MenuQ.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +12,6 @@ namespace BussinessObject.customer
     public interface ICustomerService : IBaseService<Customer>  
     {
         Task<Customer> GetCustomerByPhone(string Phone);
+        Task<List<OrderHistory>> GetOrderHistoryByCustomerId(int customerId);
     }
 }
