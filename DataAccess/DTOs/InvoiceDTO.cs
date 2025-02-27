@@ -10,10 +10,12 @@ namespace DataAccess.DTOs
     {
         public int RequestId { get; set; }
         public string InvoiceCode { get; set; }
-        public string TableName { get; set; }
+        public int? TableId { get; set; } // 🟢 Lưu TableID, không dùng navigation property
         public string CustomerName { get; set; }
         public string PhoneNumber { get; set; }
         public decimal TotalAmount { get; set; }
         public string InvoiceStatus { get; set; }
     }
+
+
 }

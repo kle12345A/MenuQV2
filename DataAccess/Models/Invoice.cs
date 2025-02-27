@@ -22,13 +22,15 @@ public partial class Invoice
 
     public DateTime? PaymentDate { get; set; }
 
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public int TableId { get; set; }
+
     public virtual Request Request { get; set; } = null!;
 
     public virtual Customer Customer { get; set; } = null!;
 
-    public int? TableId { get; set; }
-
-    public virtual Table? Table { get; set; }
+    public virtual Table Table { get; set; } = null!;
 
     public InvoiceStatus InvoiceStatus { get; set; } = InvoiceStatus.Serving; // Mặc định đang phục vụ
 }

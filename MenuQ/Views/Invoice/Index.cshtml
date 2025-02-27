@@ -1,4 +1,4 @@
-﻿@model IEnumerable<InvoiceDTO>
+﻿@model IEnumerable<DataAccess.DTOs.InvoiceDTO>
 
 @{
     ViewData["Title"] = "Danh sách đơn hàng";
@@ -26,7 +26,7 @@
                         @invoice.InvoiceCode
                     </a>
                 </td>
-                <td>@invoice.TableName</td>
+                <td>@(invoice.TableId.HasValue ? $"Bàn {invoice.TableId}" : "Chưa gán")</td> <!-- 🟢 Hiển thị TableID -->
                 <td>@invoice.CustomerName</td>
                 <td>@invoice.PhoneNumber</td>
                 <td>@invoice.TotalAmount.ToString("N0") VND</td>

@@ -203,6 +203,11 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.TableId).HasColumnName("TableID");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
 
             entity.HasOne(d => d.Request).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.RequestId)

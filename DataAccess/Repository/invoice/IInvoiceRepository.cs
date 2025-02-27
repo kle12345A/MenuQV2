@@ -11,6 +11,7 @@ namespace DataAccess.Repository.invoice
 {
     public interface IInvoiceRepository : IBaseRepository<Invoice>
     {
+        Task<List<Invoice>> GetAllInvoices();
         Task<Invoice> GetInvoiceByRequestId(int requestId);
         Task<Invoice> GetInvoiceByCustomer(int customerId);
         Task<bool> UpdateInvoiceWithNewOrderDetails(int invoiceId, List<OrderDetail> newOrderDetails);

@@ -19,12 +19,27 @@ namespace DataAccess.Repository.invoice
             _context = context;
         }
 
+        public async Task<List<Invoice>> GetAllInvoices()
+        {
+            return await _context.Invoices
+                .Include(i => i.Customer)
+                .Include(i => i.Request.OrderDetails)
+                .ToListAsync();
+        }
+
         public async Task<bool> CreateInvoice(Invoice invoice)
         {
             var existingInvoice = await _context.Invoices
                 .AnyAsync(i => i.RequestId == invoice.RequestId);
 
             if (existingInvoice) return false; // Nếu đã có hóa đơn cho request này, không tạo mới.
+
+            //Đảm bảo TableID được lưu chính xác
+            var request = await _context.Requests.FindAsync(invoice.RequestId);
+            if (request != null && request.TableId.HasValue)
+            {
+                invoice.TableId = request.TableId.Value;
+            }
 
             await _context.Invoices.AddAsync(invoice);
             return await SaveChanges();
@@ -43,10 +58,9 @@ namespace DataAccess.Repository.invoice
         public async Task<Invoice> GetInvoiceByRequestId(int requestId)
         {
             return await _context.Invoices
-                .Include(i => i.Request) // Load Request để lấy thông tin bàn, khách hàng
-                    .ThenInclude(r => r.Customer)
-                .Include(i => i.Request.OrderDetails) // Load OrderDetails
-                    .ThenInclude(od => od.Item) // Load MenuItem
+                .Include(i => i.Customer)
+                .Include(i => i.Request.OrderDetails)
+                .ThenInclude(od => od.Item)
                 .FirstOrDefaultAsync(i => i.RequestId == requestId);
         }
 

@@ -78,6 +78,7 @@ services.AddScoped<IRoleService, RoleService>();
 services.AddScoped<IAreaService, AreaService>();
 services.AddScoped<IOrderDetailService, OrderDetailService>();
 services.AddScoped<IRequestService, RequestService>();
+services.AddScoped<IInvoiceService, InvoiceService>();
 services.AddScoped<IRequestStatusService, RequestStatusService>();
 services.AddScoped<IRequestTypeService, RequestTypeService>();
 services.AddScoped<IServiceCallService, ServiceCallService>();

@@ -39,8 +39,7 @@ namespace BussinessObject.invoice
             {
                 RequestId = i.RequestId,
                 InvoiceCode = i.InvoiceCode,
-                CreatedAt = i.CreatedAt,
-                TableName = i.Table.TableNumber,
+                TableId = i.TableId, // 🟢 Lưu TableID, không cần TableName
                 CustomerName = i.Customer.CustomerName,
                 PhoneNumber = i.Customer.PhoneNumber,
                 TotalAmount = i.TotalAmount,
@@ -60,13 +59,13 @@ namespace BussinessObject.invoice
                 CreatedAt = invoice.CreatedAt,
                 CustomerName = invoice.Customer.CustomerName,
                 PhoneNumber = invoice.Customer.PhoneNumber,
-                TableName = invoice.Table.TableNumber,
+                TableId = invoice.TableId, // 🟢 Chỉ lấy TableID
                 TotalAmount = invoice.TotalAmount,
                 PaymentMethod = invoice.PaymentMethod,
                 InvoiceStatus = invoice.InvoiceStatus.ToString(),
-                OrderDetails = invoice.OrderDetails.Select(od => new OrderDetailDTO
+                OrderDetails = invoice.Request.OrderDetails.Select(od => new OrderDetailDTO
                 {
-                    ItemName = od.MenuItem.ItemName,
+                    ItemName = od.Item.ItemName,
                     Quantity = od.Quantity,
                     TotalPrice = od.Price * od.Quantity
                 }).ToList()
@@ -81,13 +80,13 @@ namespace BussinessObject.invoice
                 var invoice = await _invoiceRepository.GetInvoiceByCustomer(customerId);
                 if (invoice == null)
                 {
-                    _logger.LogWarning("⚠ No active invoice found for CustomerID: {CustomerId}", customerId);
+                    _logger.LogWarning("No active invoice found for CustomerID: {CustomerId}", customerId);
                 }
                 return invoice;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Error retrieving invoice for CustomerID: {CustomerId}", customerId);
+                _logger.LogError(ex, "rror retrieving invoice for CustomerID: {CustomerId}", customerId);
                 return null;
             }
         }
@@ -100,14 +99,14 @@ namespace BussinessObject.invoice
                 var request = await _requestRepository.GetRequestById(requestId);
                 if (request == null)
                 {
-                    _logger.LogWarning("⚠ Request not found for ID: {RequestId}", requestId);
+                    _logger.LogWarning("Request not found for ID: {RequestId}", requestId);
                     return ServiceResult<Invoice>.CreateError("Request not found");
                 }
 
                 var existingInvoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
                 if (existingInvoice != null)
                 {
-                    _logger.LogInformation("✅ Invoice already exists for Request ID: {RequestId}", requestId);
+                    _logger.LogInformation("Invoice already exists for Request ID: {RequestId}", requestId);
                     return ServiceResult<Invoice>.CreateSuccess(existingInvoice, "Invoice already exists.");
                 }
 
@@ -115,6 +114,7 @@ namespace BussinessObject.invoice
                 {
                     RequestId = requestId,
                     CustomerId = (int)request.CustomerId,
+                    TableId = request.TableId ?? 0, // 🟢 Đảm bảo TableId không null
                     InvoiceCode = "INV" + DateTime.UtcNow.Ticks,
                     TotalAmount = request.OrderDetails.Sum(od => od.Quantity * od.Price),
                     InvoiceStatus = InvoiceStatus.Serving,
@@ -145,12 +145,16 @@ namespace BussinessObject.invoice
                     return ServiceResult<Invoice>.CreateError("Invoice not found");
                 }
 
-                // 🟢 Lấy danh sách tất cả OrderDetails liên quan đến hóa đơn này (từ tất cả Request)
-                var updatedTotal = await _orderDetailRepository
-                    .GetOrderDetailsByCustomerId(invoice.CustomerId) // Lấy tất cả món của khách trong hóa đơn "Serving"
-                    .ContinueWith(t => t.Result.Sum(od => od.Quantity * od.Price));
+                // 🟢 Đảm bảo không làm mất TableID khi cập nhật
+                var request = await _requestRepository.GetRequestById(requestId);
+                if (request != null && request.TableId.HasValue)
+                {
+                    invoice.TableId = request.TableId.Value;
+                }
 
-                // 🟢 Cập nhật tổng tiền hóa đơn
+                var updatedTotal = (await _orderDetailRepository.GetOrderDetailsByRequestId(requestId))
+                    .Sum(od => od.Quantity * od.Price);
+
                 var success = await _invoiceRepository.UpdateInvoiceTotal(invoice.InvoiceId, updatedTotal);
 
                 return success
@@ -163,6 +167,7 @@ namespace BussinessObject.invoice
                 return ServiceResult<Invoice>.CreateError("An error occurred while updating invoice.");
             }
         }
+
 
 
 
