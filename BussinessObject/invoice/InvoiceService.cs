@@ -1,0 +1,242 @@
+﻿using BussinessObject.orderdetail;
+using DataAccess.DTOs;
+using DataAccess.Enum;
+using DataAccess.Models;
+using DataAccess.Repository.Base;
+using DataAccess.Repository.invoice;
+using DataAccess.Repository.orderdetail;
+using DataAccess.Repository.request;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BussinessObject.invoice
+{
+    public class InvoiceService : BaseService<Invoice>, IInvoiceService
+    {
+        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IRequestRepository _requestRepository;
+        private readonly IOrderDetailRepository _orderDetailRepository;
+        private readonly ILogger<InvoiceService> _logger;
+
+        public InvoiceService(IUnitOfWork unitOfWork,
+                                IInvoiceRepository invoiceRepository,
+                                IRequestRepository requestRepository,
+                                IOrderDetailRepository orderDetailRepository,
+                                ILogger<InvoiceService> logger) : base(unitOfWork)
+        {
+            _invoiceRepository = invoiceRepository;
+            _requestRepository = requestRepository;
+            _orderDetailRepository = orderDetailRepository;
+            _logger = logger;
+        }
+
+        public async Task<List<InvoiceDTO>> GetAllAsync()
+        {
+            var invoices = await _invoiceRepository.GetAllInvoices();
+            return invoices.Select(i => new InvoiceDTO
+            {
+                RequestId = i.RequestId,
+                InvoiceCode = i.InvoiceCode,
+                CreatedAt = i.CreatedAt,
+                TableName = i.Table.TableNumber,
+                CustomerName = i.Customer.CustomerName,
+                PhoneNumber = i.Customer.PhoneNumber,
+                TotalAmount = i.TotalAmount,
+                InvoiceStatus = i.InvoiceStatus.ToString()
+            }).ToList();
+        }
+
+        // ✅ Lấy hóa đơn theo RequestID
+        public async Task<InvoiceDetailDTO> GetInvoiceByRequestId(int requestId)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
+            if (invoice == null) return null;
+
+            return new InvoiceDetailDTO
+            {
+                InvoiceCode = invoice.InvoiceCode,
+                CreatedAt = invoice.CreatedAt,
+                CustomerName = invoice.Customer.CustomerName,
+                PhoneNumber = invoice.Customer.PhoneNumber,
+                TableName = invoice.Table.TableNumber,
+                TotalAmount = invoice.TotalAmount,
+                PaymentMethod = invoice.PaymentMethod,
+                InvoiceStatus = invoice.InvoiceStatus.ToString(),
+                OrderDetails = invoice.OrderDetails.Select(od => new OrderDetailDTO
+                {
+                    ItemName = od.MenuItem.ItemName,
+                    Quantity = od.Quantity,
+                    TotalPrice = od.Price * od.Quantity
+                }).ToList()
+            };
+        }
+
+        //Lấy hóa đơn theo CustomerID nếu đang có hóa đơn Serving
+        public async Task<Invoice> GetInvoiceByCustomer(int customerId)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.GetInvoiceByCustomer(customerId);
+                if (invoice == null)
+                {
+                    _logger.LogWarning("⚠ No active invoice found for CustomerID: {CustomerId}", customerId);
+                }
+                return invoice;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error retrieving invoice for CustomerID: {CustomerId}", customerId);
+                return null;
+            }
+        }
+
+        // Tạo hóa đơn khi khách đặt món
+        public async Task<ServiceResult<Invoice>> CreateInvoiceForRequest(int requestId)
+        {
+            try
+            {
+                var request = await _requestRepository.GetRequestById(requestId);
+                if (request == null)
+                {
+                    _logger.LogWarning("⚠ Request not found for ID: {RequestId}", requestId);
+                    return ServiceResult<Invoice>.CreateError("Request not found");
+                }
+
+                var existingInvoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
+                if (existingInvoice != null)
+                {
+                    _logger.LogInformation("✅ Invoice already exists for Request ID: {RequestId}", requestId);
+                    return ServiceResult<Invoice>.CreateSuccess(existingInvoice, "Invoice already exists.");
+                }
+
+                var invoice = new Invoice
+                {
+                    RequestId = requestId,
+                    CustomerId = (int)request.CustomerId,
+                    InvoiceCode = "INV" + DateTime.UtcNow.Ticks,
+                    TotalAmount = request.OrderDetails.Sum(od => od.Quantity * od.Price),
+                    InvoiceStatus = InvoiceStatus.Serving,
+                    PaymentStatus = false
+                };
+
+                var success = await _invoiceRepository.CreateInvoice(invoice);
+                return success
+                    ? ServiceResult<Invoice>.CreateSuccess(invoice, "Invoice created successfully.")
+                    : ServiceResult<Invoice>.CreateError("Failed to create invoice.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error creating invoice for RequestID {RequestId}", requestId);
+                return ServiceResult<Invoice>.CreateError("An error occurred while creating invoice.");
+            }
+        }
+
+        //Cập nhật hóa đơn khi có thay đổi
+        public async Task<ServiceResult<Invoice>> UpdateInvoiceForRequest(int requestId)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
+                if (invoice == null)
+                {
+                    _logger.LogWarning("⚠ Invoice not found for Request ID: {RequestId}", requestId);
+                    return ServiceResult<Invoice>.CreateError("Invoice not found");
+                }
+
+                // 🟢 Lấy danh sách tất cả OrderDetails liên quan đến hóa đơn này (từ tất cả Request)
+                var updatedTotal = await _orderDetailRepository
+                    .GetOrderDetailsByCustomerId(invoice.CustomerId) // Lấy tất cả món của khách trong hóa đơn "Serving"
+                    .ContinueWith(t => t.Result.Sum(od => od.Quantity * od.Price));
+
+                // 🟢 Cập nhật tổng tiền hóa đơn
+                var success = await _invoiceRepository.UpdateInvoiceTotal(invoice.InvoiceId, updatedTotal);
+
+                return success
+                    ? ServiceResult<Invoice>.CreateSuccess(invoice, "Invoice updated successfully.")
+                    : ServiceResult<Invoice>.CreateError("Failed to update invoice.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error updating invoice for Request ID: {RequestId}", requestId);
+                return ServiceResult<Invoice>.CreateError("An error occurred while updating invoice.");
+            }
+        }
+
+
+
+        //Cập nhật trạng thái hóa đơn
+        public async Task<ServiceResult<Invoice>> UpdateInvoiceStatus(int requestId, InvoiceStatus status)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
+                if (invoice == null)
+                {
+                    _logger.LogWarning("Invoice not found for RequestID: {RequestId}", requestId);
+                    return ServiceResult<Invoice>.CreateError("Invoice not found");
+                }
+
+                var success = await _invoiceRepository.UpdateInvoiceStatus(invoice.InvoiceId, status);
+
+                return success
+                    ? ServiceResult<Invoice>.CreateSuccess(invoice, $"Invoice status updated to {status}.")
+                    : ServiceResult<Invoice>.CreateError("Failed to update invoice status.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating invoice status for RequestID: {RequestId}", requestId);
+                return ServiceResult<Invoice>.CreateError("An error occurred while updating invoice status.");
+            }
+        }
+
+        //Xử lý thanh toán
+        public async Task<ServiceResult<Invoice>> Checkout(int requestId, string paymentMethod)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
+                if (invoice == null)
+                {
+                    _logger.LogWarning("Invoice not found for RequestID: {RequestId}", requestId);
+                    return ServiceResult<Invoice>.CreateError("Invoice not found");
+                }
+
+                invoice.PaymentMethod = paymentMethod;
+                invoice.PaymentStatus = true;
+                invoice.PaymentDate = DateTime.UtcNow;
+
+                var success = await _invoiceRepository.UpdateInvoiceStatus(invoice.InvoiceId, InvoiceStatus.Paid);
+
+                return success
+                    ? ServiceResult<Invoice>.CreateSuccess(invoice, "Payment successful.")
+                    : ServiceResult<Invoice>.CreateError("Payment failed.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error processing payment for RequestID: {RequestId}", requestId);
+                return ServiceResult<Invoice>.CreateError("An error occurred while processing payment.");
+            }
+        }
+
+        public async Task<bool> UpdateInvoiceWithNewOrderDetails(int invoiceId, List<OrderDetail> newOrderDetails)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceByRequestId(invoiceId);
+            if (invoice == null) return false;
+
+            // Thêm từng OrderDetail vào danh sách OrderDetails của Request
+            foreach (var newDetail in newOrderDetails)
+            {
+                invoice.Request.OrderDetails.Add(newDetail);
+            }
+
+            // Cập nhật tổng tiền Invoice
+            var totalAmount = invoice.Request.OrderDetails.Sum(od => od.Quantity * od.Price);
+            await _invoiceRepository.UpdateInvoiceTotal(invoice.InvoiceId, totalAmount);
+
+            return true;
+        }
+
+    }
+}

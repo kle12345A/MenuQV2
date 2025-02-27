@@ -10,5 +10,11 @@ namespace DataAccess.Repository.orderdetail
 {
     public interface IOrderDetailRepository : IBaseRepository<OrderDetail>
     {
+        Task<List<OrderDetail>> GetOrderDetailsByRequestId(int requestId);
+        Task<List<OrderDetail>> GetOrderDetailsByCustomerId(int customerId);
+        Task<bool> UpdateOrderDetail(int orderDetailId, int newQuantity, decimal newPrice, string note);
+        Task<bool> DeleteOrderDetail(int orderDetailId);
+
+        Task<bool> SaveChanges();
     }
 }

@@ -12,6 +12,7 @@ namespace BussinessObject.cancellreason
     public interface ICancellReasonService : IBaseService<CancellationReason>
 
     {
-       
+        Task<List<CancellationReason>> GetActiveCancellationReasons();
+        Task<CancellationReason> GetCancellationReasonById(int reasonId);
     }
 }

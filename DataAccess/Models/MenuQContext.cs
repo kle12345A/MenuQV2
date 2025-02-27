@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using DataAccess.Enum;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace DataAccess.Models;
 
@@ -52,8 +54,11 @@ public partial class MenuQContext : DbContext
     public virtual DbSet<Table> Tables { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-HTDAGB1\\SQLEXPRESS;Database=MenuQ;User=sa;Password=123456;Encrypt=false;TrustServerCertificate=true");
+    {
+        var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+        if (!optionsBuilder.IsConfigured) { optionsBuilder.UseSqlServer(config.GetConnectionString("value")); }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -196,12 +201,22 @@ public partial class MenuQContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
+            entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Request).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.RequestId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Invoices__Reques__00200768");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Invoices__Custom__6EF57B66");
+
+            entity.Property(e => e.InvoiceStatus)
+                .HasConversion<int>()
+                .HasDefaultValue(InvoiceStatus.Serving);
         });
 
         modelBuilder.Entity<MenuItem>(entity =>
