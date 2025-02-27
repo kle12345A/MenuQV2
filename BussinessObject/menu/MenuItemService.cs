@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace BussinessObject.menu
 {
+
     public class MenuItemService : BaseService<MenuItem>, IMenuItemService
     {
         private readonly IMenuItemRepository _menuItemRepository;
@@ -20,7 +21,9 @@ namespace BussinessObject.menu
         // Lấy tất cả menu items
         public async Task<IEnumerable<MenuItem>> GetAllAsync()
         {
-            return await _menuItemRepository.GetAllModelAsync();
+            return await _menuItemRepository.GetAll()
+           .Include(m => m.Category)
+           .ToListAsync();
         }
         // Thêm menu item
         public async Task<int> AddAsync(MenuItem menuItemModel)
@@ -41,32 +44,8 @@ namespace BussinessObject.menu
                 await _menuItemRepository.AddAsync(newMenuItem);
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
-        public async Task<IEnumerable<MenuItem>> GetAllAsync()
-        {
-            return await _menuItemRepository.GetAll()
-           .Include(m => m.Category)
-           .ToListAsync();
-        }
 
-        public async Task<int> AddAsync(MenuItem menuItemModel)
-        {
-            await _unitOfWork.BeginTransactionAsync();
-            try
-            {
-                var newMenuItem = new MenuItem
-                {
-                    ItemId = menuItemModel.ItemId,
-                    CategoryId = menuItemModel.CategoryId,
-                    ItemName = menuItemModel.ItemName,
-                    Descriptions = menuItemModel.Descriptions,
-                    Price = menuItemModel.Price,
-                    ImageUrl = menuItemModel.ImageUrl,
-                    Status = menuItemModel.Status ?? true,
-                    IsHot = menuItemModel.IsHot,
-                    IsNew = menuItemModel.IsNew
-                };
-
-                return 1;
+                return 1; // Trả về 1 nếu thành công
             }
             catch
             {
@@ -74,6 +53,10 @@ namespace BussinessObject.menu
                 throw;
             }
         }
+
+
+        
+        
 
         // Cập nhật menu item
         public async Task<int> UpdateModelAsync(MenuItem menuItemModel, int id)
@@ -113,18 +96,7 @@ namespace BussinessObject.menu
         }
 
 //Kien=============================================
-                await _menuItemRepository.AddAsync(newMenuItem);
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitTransactionAsync();
-
-                return 1; // Trả về 1 nếu thành công
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
+                
 
         public async Task<int> UpdateAsync(MenuItem menuItemModel)
         {

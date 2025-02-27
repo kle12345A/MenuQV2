@@ -1,5 +1,6 @@
 ﻿using DataAccess.Models;
 using DataAccess.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repository.menuitem
 {
