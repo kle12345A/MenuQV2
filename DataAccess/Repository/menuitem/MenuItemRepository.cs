@@ -8,5 +8,10 @@ namespace DataAccess.Repository.menuitem
         public MenuItemRepository(MenuQContext context) : base(context)
         {
         }
+
+        public Customer GetCustomerByPhone(string phoneNumber)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

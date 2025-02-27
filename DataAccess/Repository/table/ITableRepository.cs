@@ -10,5 +10,6 @@ namespace DataAccess.Repository.table
 {
     public interface ITableRepository : IBaseRepository<Table>
     {
+        Task<Table> GetTableByIdAsync(int id);
     }
 }

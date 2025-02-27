@@ -16,5 +16,9 @@ namespace BussinessObject.customer
             _customerRepository = customerRepository;
         }
 
+        public async Task<Customer> GetCustomerByPhone(string Phone)
+        {
+            return await _customerRepository.getCustomerByPhone(Phone);
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace DataAccess.Repository.menuitem
 {
     public interface IMenuItemRepository : IBaseRepository<MenuItem>
     {
+        Customer GetCustomerByPhone(string phoneNumber);
     }
 }

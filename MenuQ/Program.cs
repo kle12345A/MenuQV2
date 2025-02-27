@@ -1,4 +1,4 @@
-﻿
+﻿using BussinessObject.Dto;
 using BussinessObject.account;
 using BussinessObject.admin;
 using BussinessObject.area;
@@ -42,7 +42,7 @@ var services = builder.Services;
 
 // Cấu hình DbContext với SQL Server
 builder.Services.AddDbContext<MenuQContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MyContr")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MenuQDB")));
 services.AddScoped<IAccountRepository, AccountRepository>();
 services.AddScoped<IRoleRepository, RoleRepository>();
 services.AddScoped<IAdminRepository, AdminRepository>();

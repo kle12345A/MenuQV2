@@ -11,6 +11,6 @@ namespace BussinessObject.customer
 {
     public interface ICustomerService : IBaseService<Customer>  
     {
-       
+        Task<Customer> GetCustomerByPhone(string Phone);
     }
 }

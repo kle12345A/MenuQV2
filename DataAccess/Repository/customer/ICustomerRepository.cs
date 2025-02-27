@@ -10,5 +10,6 @@ namespace DataAccess.Repository.customer
 {
     public interface ICustomerRepository : IBaseRepository<Customer>
     {
+        Task<Customer> getCustomerByPhone(string phoneNumber);
     }
 }
