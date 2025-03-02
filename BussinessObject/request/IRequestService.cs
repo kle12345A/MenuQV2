@@ -26,6 +26,6 @@ namespace BussinessObject.request
 
         Task<List<Request>> GetAcceptedOrdersAsync(string filter = "Accepted");
 
-
+        Task<List<Request>> GetAllRequestsAsync();
     }
 }

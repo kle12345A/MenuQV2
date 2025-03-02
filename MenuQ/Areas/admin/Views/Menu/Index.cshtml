@@ -1,10 +1,19 @@
-﻿@model IEnumerable<DataAccess.Models.MenuItem>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Mvc.Core.Common
+@using X.PagedList.Web.Common
+@model IPagedList<DataAccess.Models.MenuItem>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     ViewData["Title"] = "Danh sách món ăn";
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
+
+<!-- Các phần tử ẩn để lưu trữ dữ liệu cho JavaScript -->
+<input type="hidden" id="searchMenuItemsUrl" data-url="@Url.Action("SearchMenuItems", "Menu")" />
+<input type="hidden" id="successMessage" data-value="@TempData["SuccessMessage"]" />
+<input type="hidden" id="errorMessage" data-value="@TempData["ErrorMessage"]" />
 
 <!-- Tiêu đề -->
 <section class="content-header">
@@ -14,11 +23,7 @@
             <li class="breadcrumb-item active">Thực đơn</li>
         </ol>
         <div class="row mb-2">
-            
-            <div class="col-sm-6">
-               
-            </div>
-
+            <div class="col-sm-6"></div>
         </div>
     </div>
 </section>
@@ -27,15 +32,25 @@
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-          
             <div class="col-12">
                 <h3 class="card-title">Danh sách thực đơn</h3>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        
                         <a asp-action="Create" class="btn btn-success">
                             <i class="fas fa-plus"></i> Thêm món
                         </a>
+                        <!-- Ô tìm kiếm -->
+                        <div class="input-group" style="width: 300px;">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm món ăn..." onkeyup="searchMenuItems(this.value)">
+                            <div class="input-group-append">
+                                <button hidden type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <span hidden class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-body">
@@ -50,31 +65,26 @@
                                     <th style="width: 20%;">Hành động</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="menuItemsTable">
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
-                                        <td>@item.ItemName</td>
+                                    <tr class="menu-item">
+                                        <td class="item-name">@item.ItemName</td>
                                         <td><strong class="text-success">@item.Price.ToString("N0")₫</strong></td>
                                         <td>
                                             <img src="@item.ImageUrl" alt="@item.ItemName" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
                                         </td>
-                                 
-
-                                        <td>
-                                          @if(item.Status == true)
-										  {
-											<span class="badge bg-success">Có sẵn</span>
-										  }
-										  else
-										  {
-											<span class="badge bg-danger">Hết hàng</span>
-										  }
+                                        <td class="item-status">
+                                            @if (item.Status == true)
+                                            {
+                                                <span class="badge bg-success">Có sẵn</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Hết hàng</span>
+                                            }
                                         </td>
-
-
-
-                                        <td>@item.Category.CategoryName</td>
+                                        <td class="item-category">@(item.Category?.CategoryName ?? "Không có danh mục")</td>
                                         <td>
                                             <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-edit"></i> Sửa
@@ -87,6 +97,21 @@
                                 }
                             </tbody>
                         </table>
+                       
+                        <!-- Phân trang -->
+                        <div class="pagination" id="pagination">
+                            @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+                                     new PagedListRenderOptions
+                            {
+                                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                                DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                                DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                                MaximumPageNumbersToDisplay = 5,
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" }
+                            })
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,23 +140,18 @@
         font-weight: bold;
     }
 
+    .input-group {
+        margin-left: auto;
+    }
+
+    #noResultsMessage {
+        margin-top: 20px;
+        font-size: 16px;
+    }
 </style>
-            @section Scripts {
+
+@section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
-    <script>
-        $(document).ready(function () {
-            var successMessage = '@TempData["SuccessMessage"]';
-            var errorMessage = '@TempData["ErrorMessage"]';
-
-            if (successMessage) {
-                toastr.success(successMessage, 'Thành công!', { timeOut: 3000 });
-            }
-            if (errorMessage) {
-                toastr.error(errorMessage, 'Lỗi!', { timeOut: 3000 });
-            }
-        });
-    </script>
+    <script src="~/js/menu-index.js"></script>
 }
-                                <

@@ -13,6 +13,15 @@ namespace BussinessObject.customer
     {
         Task<Customer> GetCustomerByPhone(string Phone);
         Task<List<OrderHistory>> GetOrderHistoryByCustomerId(int customerId);
+
+        Task<int> CalculateTotalCustomersForTodayAsync(); 
+        Task<int> CalculateTotalCustomersForCurrentMonthAsync(); 
+        Task<int> CalculateTotalCustomersForCurrentYearAsync(); 
+        Task<int> CalculateTotalCustomersForYesterdayAsync();
+        Task<int> CalculateTotalCustomersForLastMonthAsync(); 
+        Task<int> CalculateTotalCustomersForLastYearAsync();
+
         Task<Customer> CustomerLogin(string Phone, string username);
+
     }
 }

@@ -79,8 +79,10 @@ namespace MenuQ.Areas.admin.Controllers
                 Color = color,
 
                 BackgroundColor = backgroundColor,
+
                 Url = $"https://localhost:7257/HomeApp/Login?tableId={table.TableId}",
                 TableName = tableNames.ElementAtOrDefault(index) // Thêm tên bàn tương ứng từ danh sách
+
             }).ToList();
 
             var model = new QrCodeViewModel

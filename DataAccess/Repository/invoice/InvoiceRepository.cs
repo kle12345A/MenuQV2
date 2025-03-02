@@ -125,5 +125,14 @@ namespace DataAccess.Repository.invoice
             }
         }
 
+        public async Task<List<Invoice>> GetAllInvoiceAsync()
+        {
+            return await _context.Invoices
+                .Include(i => i.Request)
+                    .ThenInclude(r => r.OrderDetails)
+                        .ThenInclude(od => od.Item)
+                .Include(i => i.Customer)
+                .ToListAsync();
+        }
     }
 }
