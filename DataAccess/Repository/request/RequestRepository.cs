@@ -199,7 +199,7 @@ namespace DataAccess.Repository.request
                 .Include(r => r.Table)
                 .Include(r => r.OrderDetails)
                     .ThenInclude(od => od.Item)
-               .Where(r => r.CustomerId == customerId && r.RequestTypeId == 1 && r.RequestStatusId == 3)
+               .Where(r => r.CustomerId == customerId && r.RequestTypeId == 1 && r.RequestStatusId == 1)
                .FirstOrDefaultAsync();
         }
 

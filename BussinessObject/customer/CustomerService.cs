@@ -31,6 +31,7 @@ namespace BussinessObject.customer
             return await _customerRepository.getCustomerByPhone(Phone);
         }
 
+
         // Tính số lượng khách hàng ngày hôm nay
         public async Task<int> CalculateTotalCustomersForTodayAsync()
         {
@@ -189,5 +190,22 @@ namespace BussinessObject.customer
                 throw;
             }
         }
+            public async Task<Customer> CustomerLogin(string Phone, string username)
+            {
+                var customer = await _customerRepository.getCustomerByPhone(Phone);
+                if (customer == null)
+                {
+                    customer = new Customer
+                    {
+                        CustomerName = username,
+                        PhoneNumber = Phone,
+                        CreatedAt = DateTime.Now,
+                    };
+                    await _customerRepository.AddAsync(customer);
+                }
+                return customer;
+
+            }
+        }
     }
-}
+
