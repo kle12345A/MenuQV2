@@ -10,5 +10,8 @@ namespace DataAccess.Repository.servicecall
 {
     public interface IServiceCallRepository : IBaseRepository<ServiceCall>
     {
+        Task<bool> AddServiceCall(ServiceCall serviceCall);
+        Task<ServiceCall?> GetServiceCallWithRequestId(int requestId);
+        Task<bool> SaveChanges();
     }
 }

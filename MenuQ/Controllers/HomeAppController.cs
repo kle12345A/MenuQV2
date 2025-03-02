@@ -2,6 +2,7 @@
 using BussinessObject.DTOs;
 using BussinessObject.request;
 using BussinessObject.table;
+using DataAccess.Enum;
 using DataAccess.Models;
 using DataAccess.Repository.menuitem;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -55,17 +56,35 @@ namespace MenuQ.Controllers
         [HttpPost]
         public async Task<IActionResult> PaymentRequest(IFormCollection form)
         {
-            var paymentMethod = form["paymentMethod"];
-            var requestId = form["RequestId"];
-            var totalAmout = form["TotalAmount"];
-            var tableId = form["TableId"];
-            _logger.LogInformation($@"
-                ===== Payment Request Info =====
-                Request ID: {requestId}
-                Total Amount: {totalAmout}
-                Table ID: {tableId}
-                ================================");
-            return RedirectToAction("Index");
+            try
+            {
+                int customerId = int.Parse(form["CustomerId"]);
+                int tableId = int.Parse(form["TableId"]);
+                PaymentMethod paymentMethod = (PaymentMethod)int.Parse(form["paymentMethod"]);
+
+                var paymentRequestDto = new PaymentRequestDTO
+                {
+                    CustomerId = customerId,
+                    TableId = tableId,
+                    PaymentMethod = paymentMethod
+                };
+
+                var result = await _requestService.CreatePaymentRequest(paymentRequestDto);
+                if (!result.Success)
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                    return RedirectToAction("PayOrder");
+                }
+
+                TempData["SuccessMessage"] = "Payment request created successfully.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating payment request.");
+                TempData["ErrorMessage"] = "An error occurred while processing payment.";
+                return RedirectToAction("PayOrder");
+            }
         }
 
         [HttpGet]

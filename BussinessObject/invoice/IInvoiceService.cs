@@ -1,6 +1,6 @@
 ﻿using DataAccess.Enum;
 using DataAccess.Models;
-using DataAccess.DTOs;
+using BussinessObject.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

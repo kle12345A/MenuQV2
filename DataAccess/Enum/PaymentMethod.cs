@@ -8,7 +8,8 @@ namespace DataAccess.Enum
 {
     public enum PaymentMethod
     {
-        CreditCard = 1,
-        Cash = 2
+        CreditCardAtTable = 1,
+        CreditCardAtCounter = 2,
+        CashAtCounter = 3,
     }
 }

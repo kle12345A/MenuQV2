@@ -125,6 +125,14 @@ namespace DataAccess.Repository.invoice
             }
         }
 
+        public async Task<bool> UpdatePaymentMethod(int invoiceId, PaymentMethod paymentMethod)
+        {
+            var invoice = await _context.Invoices.FindAsync(invoiceId);
+            if (invoice == null) return false;
+
+            invoice.PaymentMethod = paymentMethod.ToString(); // 🟢 Chuyển Enum thành string
+            return await SaveChanges();
+        }
         public async Task<List<Invoice>> GetAllInvoiceAsync()
         {
             return await _context.Invoices

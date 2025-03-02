@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DataAccess.Models.Request>
+﻿@model IEnumerable<BussinessObject.DTOs.CustomerRequestDTO>
 
 @{
     ViewData["Title"] = "Danh sách Yêu cầu";
@@ -15,11 +15,12 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Mã Yêu cầu</th>
+            <th>Mã yêu cầu</th>
+            <th>Bàn</th>
             <th>Khách hàng</th>
-            <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-            <th>Hành động</th>
+            <th>Loại yêu cầu</th>
+            <th>Thời gian</th>
+            <th>Ghi chú</th>
         </tr>
     </thead>
     <tbody>
@@ -27,9 +28,11 @@
         {
             <tr>
                 <td>@req.RequestId</td>
-                <td>@req.Customer?.CustomerName</td>
-                <td>@req.RequestStatus?.StatusName</td>
-                <td>@req.CreatedAt?.ToString("dd/MM/yyyy")</td>
+                <td>Bàn @req.TableId</td>
+                <td>@req.CustomerName</td>
+                <td>@req.RequestType</td>
+                <td>@req.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@req.Note</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@req.RequestId" class="btn btn-info">Chi tiết</a>
                     <form asp-action="Accept" asp-route-id="@req.RequestId" method="post" class="d-inline">

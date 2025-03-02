@@ -1,4 +1,4 @@
-﻿namespace BussinessObject.Dto
+﻿namespace BussinessObject.DTOs
 {
     public class OrderItemDto
     {

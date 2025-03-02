@@ -4,17 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.DTOs
+namespace BussinessObject.DTOs
 {
-    public class InvoiceDTO
+    public class InvoiceDetailDTO
     {
-        public int RequestId { get; set; }
         public string InvoiceCode { get; set; }
-        public int? TableId { get; set; } // 🟢 Lưu TableID, không dùng navigation property
+        public DateTime CreatedAt { get; set; }
         public string CustomerName { get; set; }
         public string PhoneNumber { get; set; }
+        public int? TableId { get; set; } // 🟢 Chỉ lưu TableID
         public decimal TotalAmount { get; set; }
+        public string PaymentMethod { get; set; }
         public string InvoiceStatus { get; set; }
+        public List<OrderDetailDTO> OrderDetails { get; set; }
     }
 
 

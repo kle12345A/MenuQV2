@@ -1,5 +1,5 @@
 using BussinessObject;
-using BussinessObject.Dto;
+using BussinessObject.DTOs;
 using DataAccess.Models;
 using System;
 using System.Collections.Generic;
@@ -12,10 +12,14 @@ namespace BussinessObject.request
     public interface IRequestService : IBaseService<Request>
     {
         Task<int> AddRequestOrder(List<OrderItemDto> orderItems, OrderByDto orderBy);
+        Task<ServiceResult<Request>> CreatePaymentRequest(PaymentRequestDTO requestDto);
         Task<Request> GetPendingFoodOrderRequest(int customerId);
         Task<List<Request>> GetPendingRequests(string type = "All");
         Task<Request> GetRequestDetailsAsync(int requestId);
         Task<List<CancellationReason>> GetActiveCancellationReasons();
+        //get request with note
+        Task<List<CustomerRequestDTO>> GetAllRequestsWithNotes();
+
         Task<ServiceResult<Request>> ProcessRequest(int requestId, int? accountId = null);
         Task<ServiceResult<Request>> ResetPendingRequest(int requestId);
 
