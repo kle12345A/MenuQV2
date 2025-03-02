@@ -23,15 +23,20 @@ namespace DataAccess.Repository.request
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> AddNewRequest(Request request)
+        public async Task<Request?> AddNewRequest(Request request)
         {
-            try {
-                await _context.Requests.AddAsync(request);
-                return await SaveChanges();
-            } catch (Exception ex) {
+            try
+            {
+                var createdRequest = await _context.Requests.AddAsync(request);
+                await _context.SaveChangesAsync(); // 🟢 Lưu vào database ngay lập tức
+
+                return createdRequest.Entity; // 🟢 Trả về Request vừa tạo
+            }
+            catch (Exception ex)
+            {
                 Console.WriteLine("Error adding new request.");
-                return false;
-            } 
+                return null;
+            }
         }
 
 
@@ -77,6 +82,14 @@ namespace DataAccess.Repository.request
                     .ThenInclude(od => od.Item)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(r => r.RequestId == requestId);
+        }
+
+        public async Task<Request> GetLatestRequestByCustomer(int customerId)
+        {
+            return await _context.Requests
+                .Where(r => r.CustomerId == customerId)
+                .OrderByDescending(r => r.CreatedAt)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> RejectRequest(int requestId, int reasonId, int? accountId = null)
@@ -202,7 +215,7 @@ namespace DataAccess.Repository.request
             }
         }
 
-        public async Task<Request> GetPendingFoodOrderRequest(int customerId)
+        public async Task<Request> GetServingFoodOrderRequest(int customerId)
         {
             return await _context.Requests
                 .Include(r => r.Customer)

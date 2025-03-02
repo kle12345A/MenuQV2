@@ -22,16 +22,24 @@ namespace DataAccess.Enum
 
         public static bool TryParseVietnameseName(string vietnameseName, out PaymentMethod method)
         {
+            Console.WriteLine("🔍 Đang kiểm tra ánh xạ PaymentMethod từ: ");
+
             foreach (var kvp in _paymentMethodMapping)
             {
-                if (kvp.Value.Equals(vietnameseName, StringComparison.OrdinalIgnoreCase))
+                if (kvp.Value.Trim().Equals(vietnameseName.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
+                    Console.WriteLine("✅ Tìm thấy ánh xạ PaymentMethod");
                     method = kvp.Key;
                     return true;
                 }
             }
+
+            Console.WriteLine("❌ Không tìm thấy ánh xạ PaymentMethod cho:");
             method = default;
             return false;
         }
+
+
+
     }
 }

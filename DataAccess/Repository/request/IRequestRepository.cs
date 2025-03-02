@@ -12,8 +12,10 @@ namespace DataAccess.Repository.request
     {
         Task<List<Request>> GetPendingRequests(string type = "All");
         Task<Request> GetRequestById(int requestId);
-        Task<Request> GetPendingFoodOrderRequest(int customerId);
-        Task<bool> AddNewRequest(Request request);
+        Task<Request> GetServingFoodOrderRequest(int customerId);
+        Task<Request> GetLatestRequestByCustomer(int customerId);
+
+        Task<Request?> AddNewRequest(Request request);
         Task<bool> UpdateRequestStatus(int requestId, int newStatusId, int? accountId = null, int? cancellationReasonId = null);
         Task<bool> RejectRequest(int requestId, int reasonId, int? accountId = null);
 
