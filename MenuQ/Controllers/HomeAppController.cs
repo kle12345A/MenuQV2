@@ -43,7 +43,11 @@ namespace MenuQ.Controllers
         [HttpGet]
         public async Task<IActionResult> PayOrder()
         {
-            var customerId = 1;
+
+            string username = Request.Cookies["username"];
+            int tableId = int.Parse(Request.Cookies["tableId"]);
+            Customer customer = await _customerService.GetCustomerByPhone(username);
+            var customerId = customer.CustomerId;
             Request OrderDetail = await _requestService.GetPendingFoodOrderRequest(customerId);
             return View(OrderDetail);
         }

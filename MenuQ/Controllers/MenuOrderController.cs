@@ -1,4 +1,5 @@
-﻿using BussinessObject.Dto;
+﻿using BussinessObject.customer;
+using BussinessObject.Dto;
 using BussinessObject.menu;
 using BussinessObject.request;
 using DataAccess.Models;
@@ -12,11 +13,13 @@ namespace MenuQ.Controllers
         private readonly ILogger<MenuOrderController> _logger;
         private readonly IMenuItemService _menuService;
         private readonly IRequestService _requestService;
-        public MenuOrderController(IMenuItemService menuService, IRequestService requestService,
+        private readonly ICustomerService _customerService;
+        public MenuOrderController(IMenuItemService menuService, IRequestService requestService,ICustomerService customerService,
             ILogger<MenuOrderController> logger)
         {
             _menuService = menuService;
             _requestService = requestService;
+            _customerService = customerService;
             _logger = logger;
         }
         // Hiển thị danh sách menu
@@ -35,11 +38,13 @@ namespace MenuQ.Controllers
             {
                 return BadRequest("Giỏ hàng trống hoặc dữ liệu không đúng định dạng.");
             }
-
+            string username = Request.Cookies["username"];
+            int tableId = int.Parse(Request.Cookies["tableId"]);
+            Customer customer = await _customerService.GetCustomerByPhone(username);
             OrderByDto detail = new OrderByDto
             {
-                TableId = 1,
-                CustomerId = 1,
+                TableId = tableId,
+                CustomerId = customer.CustomerId,
             };
 
             await _requestService.AddRequestOrder(cartItems, detail);
