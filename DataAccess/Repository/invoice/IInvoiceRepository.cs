@@ -19,6 +19,7 @@ namespace DataAccess.Repository.invoice
         Task<bool> CreateInvoice(Invoice invoice);
         Task<bool> UpdateInvoiceTotal(int invoiceId, decimal totalAmount);
         Task<bool> UpdateInvoiceStatus(int invoiceId, InvoiceStatus status);
+        Task<bool> UpdatePaymentMethod(int invoiceId, PaymentMethod paymentMethod);
 
         Task<bool> SaveChanges();
     }

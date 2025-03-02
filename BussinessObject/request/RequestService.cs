@@ -1,13 +1,13 @@
 using BussinessObject;
-using BussinessObject.Dto;
+using BussinessObject.DTOs;
 using DataAccess.Enum;
 using DataAccess.Models;
 using DataAccess.Repository.Base;
 using DataAccess.Repository.cancellation;
 using DataAccess.Repository.invoice;
 using DataAccess.Repository.orderdetail;
-using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
+using DataAccess.Repository.servicecall;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -23,6 +23,7 @@ namespace BussinessObject.request
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly ICancellationReasonRepository _cancellationReasonRepository;
+        private readonly IServiceCallRepository _serviceCallRepository;
         private readonly ILogger<RequestService> _logger;
 
         public RequestService(IUnitOfWork unitOfWork,
@@ -30,12 +31,14 @@ namespace BussinessObject.request
             IOrderDetailRepository orderDetailRepository,
             ICancellationReasonRepository cancellationReasonRepository,
             IInvoiceRepository invoiceRepository,
+            IServiceCallRepository serviceCallRepository,
             ILogger<RequestService> logger) : base(unitOfWork)
         {
             _requestRepository = requestRepository;
             _orderDetailRepository = orderDetailRepository;
             _cancellationReasonRepository = cancellationReasonRepository;
             _invoiceRepository = invoiceRepository;
+            _serviceCallRepository = serviceCallRepository;
             _logger = logger;
         }
 
@@ -66,6 +69,33 @@ namespace BussinessObject.request
                 _logger.LogError(ex, "Error getting pending requests");
                 return new List<Request>();
             }
+        }
+
+        //get request with note and return dtos
+        public async Task<List<CustomerRequestDTO>> GetAllRequestsWithNotes()
+        {
+            var requests = await _requestRepository.GetPendingRequests();
+
+            var requestDtos = new List<CustomerRequestDTO>();
+
+            foreach (var request in requests) {
+                var serviceCall = await _serviceCallRepository.GetServiceCallWithRequestId(request.RequestId);
+
+                var customerRequestDTO = new CustomerRequestDTO
+                {
+                    RequestId = request.RequestId,
+                    TableId = request.TableId ?? 0,
+                    CustomerId = request.CustomerId ?? 0,
+                    CustomerName = request.Customer.CustomerName,
+                    RequestType = request.RequestType.RequestTypeName,
+                    CreatedAt = (DateTime)request.CreatedAt,
+                    Note = serviceCall?.Note ?? "Không có ghi chú"
+                };
+
+                requestDtos.Add(customerRequestDTO);
+            }
+
+            return requestDtos;
         }
 
         public async Task<Request> GetRequestDetailsAsync(int requestId)
@@ -331,5 +361,52 @@ namespace BussinessObject.request
         {
             return await _requestRepository.GetPendingFoodOrderRequest(customerId);
         }
+
+        public async Task<ServiceResult<Request>> CreatePaymentRequest(PaymentRequestDTO requestDto)
+        {
+            try
+            {
+                // 🟢 Kiểm tra khách hàng có hóa đơn chưa thanh toán không
+                var invoice = await _invoiceRepository.GetInvoiceByCustomer(requestDto.CustomerId);
+                if (invoice == null || invoice.InvoiceStatus != InvoiceStatus.Serving)
+                {
+                    return ServiceResult<Request>.CreateError("No active invoice found for payment.");
+                }
+
+                // 🟢 Tạo Request thanh toán
+                var paymentRequest = new Request
+                {
+                    TableId = requestDto.TableId,
+                    CustomerId = requestDto.CustomerId,
+                    RequestTypeId = 3, // ID tương ứng với yêu cầu thanh toán
+                    RequestStatusId = 1, // Pending
+                    CreatedAt = DateTime.UtcNow,
+                    //Note = PaymentMethodEnumHelper.GetVietnameseName(requestDto.PaymentMethod),
+
+                };
+
+                var success = await _requestRepository.AddNewRequest(paymentRequest);
+                if (!success)
+                {
+                    return ServiceResult<Request>.CreateError("Failed to create payment request.");
+                }
+
+                // 🟢 Cập nhật phương thức thanh toán vào Invoice
+                var updateInvoiceSuccess = await _invoiceRepository.UpdatePaymentMethod(invoice.InvoiceId, requestDto.PaymentMethod);
+                if (!updateInvoiceSuccess)
+                {
+                    return ServiceResult<Request>.CreateError("Failed to update payment method in invoice.");
+                }
+
+                return ServiceResult<Request>.CreateSuccess(paymentRequest, "Payment request created successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error processing payment request.");
+                return ServiceResult<Request>.CreateError("An error occurred while processing payment request.");
+            }
+        }
+
+        
     }
 }

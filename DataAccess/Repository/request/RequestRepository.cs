@@ -23,6 +23,17 @@ namespace DataAccess.Repository.request
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<bool> AddNewRequest(Request request)
+        {
+            try {
+                await _context.Requests.AddAsync(request);
+                return await SaveChanges();
+            } catch (Exception ex) {
+                Console.WriteLine("Error adding new request.");
+                return false;
+            } 
+        }
+
 
         public async Task<List<Request>> GetCustomerInProcessRequests(int customerId, int? accountId = null)
         {
@@ -203,6 +214,7 @@ namespace DataAccess.Repository.request
                .FirstOrDefaultAsync();
         }
 
+        
     }
 
 }

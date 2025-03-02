@@ -30,7 +30,8 @@ namespace MenuQ.Controllers
         // Hiển thị danh sách yêu cầu
         public async Task<IActionResult> Index(string type = "All")
         {
-            var pendingRequests = await _requestService.GetPendingRequests(type);
+            //var pendingRequests = await _requestService.GetPendingRequests(type);
+            var pendingRequests = await _requestService.GetAllRequestsWithNotes();
             var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
 
             ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
