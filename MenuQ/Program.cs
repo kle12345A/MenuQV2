@@ -48,7 +48,7 @@ var services = builder.Services;
 // Cấu hình Session
 services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(3); // Thời gian session tồn tại
+    options.IdleTimeout = TimeSpan.FromHours(3); // Thời gian session tồn tại
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

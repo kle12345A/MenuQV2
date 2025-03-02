@@ -13,5 +13,6 @@ namespace BussinessObject.customer
     {
         Task<Customer> GetCustomerByPhone(string Phone);
         Task<List<OrderHistory>> GetOrderHistoryByCustomerId(int customerId);
+        Task<Customer> CustomerLogin(string Phone, string username);
     }
 }
