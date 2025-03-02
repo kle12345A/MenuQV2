@@ -1,0 +1,111 @@
+﻿@model DataAccess.Models.Request
+
+@{
+    ViewData["Title"] = "Chi tiết Yêu cầu";
+}
+
+<h2>Chi tiết Yêu cầu</h2>
+
+<div>
+    <p><strong>Mã yêu cầu:</strong> @Model.RequestId</p>
+    <p><strong>Khách hàng:</strong> @Model.Customer?.CustomerName</p>
+    <p><strong>Trạng thái:</strong> @Model.RequestStatus?.StatusName</p>
+    <p><strong>Ngày tạo:</strong> @Model.CreatedAt?.ToString("dd/MM/yyyy")</p>
+</div>
+
+<h3>Chi tiết đơn hàng</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mã món</th>
+            <th>Tên món</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.OrderDetails)
+        {
+            <tr>
+                <td>@detail.ItemId</td>
+                <td>@detail.Item?.ItemName</td>
+                <td>@detail.Quantity</td>
+                <td>@detail.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form asp-action="Accept" asp-route-id="@Model.RequestId" method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-success">Chấp nhận</button>
+</form>
+
+<form asp-action="Reject" asp-route-id="@Model.RequestId" method="post">
+    @Html.AntiForgeryToken()
+    <select name="reasonId" class="form-control d-inline-block" style="width: auto;">
+        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
+        {
+            <option value="@reason.Value">@reason.Text</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-danger">Từ chối</button>
+</form>
+
+<script>
+    var requestId = @Model.RequestId;
+    var hasReset = false;
+
+    function resetRequestStatus() {
+        if (hasReset) return; // Ngăn gọi API nhiều lần
+        hasReset = true;
+
+        console.log("🔄 Sending reset request for RequestID:", requestId);
+
+        fetch('/Requests/ResetStatus', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: requestId })
+        }).then(response => response.json()).then(data => {
+            console.log("✅ Reset Response:", data);
+            if (data.success) {
+                window.location.href = "/Requests/Index"; // Quay lại danh sách yêu cầu
+            }
+        }).catch(error => console.error('❌ Reset Error:', error));
+    }
+
+    // ✅ Khi nhấn nút "Quay lại" trong giao diện
+    function handleBack() {
+        resetRequestStatus();
+    }
+
+    // ✅ Khi nhấn "Back" trên trình duyệt (không phải reload)
+    window.addEventListener("pageshow", function(event) {
+        if (event.persisted) {
+            console.log("🔄 Page restored from cache, reloading to update data...");
+            window.location.reload(); // Reload trang để cập nhật dữ liệu mới
+        }
+    });
+
+    // ✅ Khi đóng tab hoặc tắt trình duyệt (không phải reload)
+    window.addEventListener("beforeunload", function(event) {
+        resetRequestStatus();
+    });
+
+    // ✅ Khi người dùng reload trang, đảm bảo trang lấy dữ liệu mới nhất
+    if (performance.navigation.type === 1) {
+        console.log("🔄 Page is being reloaded, forcing fresh data...");
+        window.location.href = window.location.href; // Reload mà không dùng cache
+    }
+</script>
+
+<!-- Nút "Quay lại" trên giao diện -->
+<a href="javascript:void(0);" onclick="handleBack()" class="btn btn-secondary">Quay lại</a>
+
+
+
+
+
+
+
+

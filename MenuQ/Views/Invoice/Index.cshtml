@@ -1,0 +1,41 @@
+﻿@model IEnumerable<DataAccess.DTOs.InvoiceDTO>
+
+@{
+    ViewData["Title"] = "Danh sách đơn hàng";
+}
+
+<h2>Đơn hàng</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Vị trí</th>
+            <th>Khách hàng</th>
+            <th>Số điện thoại</th>
+            <th>Số tiền</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-controller="Invoice" asp-action="Details" asp-route-requestId="@invoice.RequestId">
+                        @invoice.InvoiceCode
+                    </a>
+                </td>
+                <td>@(invoice.TableId.HasValue ? $"Bàn {invoice.TableId}" : "Chưa gán")</td> <!-- 🟢 Hiển thị TableID -->
+                <td>@invoice.CustomerName</td>
+                <td>@invoice.PhoneNumber</td>
+                <td>@invoice.TotalAmount.ToString("N0") VND</td>
+                <td>
+                    <span class="badge bg-@(invoice.InvoiceStatus == "Serving" ? "primary" : invoice.InvoiceStatus == "Paid" ? "success" : "danger")">
+                        @invoice.InvoiceStatus
+                    </span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

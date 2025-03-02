@@ -1,4 +1,4 @@
-﻿using BussinessObject.Dto;
+﻿
 using BussinessObject.account;
 using BussinessObject.admin;
 using BussinessObject.area;
@@ -12,6 +12,7 @@ using BussinessObject.menu;
 using BussinessObject.operatinghour;
 using BussinessObject.orderdetail;
 using BussinessObject.request;
+using BussinessObject.invoice;
 using BussinessObject.requeststatus;
 using BussinessObject.requesttype;
 using BussinessObject.role;
@@ -31,6 +32,7 @@ using DataAccess.Repository.menuitem;
 using DataAccess.Repository.operatinghour;
 using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
+using DataAccess.Repository.invoice;
 using DataAccess.Repository.requeststatus;
 using DataAccess.Repository.requesttype;
 using DataAccess.Repository.role;
@@ -87,6 +89,7 @@ services.AddScoped<IRequestTypeRepository, RequestTypeRepository>();
 services.AddScoped<IServiceCallRepository, ServiceCallRepository>();
 services.AddScoped<IServiceReasonRepository, ServiceReasonRepository>();
 services.AddScoped<ITableRepository, TableRepository>();
+services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 
 services.AddScoped<ICancellReasonService, CancellReasonService>();
@@ -101,6 +104,7 @@ services.AddScoped<IRoleService, RoleService>();
 services.AddScoped<IAreaService, AreaService>();
 services.AddScoped<IOrderDetailService, OrderDetailService>();
 services.AddScoped<IRequestService, RequestService>();
+services.AddScoped<IInvoiceService, InvoiceService>();
 services.AddScoped<IRequestStatusService, RequestStatusService>();
 services.AddScoped<IRequestTypeService, RequestTypeService>();
 services.AddScoped<IServiceCallService, ServiceCallService>();

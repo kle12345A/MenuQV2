@@ -10,5 +10,8 @@ namespace DataAccess.Repository.cancellation
 {
     public interface ICancellationReasonRepository : IBaseRepository<CancellationReason>
     {
+        Task<List<CancellationReason>> GetActiveCancellationReasons();
+        Task<CancellationReason?> GetCancellationReasonById(int reasonId);
+
     }
 }

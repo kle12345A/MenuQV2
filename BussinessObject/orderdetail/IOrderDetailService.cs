@@ -11,7 +11,10 @@ namespace BussinessObject.orderdetail
 {
     public interface IOrderDetailService : IBaseService<OrderDetail>
     {
-        Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync();
+        Task<List<OrderDetail>> GetOrderDetailsByRequestId(int requestId);
+        Task<ServiceResult<bool>> UpdateOrderItemQuantity(int orderDetailId, int newQuantity);
+        Task UpdateInvoiceTotal(int requestId);
+       // Task<IEnumerable<OrderDetail>> GetAllOrderDetailsAsync();
 
     }
 }

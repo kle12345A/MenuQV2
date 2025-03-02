@@ -11,6 +11,5 @@ namespace BussinessObject.requeststatus
 {
     public interface IRequestStatusService : IBaseService<RequestStatus>
     {
-       
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DataAccess.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -52,9 +53,7 @@ public partial class MenuQContext : DbContext
 
     public virtual DbSet<Table> Tables { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { 
 
         if (!optionsBuilder.IsConfigured)
         {
@@ -210,12 +209,27 @@ public partial class MenuQContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
+            entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.TableId).HasColumnName("TableID");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
 
             entity.HasOne(d => d.Request).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.RequestId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Invoices__Reques__00200768");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Invoices__Custom__6EF57B66");
+
+            entity.Property(e => e.InvoiceStatus)
+                .HasConversion<int>()
+                .HasDefaultValue(InvoiceStatus.Serving);
         });
 
         modelBuilder.Entity<MenuItem>(entity =>

@@ -14,4 +14,6 @@ public partial class Customer
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<Request> Requests { get; set; } = new List<Request>();
+
+    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 }

@@ -15,7 +15,5 @@ namespace BussinessObject.requeststatus
         {
             _requestStatusRepository = requestStatusRepository;
         }
-
-      
     }
 }
