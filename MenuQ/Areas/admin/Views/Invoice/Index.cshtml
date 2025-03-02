@@ -1,0 +1,88 @@
+﻿@model IEnumerable<DataAccess.DTOs.InvoiceDTO>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Danh sách đơn hàng";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Đơn hàng</li>
+        </ol>
+        <div class="row mb-2">
+
+            <div class="col-sm-6">
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+
+            <div class="col-12">
+                <h3 class="card-title">Đơn hàng</h3>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+
+                   
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered text-center align-middle">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Vị trí</th>
+                                    <th>Khách hàng</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Số tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var invoice in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Invoice" asp-action="Details" asp-route-requestId="@invoice.RequestId">
+                                                @invoice.InvoiceCode
+                                            </a>
+                                        </td>
+                                        <td>@(invoice.TableId.HasValue ? $"Bàn {invoice.TableId}" : "Chưa gán")</td> <!-- 🟢 Hiển thị TableID -->
+                                        <td>@invoice.CustomerName</td>
+                                        <td>@invoice.PhoneNumber</td>
+                                        <td>@invoice.TotalAmount.ToString("N0") VND</td>
+                                        <td>
+                                            <span class="badge bg-@(invoice.InvoiceStatus == "Serving" ? "primary" : invoice.InvoiceStatus == "Paid" ? "success" : "danger")">
+                                                @invoice.InvoiceStatus
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+

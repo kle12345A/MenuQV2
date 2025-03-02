@@ -19,6 +19,15 @@ namespace BussinessObject.invoice
         Task<bool> UpdateInvoiceWithNewOrderDetails(int invoiceId, List<OrderDetail> newOrderDetails);
         Task<ServiceResult<Invoice>> UpdateInvoiceStatus(int requestId, InvoiceStatus status);
         Task<ServiceResult<Invoice>> Checkout(int requestId, String paymentMethod);
+        Task<decimal> CalculateTotalRevenueAsync();
+        Task<decimal> CalculateTotalRevenueForCurrentYearAsync();
+        Task<decimal> CalculateTotalRevenueForTodayAsync();
+        Task<decimal> CalculateTotalRevenueForYesterdayAsync(); // Ngày hôm qua
+        Task<decimal> CalculateTotalRevenueForLastMonthAsync(); // Tháng trước
+        Task<decimal> CalculateTotalRevenueForLastYearAsync(); // Năm trước
+        Task<List<Invoice>> GetAllInvoicesAsync();
+        // Thêm phương thức để lấy danh sách món ăn có doanh thu cao nhất
+        Task<List<TopSellingItemDTO>> GetTopSellingItemsAsync(string timeRange, int topN = 5);
 
     }
 }

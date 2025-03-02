@@ -80,7 +80,7 @@ namespace MenuQ.Areas.admin.Controllers
 
                 BackgroundColor = backgroundColor,
                 Url = $"https://localhost:7239/Menu/Menu?areaId={areaId}&tableId={table.TableId}",
-                TableName = tableNames.ElementAtOrDefault(index) // Thêm tên bàn tương ứng từ danh sách
+                TableName = tableNames.ElementAtOrDefault(index) 
             }).ToList();
 
             var model = new QrCodeViewModel

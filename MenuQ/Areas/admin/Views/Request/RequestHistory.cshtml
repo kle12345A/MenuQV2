@@ -1,0 +1,92 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Mvc.Core.Common
+@using X.PagedList.Web.Common
+@model IPagedList<DataAccess.Models.Request>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Lịch sử yêu cầu";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+<!-- Hiển thị thông báo -->
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Lịch sử yêu cầu</li>
+        </ol>
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Lịch sử yêu cầu</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (Model != null && Model.Any())
+                        {
+                            <table class="table table-hover table-bordered text-center align-middle">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Mã yêu cầu</th>
+                                        <th>Khách hàng</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in Model)
+                                    {
+                                        <tr>
+                                            <td>@request.RequestId</td>
+                                            <td>@(request.Customer != null ? request.Customer.CustomerName : "N/A")</td>
+                                            <td>@(request.RequestStatus != null ? request.RequestStatus.StatusName : "N/A")</td>
+                                            <td>@(request.CreatedAt.HasValue ? request.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : "N/A")</td>
+                                            <td>
+                                                <a asp-action="DetailsHistory" asp-route-id="@request.RequestId" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <!-- Phân trang -->
+                            <div class="d-flex justify-content-center">
+                                @Html.PagedListPager(Model, page => Url.Action("RequestHistory", new { page }),
+                                         new PagedListRenderOptions
+                            {
+                                Display = PagedListDisplayMode.IfNeeded,
+                                UlElementClasses = new[] { "pagination" },
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" }
+                            })
+                            </div>
+                        }
+                        else
+                        {
+                            <p>Chưa có yêu cầu nào.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

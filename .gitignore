@@ -5,3 +5,4 @@
 # Loại bỏ thư mục hệ thống của Git và Visual Studio
 .git/
 .vs/
+.idea/

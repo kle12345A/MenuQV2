@@ -13,5 +13,12 @@ namespace BussinessObject.customer
     {
         Task<Customer> GetCustomerByPhone(string Phone);
         Task<List<OrderHistory>> GetOrderHistoryByCustomerId(int customerId);
+        // Các phương thức mới để tính số lượng khách hàng
+        Task<int> CalculateTotalCustomersForTodayAsync(); 
+        Task<int> CalculateTotalCustomersForCurrentMonthAsync(); 
+        Task<int> CalculateTotalCustomersForCurrentYearAsync(); 
+        Task<int> CalculateTotalCustomersForYesterdayAsync();
+        Task<int> CalculateTotalCustomersForLastMonthAsync(); 
+        Task<int> CalculateTotalCustomersForLastYearAsync();
     }
 }

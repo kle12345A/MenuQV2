@@ -26,20 +26,20 @@ namespace MenuQ.Controllers
         public async Task<IActionResult> Index()
         {
             string username = Request.Cookies["username"];
-            int tableId = 1;
+                int tableId = 1;
             if (string.IsNullOrEmpty(username) || tableId == 0)
             {
                 CookieOptions options = new CookieOptions
                 {
                     Expires = DateTime.Now.AddHours(1)
                 };
-                Response.Cookies.Append("username", "123456789");
+                Response.Cookies.Append("username", "0988489099");
                 Response.Cookies.Append("table", "1");
             }
 
             username = Request.Cookies["username"];
 
-            Customer customer = await _customerService.GetCustomerByPhone("123456789");
+            Customer customer = await _customerService.GetCustomerByPhone("0988489099");
 
             Table cTable = await _tableService.GetTableByIdAsync(tableId);
             ViewBag.Table = cTable;

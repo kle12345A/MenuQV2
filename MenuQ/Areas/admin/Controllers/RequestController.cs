@@ -1,61 +1,84 @@
 ﻿using BussinessObject.cancellreason;
 using BussinessObject.request;
-using DataAccess.Models;
-using DataAccess.Repository.cancellation;
+using MenuQ.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
+using X.PagedList;
 
-namespace MenuQ.Controllers
+namespace MenuQ.Areas.admin.Controllers
 {
     public class ResetRequestDto
     {
         public int Id { get; set; }
     }
 
-
-    public class RequestsController : Controller
+    [Authorize(Roles = "Admin,Employee")]
+    [Area("Admin")]
+    public class RequestController : Controller
     {
         private readonly IRequestService _requestService;
         private readonly ICancellReasonService _cancellationService;
         private readonly ILogger<RequestsController> _logger;
 
-        public RequestsController(IRequestService requestService, ICancellReasonService cancellationService, ILogger<RequestsController> logger)
+        public RequestController(IRequestService requestService, ICancellReasonService cancellationService, ILogger<RequestsController> logger)
         {
             _requestService = requestService;
             _cancellationService = cancellationService;
             _logger = logger;
         }
 
-        // Hiển thị danh sách yêu cầu
-        public async Task<IActionResult> Index(string type = "All")
+        public async Task<IActionResult> Index(string type = "All", int? page = 1)
         {
             var pendingRequests = await _requestService.GetPendingRequests(type);
             var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
 
-            ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
+            // Cấu hình phân trang
+            int pageNumber = page ?? 1;
+            int pageSize = 2;
 
-            return View(pendingRequests);
+            // Chuyển danh sách yêu cầu thành PagedList
+            var pagedRequests = pendingRequests.ToPagedList(pageNumber, pageSize);
+
+            // Truyền dữ liệu vào ViewBag
+            ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
+            ViewBag.Type = type;
+
+            return View(pagedRequests);
+        }
+
+        // Hiển thị danh sách lịch sử yêu cầu với phân trang
+        public async Task<IActionResult> RequestHistory(int? page = 1)
+        {
+            var requests = await _requestService.GetAllRequestsAsync();
+
+            // Cấu hình phân trang
+            int pageNumber = page ?? 1; // Trang hiện tại, mặc định là 1 nếu không có tham số
+            int pageSize = 2; // Số mục trên mỗi trang, bạn có thể thay đổi
+
+            // Chuyển danh sách yêu cầu thành PagedList
+            var pagedRequests = requests.ToPagedList(pageNumber, pageSize);
+
+            return View(pagedRequests);
         }
 
         // Hiển thị chi tiết yêu cầu
         public async Task<IActionResult> Details(int id)
         {
-            //Kiểm tra Request có tồn tại không
+            // Kiểm tra Request có tồn tại không
             var request = await _requestService.GetRequestDetailsAsync(id);
             if (request == null)
             {
                 return NotFound();
             }
 
-            //Nếu là "Food Order" (RequestTypeId = 1) và trạng thái là Pending (1), cập nhật sang "InProcess" (2)
-            //if (request.RequestTypeId == 1 && request.RequestStatusId == 1 )
+            // Nếu là "Food Order" (RequestTypeId = 1) hoặc "Other" (RequestTypeId = 3), cập nhật trạng thái sang "InProcess"
             if (request.RequestTypeId == 1 || request.RequestTypeId == 3)
             {
                 var result = await _requestService.ProcessRequest(id);
                 if (result.Success)
                 {
-                    //Lấy lại request mới nhất từ database sau khi cập nhật
+                    // Lấy lại request mới nhất từ database sau khi cập nhật
                     request = await _requestService.GetRequestDetailsAsync(id);
                 }
                 else
@@ -64,18 +87,43 @@ namespace MenuQ.Controllers
                 }
             }
 
-            //Lấy danh sách lý do hủy
+            // Lấy danh sách lý do hủy
             var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
             ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
 
             return View(request);
         }
 
-
-        public async Task<IActionResult> RequestHistory()
+        // Hiển thị chi tiết yêu cầu
+        public async Task<IActionResult> DetailsHistory(int id)
         {
-            var requests = await _requestService.GetAllRequestsAsync();
-            return View(requests);
+            // Kiểm tra Request có tồn tại không
+            var request = await _requestService.GetRequestDetailsAsync(id);
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            // Nếu là "Food Order" (RequestTypeId = 1) hoặc "Other" (RequestTypeId = 3), cập nhật trạng thái sang "InProcess"
+            if (request.RequestTypeId == 1 || request.RequestTypeId == 3)
+            {
+                var result = await _requestService.ProcessRequest(id);
+                if (result.Success)
+                {
+                    // Lấy lại request mới nhất từ database sau khi cập nhật
+                    request = await _requestService.GetRequestDetailsAsync(id);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message; // Nếu lỗi, hiển thị thông báo
+                }
+            }
+
+            // Lấy danh sách lý do hủy
+            var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
+            ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
+
+            return View(request);
         }
 
         // Chấp nhận yêu cầu (POST)
@@ -106,8 +154,7 @@ namespace MenuQ.Controllers
             return RedirectToAction("Index");
         }
 
-
-        // Cập nhật trạng thái yêu cầu (ví dụ: chuyển sang inprocess)
+        // Cập nhật trạng thái yêu cầu (ví dụ: chuyển sang InProcess)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStatusInprocess(int id, int? accountId = null)
@@ -127,7 +174,6 @@ namespace MenuQ.Controllers
 
             if (result.Success)
             {
-                //Chuyển hướng sang trang chi tiết hóa đơn với requestId
                 return RedirectToAction("Details", "Invoice", new { requestId = requestId });
             }
 
@@ -152,11 +198,5 @@ namespace MenuQ.Controllers
             _logger.LogInformation("ResetStatus API success for RequestID: {RequestId}");
             return Json(new { success = true, message = result.Message });
         }
-
-
-
-
-
-
     }
 }

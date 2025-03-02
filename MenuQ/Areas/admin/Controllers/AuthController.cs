@@ -158,9 +158,14 @@ namespace MenuQ.Areas.Admin.Controllers
             HttpContext.Session.SetInt32("Acc", account.AccountId);
             HttpContext.Session.SetString("Email", account.Email);
 
+            // Kiểm tra vai trò và chuyển hướng
             if (account.Role.RoleName == "Admin")
             {
                 return RedirectToAction("", "Dashboard");
+            }
+            else if (account.Role.RoleName == "Employee")
+            {
+                return RedirectToAction("Index", "Request");
             }
             else
             {
