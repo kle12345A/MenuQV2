@@ -213,6 +213,44 @@ namespace MenuQ.Areas.admin.Controllers
 
             return View(menuItem);
         }
+        public IActionResult DownloadTemplate()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/menu-template.xlsx");
+            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return PhysicalFile(filePath, mimeType, "menu-template.xlsx");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _menuItemService.DeleteAsync(id);
+            if (result > 0)
+            {
+                return Json(new { success = true });
+            }
+            return Json(new { success = false });
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> ImportMenu(IFormFile excelFile)
+        {
+            if (excelFile != null && excelFile.Length > 0)
+            {
+                using (var stream = excelFile.OpenReadStream())
+                {
+                    await _menuItemService.ImportMenuItemsFromExcelAsync(stream);
+                }
+                TempData["SuccessMessage"] = "Import thành công!";
+                return RedirectToAction("Index");
+            }
+
+            TempData["ErrorMessage"] = "Vui lòng chọn file Excel hợp lệ.";
+            return RedirectToAction("Index");
+        }
+
+
 
 
     }

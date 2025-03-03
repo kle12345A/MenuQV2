@@ -45,14 +45,18 @@ function updateMenuItemsTable(data) {
                         ${item.status ? '<span class="badge bg-success">Có sẵn</span>' : '<span class="badge bg-danger">Hết hàng</span>'}
                     </td>
                     <td class="item-category">${item.categoryName}</td>
-                    <td>
-                        <a href="/Menu/Edit/${item.itemId}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-edit"></i> Sửa
-                        </a>
-                        <a href="/Menu/Details/${item.itemId}" class="btn btn-sm btn-info">
-                            <i class="fas fa-info-circle"></i> Chi tiết
-                        </a>
-                    </td>
+                   <td>
+    <a href="/Menu/Edit/${item.itemId}" class="btn btn-sm btn-primary">
+        <i class="fas fa-edit"></i> Sửa
+    </a>
+    <a href="/Menu/Details/${item.itemId}" class="btn btn-sm btn-info">
+        <i class="fas fa-info-circle"></i> Chi tiết
+    </a>
+    <a href="/Menu/Delete/${item.itemId}" class="btn btn-sm btn-danger btn-delete">
+        <i class="fas fa-trash-alt"></i> Xóa
+    </a>
+</td>
+
                 </tr>`;
             tbody.append(row);
         });
