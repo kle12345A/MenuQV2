@@ -3,8 +3,11 @@ using DataAccess.Models;
 using DataAccess.Repository.Base;
 using DataAccess.Repository.menuitem;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace BussinessObject.menu
 {
@@ -134,5 +137,47 @@ namespace BussinessObject.menu
             }
         }
 
+        public async Task<int> ImportMenuItemsFromExcelAsync(Stream fileStream)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (var package = new ExcelPackage(fileStream))
+            {
+                var worksheet = package.Workbook.Worksheets[0];
+                int rowCount = worksheet.Dimension.Rows;
+
+                await _unitOfWork.BeginTransactionAsync();
+
+                try
+                {
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var menuItem = new MenuItem
+                        {
+                            CategoryId = Convert.ToInt32(worksheet.Cells[row, 1].Value),
+                            ItemName = worksheet.Cells[row, 2].Value?.ToString(),
+                            Descriptions = worksheet.Cells[row, 3].Value?.ToString(),
+                            Price = Convert.ToDecimal(worksheet.Cells[row, 4].Value),
+                            ImageUrl = worksheet.Cells[row, 5].Value?.ToString(),
+                            Status = Convert.ToBoolean(Convert.ToInt32(worksheet.Cells[row, 6].Value)),
+                            IsHot = Convert.ToBoolean(Convert.ToInt32(worksheet.Cells[row, 7].Value)),
+                            IsNew = Convert.ToBoolean(Convert.ToInt32(worksheet.Cells[row, 8].Value))
+                        };
+
+                        await _menuItemRepository.AddAsync(menuItem);
+                    }
+
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitTransactionAsync();
+
+                    return 1; // Thành công
+                }
+                catch
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    throw;
+                }
+            }
+        }
     }
 }
