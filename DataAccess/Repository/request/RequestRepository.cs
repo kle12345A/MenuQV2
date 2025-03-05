@@ -50,6 +50,16 @@ namespace DataAccess.Repository.request
             .ToListAsync();
         }
 
+        public async Task<Request> GetCheckoutRequestByCustomer(int customerId)
+        {
+            return await _context.Requests
+                .Where(r => r.CustomerId == customerId && r.RequestTypeId == 3
+                    && (r.RequestStatusId == 1 || r.RequestStatusId == 2))
+                .OrderByDescending(r => r.CreatedAt)
+                .FirstOrDefaultAsync();
+        }
+
+
         public async Task<List<Request>> GetPendingRequests(string type = "All")
         {
             var query = _context.Requests

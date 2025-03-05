@@ -1,0 +1,38 @@
+﻿@model BussinessObject.DTOs.InvoiceDetailDTO
+
+<h2>Thanh toán hóa đơn #@Model.InvoiceCode</h2>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Khách hàng:</strong> @Model.CustomerName</p>
+        <p><strong>Bàn:</strong> @Model.TableName</p>
+        <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
+        <p><strong>Tổng tiền:</strong> @Model.TotalAmount.ToString("N0") VND</p>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<button class="btn btn-success" id="confirmPayment">Xác nhận thanh toán</button>
+<button class="btn btn-danger" id="cancelPayment">Hủy thanh toán</button>
+
+<script>
+    document.getElementById("confirmPayment").addEventListener("click", function () {
+        window.location.href = "/Invoice/ConfirmPayment?invoiceId=@Model.InvoiceId&customerId=@Model.CustomerId";
+    });
+
+    document.getElementById("cancelPayment").addEventListener("click", function () {
+        if (confirm("Bạn có chắc muốn hủy thanh toán không?")) {
+            window.location.href = "/Invoice/CancelPayment?invoiceId=@Model.InvoiceId&customerId=@Model.CustomerId";
+        }
+    });
+</script>
+

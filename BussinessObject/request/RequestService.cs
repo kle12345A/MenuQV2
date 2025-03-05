@@ -82,27 +82,33 @@ namespace BussinessObject.request
                 var serviceCall = await _serviceCallRepository.GetServiceCallWithRequestId(request.RequestId);
                 string note = "Không có ghi chú";
 
+                //convert note sang tiếng việt 
+                //if (serviceCall != null && !string.IsNullOrEmpty(serviceCall.Note))
+                //{
+                //    string normalizedNote = serviceCall.Note.Trim(); //Loại bỏ khoảng trắng thừa
+
+                //    _logger.LogInformation("🟢 ServiceCall Note Found: '{Note}' (Normalized: '{NormalizedNote}')", serviceCall.Note, normalizedNote);
+
+                //    // 🟢 Nếu Note lưu dưới dạng Enum.ToString(), cần ánh xạ sang tiếng Việt
+                //    if (Enum.TryParse(normalizedNote, out PaymentMethod method))
+                //    {
+                //        note = PaymentMethodEnumHelper.GetVietnameseName(method); // Hiển thị tiếng Việt
+                //    }
+                //    else
+                //    {
+                //        note = normalizedNote; // 🟢 Nếu không khớp, giữ nguyên giá trị
+                //    }
+                //}
                 if (serviceCall != null && !string.IsNullOrEmpty(serviceCall.Note))
                 {
-                    string normalizedNote = serviceCall.Note.Trim(); // ✅ Loại bỏ khoảng trắng thừa
-
-                    _logger.LogInformation("🟢 ServiceCall Note Found: '{Note}' (Normalized: '{NormalizedNote}')", serviceCall.Note, normalizedNote);
-
-                    // 🟢 Nếu Note lưu dưới dạng Enum.ToString(), cần ánh xạ sang tiếng Việt
-                    if (Enum.TryParse(normalizedNote, out PaymentMethod method))
-                    {
-                        note = PaymentMethodEnumHelper.GetVietnameseName(method); // ✅ Hiển thị tiếng Việt
-                    }
-                    else
-                    {
-                        note = normalizedNote; // 🟢 Nếu không khớp, giữ nguyên giá trị
-                    }
+                    note = serviceCall.Note.Trim(); 
+                    _logger.LogInformation("🟢 ServiceCall Note Found: '{Note}'", note);
                 }
 
                 var customerRequestDTO = new CustomerRequestDTO
                 {
                     RequestId = request.RequestId,
-                    TableId = request.TableId ?? 0,
+                    TableNumber = request.Table.TableNumber,
                     CustomerId = request.CustomerId ?? 0,
                     CustomerName = request.Customer.CustomerName,
                     RequestType = request.RequestType.RequestTypeName,
@@ -116,6 +122,11 @@ namespace BussinessObject.request
             return requestDtos;
         }
 
+        public async Task<Request> GetCheckoutRequest(int customerId)
+        {
+            var request = await _requestRepository.GetCheckoutRequestByCustomer(customerId);
+            return request;
+        }
 
 
         public async Task<Request> GetRequestDetailsAsync(int requestId)
@@ -455,5 +466,6 @@ namespace BussinessObject.request
             }
         }
 
+        
     }
 }

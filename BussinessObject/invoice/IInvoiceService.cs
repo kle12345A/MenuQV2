@@ -13,12 +13,15 @@ namespace BussinessObject.invoice
     {
         Task<List<InvoiceDTO>> GetAllAsync();
         Task<InvoiceDetailDTO> GetInvoiceByRequestId(int requestId);
-        Task<Invoice> GetInvoiceByCustomer(int customerId);
+        Task<InvoiceDetailDTO> GetInvoiceByCustomer(int customerId);
         Task<ServiceResult<Invoice>> CreateInvoiceForRequest(int requestId);
         Task<ServiceResult<Invoice>> UpdateInvoiceForRequest(int requestId);
         Task<bool> UpdateInvoiceWithNewOrderDetails(int invoiceId, List<OrderDetail> newOrderDetails);
         Task<ServiceResult<Invoice>> UpdateInvoiceStatus(int requestId, InvoiceStatus status);
-        Task<ServiceResult<Invoice>> Checkout(int requestId, String paymentMethod);
+        Task<ServiceResult<Invoice>> Checkout(int invoiceId);
+        Task<bool> UpdatePaymentMethod(int invoiceId, string paymentMethod);
+        Task<bool> ResetPaymentMethod(int invoiceId);
+
 
     }
 }

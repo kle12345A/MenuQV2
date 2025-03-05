@@ -2,65 +2,561 @@
 
 @{
     ViewData["Title"] = "Danh sách Yêu cầu";
+    Layout = null;
 }
 
-<h2>Danh sách Yêu cầu</h2>
+<!DOCTYPE html>
+<html lang="en">
 
-<!-- Hiển thị thông báo -->
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-info">@TempData["Message"]</div>
-}
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Mã yêu cầu</th>
-            <th>Bàn</th>
-            <th>Khách hàng</th>
-            <th>Loại yêu cầu</th>
-            <th>Thời gian</th>
-            <th>Ghi chú</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var req in Model)
-        {
-            <tr>
-                <td>@req.RequestId</td>
-                <td>Bàn @req.TableId</td>
-                <td>@req.CustomerName</td>
-                <td>@req.RequestType</td>
-                <td>@req.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@req.Note</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@req.RequestId" class="btn btn-info">Chi tiết</a>
-                    <form asp-action="Accept" asp-route-id="@req.RequestId" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-success">Chấp nhận</button>
-                    </form>
-                    <form asp-action="Reject" asp-route-id="@req.RequestId" method="post" class="d-inline">
-                        @Html.AntiForgeryToken()
-                        <select name="reasonId" class="form-control d-inline-block" style="width: auto;">
-                            @foreach (var reason in ViewBag.CancellationReasons as SelectList)
-                            {
-                                <option value="@reason.Value">@reason.Text</option>
-                            }
-                        </select>
-                        <button type="submit" class="btn btn-danger">Từ chối</button>
-                    </form>
-                </td>
-            </tr>
+    <title>Requests</title>
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
+
+    <!-- Favicons -->
+    <link href="~/assets/img/favicon.png" rel="icon" />
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+          rel="stylesheet" />
+
+    <!-- Vendor CSS Files -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css"
+          rel="stylesheet" />
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
+    <link href="~/assets/vendor/quill/quill.snow.css" rel="stylesheet" />
+    <link href="~/assets/vendor/quill/quill.bubble.css" rel="stylesheet" />
+    <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="~/assets/vendor/simple-datatables/style.css" rel="stylesheet" />
+
+    <!-- Template Main CSS File -->
+    <link href="~/assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background-color: #fff;
         }
-    </tbody>
-</table>
 
+            .table th,
+            .table td {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .table th {
+                background-color: #f8f9fa;
+                font-weight: 500;
+                text-transform: uppercase;
+                font-size: 0.875rem;
+                color: #6c757d;
+            }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: normal;
+            text-align: center;
+            /* Định dạng viền, sẽ được thay đổi dựa trên trạng thái */
+        }
+
+        .status-in-process {
+            color: #ffffff;
+            background-color: #008cff;
+        }
+
+        .status-completed {
+            color: #ffffff;
+            background-color: #28a745;
+        }
+
+        .status-cancelled {
+            color: #ffffff;
+            background-color: #ff0000;
+        }
+
+        .action-buttons {
+            white-space: nowrap;
+            width: 200px; /* Fixed width for action column */
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            width: 90px; /* Fixed width for buttons */
+            text-align: center;
+        }
+
+        .btn-cancel {
+            color: #dc3545;
+            background-color: white;
+            border: 1px solid #dc3545;
+            margin-right: 8px;
+        }
+
+        .btn-action {
+            color: white;
+            background-color: #0d6efd;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin: 1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">MenuQ</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+        <!-- End Logo -->
+
+        <div class="search-bar">
+            <form class="search-form d-flex align-items-center"
+                  method="POST"
+                  action="#">
+                <input type="text"
+                       name="query"
+                       placeholder="Search"
+                       title="Enter search keyword" />
+                <button type="submit" title="Search">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+        <!-- End Search Bar -->
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle" href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li>
+                <!-- End Search Icon-->
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-primary badge-number">4</span>
+                    </a><!-- End Notification Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                        <li class="dropdown-header">Có 4 thông báo mới</li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-exclamation-circle text-warning"></i>
+                            <div>
+                                <h4>Tiêu đề</h4>
+                                <p>Nội dung</p>
+                                <p>0 phút trước</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <!-- End Notification Dropdown Items -->
+                </li>
+                <!-- End Notification Nav -->
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-chat-left-text"></i>
+                        <span class="badge bg-success badge-number">1</span>
+                    </a><!-- End Messages Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                        <li class="dropdown-header">Có 1 tin nhắn mới</li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li class="message-item">
+                            <a href="#">
+                                <div>
+                                    <h4>người gửi</h4>
+                                    <p>nội dung</p>
+                                    <p>4 hrs. ago</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+                    </ul>
+                    <!-- End Messages Dropdown Items -->
+                </li>
+                <!-- End Messages Nav -->
+
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0"
+                       href="#"
+                       data-bs-toggle="dropdown">
+
+                        <span class="d-none d-md-block dropdown-toggle ps-2">Staff1</span>
+                    </a><!-- End Profile Iamge Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6>Staff1</h6>
+                            <span>Staff</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               href="users-profile.html">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               href="users-profile.html">
+                                <i class="bi bi-gear"></i>
+                                <span>Account Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               href="pages-faq.html">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Need Help?</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Sign Out</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- End Profile Dropdown Items -->
+                </li>
+                <!-- End Profile Nav -->
+            </ul>
+        </nav>
+        <!-- End Icons Navigation -->
+    </header>
+    <!-- End Header -->
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <!-- End Dashboard Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed"
+                   data-bs-target="#charts-nav"
+                   data-bs-toggle="collapse"
+                   href="#">
+                    <i class="bi bi-bar-chart"></i><span>Yêu cầu</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="charts-nav"
+                    class="nav-content collapse"
+                    data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="request-view.html">
+                            <i class="bi bi-circle"></i><span>Tất cả Yêu cầu</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="order-detail.html">
+                            <i class="bi bi-circle"></i><span>Xử lý yêu cầu</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="order-all.html">
+                            <i class="bi bi-circle"></i><span>Tất cả đơn hàng</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!-- End Charts Nav -->
+        </ul>
+    </aside>
+    <!-- End Sidebar-->
+
+    <main id="main" class="main">
+
+        <div class="pagetitle">
+            <h2>Danh sách Yêu cầu</h2>
+
+        </div><!-- End Page Title -->
+
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th data-orderable="false">Bàn</th>
+                                        <th>Thời gian</th>
+                                        <th data-orderable="false">Khách hàng</th>
+                                        <th data-orderable="false">Yêu cầu</th>
+                                        <th data-orderable="false">Ghi chú</th>
+                                        <th data-orderable="false">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var req in Model)
+                                    {
+                                        <tr>
+                                            <td>Bàn @req.TableNumber</td>
+                                            <td>@req.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@req.CustomerName</td>
+                                            <td>@req.RequestType</td>
+                                            <td>@req.Note</td>
+                                            <td>
+                                                @if (req.RequestType == "Food Order")  // RequestTypeID = 1
+                                                {
+                                                    <form asp-action="Details" asp-route-id="@req.RequestId" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-action">Xử lý</button>
+                                                    </form>
+                                                }
+                                                else if (req.RequestType == "Waiter Asssistant") // RequestTypeID = 2
+                                                {
+                                                    <button type="button" class="btn btn-cancel btn-open-cancel-modal"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#cancelModal"
+                                                            data-request-id="@req.RequestId">
+                                                        Hủy
+                                                    </button>
+
+                                                    <form asp-action="Accept" asp-route-id="@req.RequestId" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-action">Phục vụ</button>
+                                                    </form>
+                                                }
+                                                else if (req.RequestType == "Checkout") // RequestTypeID = 3
+                                                {
+                                                    <button type="button" class="btn btn-cancel btn-open-cancel-modal"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#cancelModal"
+                                                            data-request-id="@req.RequestId">
+                                                        Hủy
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-action btn-payment"
+                                                            data-customer-id="@req.CustomerId"
+                                                            data-payment-method="@req.Note">
+                                                        Thanh toán
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                                <!-- Modal Hủy Yêu Cầu -->
+                                <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy yêu cầu</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form id="cancelForm" asp-action="Reject" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="modal-body">
+                                                    <input type="hidden" id="cancelRequestId" name="requestId">
+                                                    <p>Bạn có chắc chắn muốn hủy yêu cầu này không?</p>
+                                                    <label for="reasonId">Chọn lý do hủy:</label>
+                                                    <select id="reasonId" name="reasonId" class="form-control" required>
+                                                        <option value="">-- Chọn lý do --</option>
+                                                        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
+                                                        {
+                                                            <option value="@reason.Value">@reason.Text</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy bỏ</button>
+                                                    <button type="submit" id="confirmCancel" class="btn btn-danger" disabled>Đồng ý</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </table>
+
+                        </div>
+                    </div>
+                    <!-- End Table with stripped rows -->
+
+                </div>
+            </div>
+
+            </div>
+            </div>
+        </section>
+
+    </main><!-- End #main -->
+
+    <footer id="footer" class="footer">
+    </footer><!-- End Footer -->
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="~/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="~/assets/vendor/quill/quill.js"></script>
+    <script src="~/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="~/assets/js/main.js"></script>
+</body>
+
+</html>
 
 <script>
-    window.addEventListener("pageshow", function(event) {
-        if (event.persisted) { // Nếu trang được load từ cache khi nhấn "Back"
-            console.log("🔄 Page restored from cache, reloading...");
-            window.location.reload(); // Reload trang để cập nhật dữ liệu mới nhất
-        }
+    document.addEventListener("DOMContentLoaded", function () {
+        var cancelModal = document.getElementById("cancelModal");
+
+        cancelModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget; // Nút bấm mở modal
+            var requestId = button.getAttribute("data-request-id"); // Lấy RequestId
+
+            var modalInput = document.getElementById("cancelRequestId");
+            modalInput.value = requestId; // Gán RequestId vào form
+
+            // Reset trạng thái nút khi mở modal
+            var confirmButton = document.getElementById("confirmCancel");
+            confirmButton.disabled = true;
+        });
+
+        // Khi chọn lý do, bật nút Đồng ý
+        document.getElementById("reasonId").addEventListener("change", function () {
+            var confirmButton = document.getElementById("confirmCancel");
+            confirmButton.disabled = !this.value; // Nếu không chọn thì vô hiệu hóa nút
+        });
+
+        // Xử lý chuyển hướng khi bấm "Thanh toán"
+        document.querySelectorAll(".btn-payment").forEach(button => {
+            button.addEventListener("click", function () {
+                var customerId = this.getAttribute("data-customer-id");
+                var paymentMethod = this.getAttribute("data-payment-method");
+                window.location.href = `/Invoice/PaymentDetails?customerId=${customerId}&paymentMethod=${paymentMethod}`;
+            });
+        });
     });
+
+         window.addEventListener("pageshow", function(event) {
+        if (event.persisted) { // Nếu trang được load từ cache khi nhấn "Back"
+             console.log("🔄 Page restored from cache, reloading...");
+            window.location.reload(); // Reload trang để cập nhật dữ liệu mới nhất
+         }
+     });
 </script>
+
+
+@* <h2>Danh sách Yêu cầu</h2> *@
+
+@* <!-- Hiển thị thông báo --> *@
+@* @if (TempData["Message"] != null) *@
+@* { *@
+@*     <div class="alert alert-info">@TempData["Message"]</div> *@
+@* } *@
+
+@* <table class="table table-bordered"> *@
+@*     <thead> *@
+@*         <tr> *@
+@*             <th>Mã yêu cầu</th> *@
+@*             <th>Bàn</th> *@
+@*             <th>Khách hàng</th> *@
+@*             <th>Loại yêu cầu</th> *@
+@*             <th>Thời gian</th> *@
+@*             <th>Ghi chú</th> *@
+@*         </tr> *@
+@*     </thead> *@
+@*     <tbody> *@
+@*         @foreach (var req in Model) *@
+@*         { *@
+@*             <tr> *@
+@*                 <td>@req.RequestId</td> *@
+@*                 <td>Bàn @req.TableNumber</td> *@
+@*                 <td>@req.CustomerName</td> *@
+@*                 <td>@req.RequestType</td> *@
+@*                 <td>@req.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td> *@
+@*                 <td>@req.Note</td> *@
+@*                 <td> *@
+@*                     <a asp-action="Details" asp-route-id="@req.RequestId" class="btn btn-info">Chi tiết</a> *@
+@*                     <form asp-action="Accept" asp-route-id="@req.RequestId" method="post" class="d-inline"> *@
+@*                         @Html.AntiForgeryToken() *@
+@*                         <button type="submit" class="btn btn-success">Chấp nhận</button> *@
+@*                     </form> *@
+@*                     <form asp-action="Reject" asp-route-id="@req.RequestId" method="post" class="d-inline"> *@
+@*                         @Html.AntiForgeryToken() *@
+@*                         <select name="reasonId" class="form-control d-inline-block" style="width: auto;"> *@
+@*                             @foreach (var reason in ViewBag.CancellationReasons as SelectList) *@
+@*                             { *@
+@*                                 <option value="@reason.Value">@reason.Text</option> *@
+@*                             } *@
+@*                         </select> *@
+@*                         <button type="submit" class="btn btn-danger">Từ chối</button> *@
+@*                     </form> *@
+@*                 </td> *@
+@*             </tr> *@
+@*         } *@
+@*     </tbody> *@
+@* </table> *@

@@ -72,9 +72,6 @@ namespace MenuQ.Controllers
             return View(request);
         }
 
-
-
-
         // Chấp nhận yêu cầu (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]

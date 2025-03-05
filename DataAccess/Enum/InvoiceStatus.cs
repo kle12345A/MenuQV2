@@ -9,7 +9,8 @@ namespace DataAccess.Enum
     public enum InvoiceStatus
     {
         Serving = 1,   // Đang phục vụ
-        Paid = 2,      // Đã thanh toán
-        Cancelled = 3  // Đã hủy
+        ProcessingPayment = 2, // Đang thanh toán
+        Paid = 3,      // Đã thanh toán
+        Cancelled = 4  // Đã hủy
     }
 }
