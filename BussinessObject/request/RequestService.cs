@@ -76,11 +76,35 @@ namespace BussinessObject.request
         public async Task<List<CustomerRequestDTO>> GetAllRequestsWithNotes()
         {
             var requests = await _requestRepository.GetPendingRequests();
-
             var requestDtos = new List<CustomerRequestDTO>();
 
-            foreach (var request in requests) {
+            foreach (var request in requests)
+            {
                 var serviceCall = await _serviceCallRepository.GetServiceCallWithRequestId(request.RequestId);
+                string note = "Không có ghi chú";
+
+                //convert note sang tiếng việt
+                //if (serviceCall != null && !string.IsNullOrEmpty(serviceCall.Note))
+                //{
+                //    string normalizedNote = serviceCall.Note.Trim(); //Loại bỏ khoảng trắng thừa
+
+                //    _logger.LogInformation("🟢 ServiceCall Note Found: '{Note}' (Normalized: '{NormalizedNote}')", serviceCall.Note, normalizedNote);
+
+                //    // 🟢 Nếu Note lưu dưới dạng Enum.ToString(), cần ánh xạ sang tiếng Việt
+                //    if (Enum.TryParse(normalizedNote, out PaymentMethod method))
+                //    {
+                //        note = PaymentMethodEnumHelper.GetVietnameseName(method); // Hiển thị tiếng Việt
+                //    }
+                //    else
+                //    {
+                //        note = normalizedNote; // 🟢 Nếu không khớp, giữ nguyên giá trị
+                //    }
+                //}
+                if (serviceCall != null && !string.IsNullOrEmpty(serviceCall.Note))
+                {
+                    note = serviceCall.Note.Trim();
+                    _logger.LogInformation("🟢 ServiceCall Note Found: '{Note}'", note);
+                }
 
                 var customerRequestDTO = new CustomerRequestDTO
                 {
@@ -89,8 +113,8 @@ namespace BussinessObject.request
                     CustomerId = request.CustomerId ?? 0,
                     CustomerName = request.Customer.CustomerName,
                     RequestType = request.RequestType.RequestTypeName,
-                    CreatedAt = (DateTime)request.CreatedAt,
-                    Note = serviceCall?.Note ?? "Không có ghi chú"
+                    CreatedAt = request.CreatedAt ?? DateTime.UtcNow, // 🟢 Tránh lỗi null DateTime
+                    Note = note
                 };
 
                 requestDtos.Add(customerRequestDTO);
@@ -98,6 +122,13 @@ namespace BussinessObject.request
 
             return requestDtos;
         }
+
+        public async Task<Request> GetCheckoutRequest(int customerId)
+        {
+            var request = await _requestRepository.GetCheckoutRequestByCustomer(customerId);
+            return request;
+        }
+
 
         public async Task<Request> GetRequestDetailsAsync(int requestId)
         {
@@ -189,6 +220,28 @@ namespace BussinessObject.request
 
             var success = await _requestRepository.UpdateRequestStatus(requestId, 3, accountId);
             if (!success) return ServiceResult<Request>.CreateError("Failed to update request status");
+
+            // 🟢 Kiểm tra nếu Request này là yêu cầu thanh toán (RequestTypeID = 3)
+            if (request.RequestTypeId == 3)
+            {
+                // 🟢 Lấy ServiceCall của request (chứa phương thức thanh toán)
+                var serviceCall = await _serviceCallRepository.GetServiceCallWithRequestId(requestId);
+                if (serviceCall == null || string.IsNullOrEmpty(serviceCall.Note))
+                {
+                    return ServiceResult<Request>.CreateError("Payment method not found.");
+                }
+
+                var paymentMethod = Enum.Parse<PaymentMethod>(serviceCall.Note); // 🟢 Lấy phương thức thanh toán từ Note
+
+                // 🟢 Lấy hóa đơn của khách hàng
+                var invoice = await _invoiceRepository.GetInvoiceByCustomer(request.CustomerId.Value);
+                if (invoice == null) return ServiceResult<Request>.CreateError("Invoice not found.");
+
+                var updateSuccess = await _invoiceRepository.UpdatePaymentMethod(invoice.InvoiceId, paymentMethod);
+                if (!updateSuccess) return ServiceResult<Request>.CreateError("Failed to update invoice payment method.");
+
+                return ServiceResult<Request>.CreateSuccess(request, "Payment request accepted, invoice updated.");
+            }
 
             //Kiểm tra nếu khách hàng đã có hóa đơn "Serving"
             var existingInvoice = await _invoiceRepository.GetInvoiceByCustomer(request.CustomerId.Value);
@@ -360,7 +413,7 @@ namespace BussinessObject.request
 
         public async Task<Request> GetPendingFoodOrderRequest(int customerId)
         {
-            return await _requestRepository.GetPendingFoodOrderRequest(customerId);
+            return await _requestRepository.GetServingFoodOrderRequest(customerId);
         }
 
         public async Task<ServiceResult<Request>> CreatePaymentRequest(PaymentRequestDTO requestDto)
@@ -379,31 +432,37 @@ namespace BussinessObject.request
                 {
                     TableId = requestDto.TableId,
                     CustomerId = requestDto.CustomerId,
-                    RequestTypeId = 3, // ID tương ứng với yêu cầu thanh toán
+                    RequestTypeId = 3, // Thanh toán
                     RequestStatusId = 1, // Pending
-                    CreatedAt = DateTime.UtcNow,
-                    //Note = PaymentMethodEnumHelper.GetVietnameseName(requestDto.PaymentMethod),
-
+                    CreatedAt = DateTime.UtcNow
                 };
 
-                var success = await _requestRepository.AddNewRequest(paymentRequest);
-                if (!success)
+                var createdRequest = await _requestRepository.AddNewRequest(paymentRequest);
+                if (createdRequest == null)
                 {
                     return ServiceResult<Request>.CreateError("Failed to create payment request.");
                 }
 
-                // 🟢 Cập nhật phương thức thanh toán vào Invoice
-                var updateInvoiceSuccess = await _invoiceRepository.UpdatePaymentMethod(invoice.InvoiceId, requestDto.PaymentMethod);
-                if (!updateInvoiceSuccess)
+                // 🟢 Tạo ServiceCall với lý do thanh toán (ReasonID = 3) và lưu PaymentMethod vào Note
+                var serviceCall = new ServiceCall
                 {
-                    return ServiceResult<Request>.CreateError("Failed to update payment method in invoice.");
+                    RequestId = createdRequest.RequestId,
+                    ReasonId = 3, // Lý do: Thanh toán
+                    //Note = PaymentMethodEnumHelper.GetVietnameseName(requestDto.PaymentMethod) 
+                    Note = requestDto.PaymentMethod.ToString()
+                };
+
+                var serviceCallSuccess = await _serviceCallRepository.AddServiceCall(serviceCall);
+                if (!serviceCallSuccess)
+                {
+                    return ServiceResult<Request>.CreateError("Failed to create service call for payment request.");
                 }
 
-                return ServiceResult<Request>.CreateSuccess(paymentRequest, "Payment request created successfully.");
+                return ServiceResult<Request>.CreateSuccess(createdRequest, "Payment request created successfully.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing payment request.");
+                _logger.LogError(ex, "❌ Error processing payment request.");
                 return ServiceResult<Request>.CreateError("An error occurred while processing payment request.");
             }
         }

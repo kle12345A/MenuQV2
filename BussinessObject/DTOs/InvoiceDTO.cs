@@ -10,7 +10,9 @@ namespace BussinessObject.DTOs
     {
         public int RequestId { get; set; }
         public string InvoiceCode { get; set; }
-        public int? TableId { get; set; } // 🟢 Lưu TableID, không dùng navigation property
+        public int? TableId { get; set; } 
+        public String TableName { get; set; }
+        public int CustomerId { get; set; }
         public string CustomerName { get; set; }
         public string PhoneNumber { get; set; }
         public decimal TotalAmount { get; set; }

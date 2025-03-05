@@ -23,6 +23,7 @@ namespace DataAccess.Repository.invoice
         {
             return await _context.Invoices
                 .Include(i => i.Customer)
+                .Include(i => i.Table)
                 .Include(i => i.Request.OrderDetails)
                 .ToListAsync();
         }
@@ -46,20 +47,27 @@ namespace DataAccess.Repository.invoice
         }
 
 
-        public async Task<Invoice?> GetInvoiceByCustomer(int customerId)
+        public async Task<Invoice> GetInvoiceByCustomer(int customerId)
         {
             return await _context.Invoices
-                .Where(i => i.CustomerId == customerId && i.InvoiceStatus == InvoiceStatus.Serving)
+                .Where(i => i.CustomerId == customerId
+                    && (i.InvoiceStatus == InvoiceStatus.Serving || i.InvoiceStatus == InvoiceStatus.ProcessingPayment))
+                .Include(i => i.Customer)
+                .Include(i => i.Table)
+                .Include(i => i.Request)
                 .Include(i => i.Request.OrderDetails)
+                .ThenInclude(od => od.Item)
                 .FirstOrDefaultAsync();
         }
 
 
-        public async Task<Invoice> GetInvoiceByRequestId(int requestId)
+        public async Task<Invoice?> GetInvoiceByRequestId(int requestId)
         {
             return await _context.Invoices
                 .Include(i => i.Customer)
-                .Include(i => i.Request.OrderDetails)
+                .Include(i => i.Table)
+                .Include(i => i.Request)
+                .ThenInclude(r => r.OrderDetails)
                 .ThenInclude(od => od.Item)
                 .FirstOrDefaultAsync(i => i.RequestId == requestId);
         }
@@ -133,6 +141,13 @@ namespace DataAccess.Repository.invoice
             invoice.PaymentMethod = paymentMethod.ToString(); // 🟢 Chuyển Enum thành string
             return await SaveChanges();
         }
+
+        public async Task<bool> UpdateInvoice(Invoice invoice)
+        {
+            _context.Invoices.Update(invoice);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public async Task<List<Invoice>> GetAllInvoiceAsync()
         {
             return await _context.Invoices

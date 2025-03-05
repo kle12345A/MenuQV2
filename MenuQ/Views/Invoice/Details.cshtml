@@ -7,9 +7,9 @@
 <h2>Hóa đơn: #@Model.InvoiceCode</h2>
 
 <div class="row">
-    @* <div class="col-md-3 alert alert-success">📅 Ngày tạo đơn: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</div> *@
+    <div class="col-md-3 alert alert-success">📅 Ngày tạo đơn: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</div>
     <div class="col-md-3 alert alert-danger">👤 Khách hàng: @Model.CustomerName</div>
-    <div class="col-md-3 alert alert-warning">📍 Bàn: @Model.TableId</div>
+    <div class="col-md-3 alert alert-warning">📍 Bàn: @Model.TableName</div>
     <div class="col-md-3 alert alert-info">📞 Số điện thoại: @Model.PhoneNumber</div>
 </div>
 
@@ -51,3 +51,4 @@
         </li>
     </ul>
 </div>
+
