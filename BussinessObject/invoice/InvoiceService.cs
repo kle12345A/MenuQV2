@@ -32,7 +32,7 @@ namespace BussinessObject.invoice
             _logger = logger;
         }
 
-        public async Task<List<InvoiceDTO>> GetAllAsync()
+        public async Task<List<InvoiceDTO>> GetAllInvoiceAsync()
         {
             var invoices = await _invoiceRepository.GetAllInvoices();
             return invoices.Select(i => new InvoiceDTO
@@ -45,6 +45,7 @@ namespace BussinessObject.invoice
                 CustomerName = i.Customer.CustomerName,
                 PhoneNumber = i.Customer.PhoneNumber,
                 TotalAmount = i.TotalAmount,
+                CreatedAt = i.CreatedAt,
                 InvoiceStatus = i.InvoiceStatus.ToString()
             }).ToList();
         }
@@ -281,7 +282,5 @@ namespace BussinessObject.invoice
         {
             return await UpdatePaymentMethod(invoiceId, "Unknown");
         }
-
-
     }
 }

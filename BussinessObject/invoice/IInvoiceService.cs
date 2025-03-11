@@ -11,7 +11,7 @@ namespace BussinessObject.invoice
 {
     public interface IInvoiceService : IBaseService<Invoice>
     {
-        Task<List<InvoiceDTO>> GetAllAsync();
+        Task<List<InvoiceDTO>> GetAllInvoiceAsync();
         Task<InvoiceDetailDTO> GetInvoiceByRequestId(int requestId);
         Task<InvoiceDetailDTO> GetInvoiceByCustomer(int customerId);
         Task<ServiceResult<Invoice>> CreateInvoiceForRequest(int requestId);
