@@ -1,15 +1,524 @@
 ﻿@model BussinessObject.DTOs.InvoiceDetailDTO
 
-<h2>Thanh toán hóa đơn #@Model.InvoiceCode</h2>
+@{
+    ViewData["Title"] = $"Thanh toán hóa đơn: #{Model.InvoiceCode}";
+    Layout = null;
+}
 
-<div class="card">
-    <div class="card-body">
-        <p><strong>Khách hàng:</strong> @Model.CustomerName</p>
-        <p><strong>Bàn:</strong> @Model.TableName</p>
-        <p><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod</p>
-        <p><strong>Tổng tiền:</strong> @Model.TotalAmount.ToString("N0") VND</p>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <title>Requests</title>
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
+
+    <!-- Favicons -->
+    <link href="~/assets/img/favicon.png" rel="icon" />
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+
+    using iText.Forms.Xfdf;
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+          rel="stylesheet" />
+
+    <!-- Vendor CSS Files -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css"
+          rel="stylesheet" />
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
+    <link href="~/assets/vendor/quill/quill.snow.css" rel="stylesheet" />
+    <link href="~/assets/vendor/quill/quill.bubble.css" rel="stylesheet" />
+    <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="~/assets/vendor/simple-datatables/style.css" rel="stylesheet" />
+
+    <!-- Template Main CSS File -->
+    <link href="~/assets/css/style.css" rel="stylesheet" />
+
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background-color: #fff;
+        }
+
+            .table th,
+            .table td {
+                padding: 1rem;
+                text-align: left;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .table th {
+                background-color: #f8f9fa;
+                font-weight: 500;
+                text-transform: uppercase;
+                font-size: 0.875rem;
+                color: #6c757d;
+            }
+
+        .card {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin: 1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .checkout-coupon-total {
+            margin-top: 10px;
+        }
+
+        .single-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+            .single-total.total-payable {
+                font-weight: bold;
+            }
+
+            .single-total p.value {
+                padding-right: 10px; /* Tạo khoảng cách giữa label và giá trị */
+            }
+    </style>
+</head>
+
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">MenuQ</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+        <!-- End Logo -->
+
+        <div class="search-bar">
+            <form class="search-form d-flex align-items-center"
+                  method="POST"
+                  action="#">
+                <input type="text"
+                       name="query"
+                       placeholder="Search"
+                       title="Enter search keyword" />
+                <button type="submit" title="Search">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+        <!-- End Search Bar -->
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle" href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li>
+                <!-- End Search Icon-->
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-primary badge-number">4</span>
+                    </a><!-- End Notification Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                        <li class="dropdown-header">Có 4 thông báo mới</li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-exclamation-circle text-warning"></i>
+                            <div>
+                                <h4>Tiêu đề</h4>
+                                <p>Nội dung</p>
+                                <p>0 phút trước</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <!-- End Notification Dropdown Items -->
+                </li>
+                <!-- End Notification Nav -->
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-chat-left-text"></i>
+                        <span class="badge bg-success badge-number">1</span>
+                    </a><!-- End Messages Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                        <li class="dropdown-header">Có 1 tin nhắn mới</li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li class="message-item">
+                            <a href="#">
+                                <div>
+                                    <h4>người gửi</h4>
+                                    <p>nội dung</p>
+                                    <p>4 hrs. ago</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+                    </ul>
+                    <!-- End Messages Dropdown Items -->
+                </li>
+                <!-- End Messages Nav -->
+
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0"
+                       href="#"
+                       data-bs-toggle="dropdown">
+                        <span class="d-none d-md-block dropdown-toggle ps-2">Staff1</span>
+                    </a><!-- End Profile Iamge Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6>Staff1</h6>
+                            <span>Staff</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               href="users-profile.html">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               href="users-profile.html">
+                                <i class="bi bi-gear"></i>
+                                <span>Account Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center"
+                               href="pages-faq.html">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Need Help?</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Sign Out</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- End Profile Dropdown Items -->
+                </li>
+                <!-- End Profile Nav -->
+            </ul>
+        </nav>
+        <!-- End Icons Navigation -->
+    </header>
+    <!-- End Header -->
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <!-- End Dashboard Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed"
+                   data-bs-target="#charts-nav"
+                   data-bs-toggle="collapse"
+                   href="#">
+                    <i class="bi bi-bar-chart"></i><span>Yêu cầu</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="charts-nav"
+                    class="nav-content collapse"
+                    data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="request-view.html">
+                            <i class="bi bi-circle"></i><span>Tất cả Yêu cầu</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="order-detail.html">
+                            <i class="bi bi-circle"></i><span>Xử lý yêu cầu</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="order-all.html">
+                            <i class="bi bi-circle"></i><span>Tất cả đơn hàng</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!-- End Charts Nav -->
+        </ul>
+    </aside>
+    <!-- End Sidebar-->
+
+    <main id="main" class="main">
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="body d-flex py-3">
+                        <div class="container-xxl">
+                            <div class="row align-items-center">
+                                <div class="border-0 mb-4">
+                                    <div class="card-header py-3 no-bg bg-transparent d-flex align-items-center px-0 justify-content-between border-bottom flex-wrap">
+                                        <h3 class="fw-bold mb-0">Hoá đơn: #@Model.InvoiceCode</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Row end  -->
+                            <div class="row g-3 mb-3 row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
+                                <div class="col">
+                                    <div class="alert-success alert mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar rounded no-thumbnail bg-success text-light">
+                                                <i class="fa fa-shopping-cart fa-lg"
+                                                   aria-hidden="true"></i>
+                                            </div>
+                                            <div class="flex-fill ms-3 text-truncate">
+                                                <div class="h6 mb-0">Ngày tạo đơn</div>
+                                                <span class="small">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="alert-danger alert mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar rounded no-thumbnail bg-danger text-light">
+                                                <i class="fa fa-user fa-lg" aria-hidden="true"></i>
+                                            </div>
+                                            <div class="flex-fill ms-3 text-truncate">
+                                                <div class="h6 mb-0">Khách hàng</div>
+                                                <span class="small">@Model.CustomerName</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="alert-warning alert mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar rounded no-thumbnail bg-warning text-light">
+                                                <i class="fa fa-shopping-cart fa-lg"
+                                                   aria-hidden="true"></i>
+                                            </div>
+                                            <div class="flex-fill ms-3 text-truncate">
+                                                <div class="h6 mb-0">Bàn</div>
+                                                <span class="small">@Model.TableName</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="alert-info alert mb-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar rounded no-thumbnail bg-info text-light">
+                                                <i class="fa fa-phone-square fa-lg"
+                                                   aria-hidden="true"></i>
+                                            </div>
+                                            <div class="flex-fill ms-3 text-truncate">
+                                                <div class="h6 mb-0">Số điện thoại</div>
+                                                <span class="small">@Model.PhoneNumber</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Row end  -->
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-xl-12 col-xxl-8">
+                                    <div class="card">
+                                        <div class="card-header py-3 d-flex justify-content-between bg-transparent border-bottom-0">
+                                            <h6 class="mb-0 fw-bold">Chi tiết</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="product-cart">
+                                                <div class="checkout-table">
+                                                    <div id="myCartTable_wrapper"
+                                                         class="dataTables_wrapper dt-bootstrap5 no-footer">
+                                                        <div class="row">
+                                                            <div class="col-sm-12 col-md-6">
+                                                                <div class="dataTables_length"
+                                                                     id="myCartTable_length"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-12">
+                                                                <table c
+                                                                       class="table"
+                                                                       style="width: 100%"
+                                                                       role="grid">
+                                                                    <thead>
+                                                                        <tr role="row">
+                                                                            <th>Tên món</th>
+                                                                            <th>Số lượng</th>
+                                                                            <th>Thành tiền</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach (var item in Model.OrderDetails)
+                                                                        {
+                                                                            <tr role="row" class="@(Model.OrderDetails.IndexOf(item) % 2 == 0 ? "even" : "odd")">
+                                                                                <td class="dt-body-right">
+                                                                                    <h6 class="title">@item.ItemName</h6>
+                                                                                </td>
+                                                                                <td>@item.Quantity</td>
+                                                                                <td class="dt-body-right">
+                                                                                    <p class="price">@item.TotalPrice.ToString("N0") VND</p>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="checkout-coupon-total checkout-coupon-total-2 d-flex flex-wrap justify-content-end">
+                                                    <div class="checkout-total">
+                                                        <div class="single-total">
+                                                            <p class="value">Tổng:</p>
+                                                            <p class="price">@Model.TotalAmount.ToString("N0") VND</p>
+                                                        </div>
+                                                        <div class="single-total">
+                                                            <p class="value">Giảm giá:</p>
+                                                            <p class="price">0</p>
+                                                        </div>
+                                                        <div class="single-total">
+                                                            <p class="value">Thuế:</p>
+                                                            <p class="price">0</p>
+                                                        </div>
+                                                        <hr />
+                                                        <div class="single-total total-payable">
+                                                            <p class="value">Tổng tiền:</p>
+                                                            <p class="price">@Model.TotalAmount.ToString("N0") VND</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-12 col-xxl-4">
+                                    <div class="col">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row g-3">
+                                                    <div class="col-12">
+                                                        @* <label class="form-label col-6 col-sm-5"></label> *@
+                                                        <span><strong>#@Model.InvoiceCode</strong></span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label col-6 col-sm-5">Phương thức:</label>
+                                                        <span>
+                                                            <strong>
+                                                                @{
+                                                                    string paymentMethod = Model.PaymentMethod switch
+                                                                    {
+                                                                        "CreditCardAtTable" => "Chuyển khoản tại bàn",
+                                                                        "CreditCardAtCounter" => "Chuyển khoản tại quầy",
+                                                                        "CashAtCounter" => "Thanh toán tiền mặt tại quầy",
+                                                                        _ => "Không xác định"
+                                                                    };
+                                                                }
+                                                                @paymentMethod
+                                                            </strong>
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label col-6 col-sm-5">Trạng thái:</label>
+                                                        <span>
+                                                            <strong>
+                                                                @{
+                                                                    string invoiceStatus = Model.InvoiceStatus switch
+                                                                    {
+                                                                        "Serving" => "Đang phục vụ",
+                                                                        "ProcessingPayment" => "Đang thanh toán",
+                                                                        "Paid" => "Đã thanh toán",
+                                                                        "Cancelled" => "Đã huỷ",
+                                                                        _ => "Không xác định"
+                                                                    };
+                                                                }
+                                                                @invoiceStatus
+                                                            </strong>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Row end  -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- End #main -->
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer"></footer>
+    <!-- End Footer -->
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="~/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="~/assets/vendor/quill/quill.js"></script>
+    <script src="~/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="~/assets/js/main.js"></script>
+</body>
+</html>
 
 @if (TempData["ErrorMessage"] != null)
 {

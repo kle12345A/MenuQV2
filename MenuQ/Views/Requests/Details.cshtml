@@ -4,53 +4,151 @@
     ViewData["Title"] = "Chi tiết Yêu cầu";
 }
 
-<h2>Chi tiết Yêu cầu</h2>
+<!DOCTYPE html>
+<html lang="en">
 
-<div>
-    <p><strong>Mã yêu cầu:</strong> @Model.RequestId</p>
-    <p><strong>Khách hàng:</strong> @Model.Customer?.CustomerName</p>
-    <p><strong>Trạng thái:</strong> @Model.RequestStatus?.StatusName</p>
-    <p><strong>Ngày tạo:</strong> @Model.CreatedAt?.ToString("dd/MM/yyyy")</p>
-</div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Request</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
 
-<h3>Chi tiết đơn hàng</h3>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Mã món</th>
-            <th>Tên món</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var detail in Model.OrderDetails)
-        {
-            <tr>
-                <td>@detail.ItemId</td>
-                <td>@detail.Item?.ItemName</td>
-                <td>@detail.Quantity</td>
-                <td>@detail.Price</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Yêu cầu #121</h5>
+                <button type="button" class="close" aria-label="Close" onclick="history.back()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="customer-info mb-4">
+                    <h6>Thông tin khách hàng</h6>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user mr-2"></i>
+                        <span>@Model.Customer.CustomerName - @Model.Customer.PhoneNumber</span>
+                    </div>
+                </div>
+                <div class="order-details">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Số lượng</th>
+                                <th>Món ăn</th>
+                                <th>Ghi chú</th>
+                                <th class="text-right">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detail in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td>x @detail.Quantity</td>
+                                    <td>
+                                        @detail.Item?.ItemName
+                                        <br>
+                                        <small class="text-muted">Giá: @detail.Price.ToString("N0")</small>
+                                    </td>
+                                    <td>@detail.Note</td>
+                                    <td class="text-right">@((detail.Quantity * detail.Price).ToString("N0"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right">Tạm tính:</main>
+                                    </main>:</td>
+                                <td class="text-right">
+                                    @Model.OrderDetails.Sum(d => d.Quantity * d.Price).ToString("N0")đ
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
-<form asp-action="Accept" asp-route-id="@Model.RequestId" method="post">
-    @Html.AntiForgeryToken()
-    <button type="submit" class="btn btn-success">Chấp nhận</button>
-</form>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <button class="btn btn-secondary" onclick="window.history.back();">Quay lại</button>
+                <div>
+                    <button class="btn btn-danger" onclick="$('#rejectModal').modal('show');">Từ chối</button>
+                    <button class="btn btn-primary" onclick="$('#acceptModal').modal('show');">Xác nhận yêu cầu</button>
+                </div>
 
-<form asp-action="Reject" asp-route-id="@Model.RequestId" method="post">
-    @Html.AntiForgeryToken()
-    <select name="reasonId" class="form-control d-inline-block" style="width: auto;">
-        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
-        {
-            <option value="@reason.Value">@reason.Text</option>
-        }
-    </select>
-    <button type="submit" class="btn btn-danger">Từ chối</button>
-</form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Từ Chối -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lý do từ chối</h5>
+                    <button type="button" class="close" onclick="$('#rejectModal').modal('hide');" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form asp-action="Reject" asp-route-id="@Model.RequestId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="reasonId" id="reason-@reason.Value"
+                                    value="@reason.Value" onclick="enableRejectButton()">
+                                <label class="form-check-label" for="reason-@reason.Value">@reason.Text</label>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="$('#rejectModal').modal('hide');">Đóng</button>
+                        <button type="submit" class="btn btn-danger" id="rejectConfirmButton" disabled>Xác nhận từ
+                            chối</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal Chấp Nhận -->
+    <div class="modal fade" id="acceptModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận yêu cầu</h5>
+                    <button type="button" class="close" onclick="$('#acceptModal').modal('hide');" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form asp-action="Accept" asp-route-id="@Model.RequestId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body">
+                        <p>Bạn có chắc muốn xác nhận yêu cầu này?</p>
+                        <p><strong>Mã yêu cầu:</strong> @Model.RequestId</p>
+                        <p><strong>Khách hàng:</strong> @Model.Customer.CustomerName</p>
+                        <p><strong>Số điện thoại:</strong> @Model.Customer.PhoneNumber</p>
+                        <p><strong>Tổng tiền:</strong> @Model.OrderDetails.Sum(d => d.Quantity *
+                            d.Price).ToString("N0")đ </ p >
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="$('#acceptModal').modal('hide');">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Xác nhận</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
 
 <script>
     var requestId = @Model.RequestId;
@@ -80,7 +178,7 @@
     }
 
     // ✅ Khi nhấn "Back" trên trình duyệt (không phải reload)
-    window.addEventListener("pageshow", function(event) {
+    window.addEventListener("pageshow", function (event) {
         if (event.persisted) {
             console.log("🔄 Page restored from cache, reloading to update data...");
             window.location.reload(); // Reload trang để cập nhật dữ liệu mới
@@ -88,7 +186,7 @@
     });
 
     // ✅ Khi đóng tab hoặc tắt trình duyệt (không phải reload)
-    window.addEventListener("beforeunload", function(event) {
+    window.addEventListener("beforeunload", function (event) {
         resetRequestStatus();
     });
 
@@ -97,15 +195,11 @@
         console.log("🔄 Page is being reloaded, forcing fresh data...");
         window.location.href = window.location.href; // Reload mà không dùng cache
     }
+
 </script>
 
-<!-- Nút "Quay lại" trên giao diện -->
-<a href="javascript:void(0);" onclick="handleBack()" class="btn btn-secondary">Quay lại</a>
-
-
-
-
-
-
-
-
+<script>
+    function enableRejectButton() {
+        document.getElementById("rejectConfirmButton").disabled = false;
+    }
+</script>

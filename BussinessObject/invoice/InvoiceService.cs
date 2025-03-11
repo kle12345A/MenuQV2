@@ -32,24 +32,25 @@ namespace BussinessObject.invoice
             _logger = logger;
         }
 
-        public async Task<List<InvoiceDTO>> GetAllAsync()
+        public async Task<List<InvoiceDTO>> GetAllInvoiceAsync()
         {
             var invoices = await _invoiceRepository.GetAllInvoices();
             return invoices.Select(i => new InvoiceDTO
             {
                 RequestId = i.RequestId,
                 InvoiceCode = i.InvoiceCode,
-                TableId = i.TableId,
+                TableId = i.TableId, 
                 TableName = i.Table.TableNumber,
                 CustomerId = i.CustomerId,
                 CustomerName = i.Customer.CustomerName,
                 PhoneNumber = i.Customer.PhoneNumber,
                 TotalAmount = i.TotalAmount,
+                CreatedAt = i.CreatedAt,
                 InvoiceStatus = i.InvoiceStatus.ToString()
             }).ToList();
         }
 
-        // ✅ Lấy hóa đơn theo RequestID
+        //Lấy hóa đơn theo RequestID
         public async Task<InvoiceDetailDTO> GetInvoiceByRequestId(int requestId)
         {
             var invoice = await _invoiceRepository.GetInvoiceByRequestId(requestId);
@@ -63,8 +64,8 @@ namespace BussinessObject.invoice
                 CustomerName = invoice.Customer.CustomerName,
                 CustomerId = invoice.CustomerId,
                 PhoneNumber = invoice.Customer.PhoneNumber,
-                TableId = invoice.TableId,
-                TableName = invoice.Table.TableNumber,
+                TableId = invoice.TableId, 
+                TableName = invoice.Table.TableNumber, 
                 TotalAmount = invoice.TotalAmount,
                 PaymentMethod = invoice.PaymentMethod,
                 InvoiceStatus = invoice.InvoiceStatus.ToString(),
@@ -217,6 +218,7 @@ namespace BussinessObject.invoice
             }
         }
 
+
         //Xử lý thanh toán
         public async Task<ServiceResult<Invoice>> Checkout(int invoiceId)
         {
@@ -324,7 +326,7 @@ namespace BussinessObject.invoice
             var invoice = await _invoiceRepository.GetByIdAsync(invoiceId);
             if (invoice == null) return false;
 
-            invoice.PaymentMethod = paymentMethod ?? "Unknown";
+            invoice.PaymentMethod = paymentMethod ?? "Unknown"; 
             return await _invoiceRepository.UpdateInvoice(invoice);
         }
 
