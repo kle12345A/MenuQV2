@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DataAccess.DTOs;
 
 namespace BussinessObject.invoice
 {
@@ -241,6 +242,34 @@ namespace BussinessObject.invoice
                 return success
                     ? ServiceResult<Invoice>.CreateSuccess(invoice, "Payment successful.")
                     : ServiceResult<Invoice>.CreateError("Payment failed.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing payment for invoiceId: {invoiceId}", invoiceId);
+                return ServiceResult<Invoice>.CreateError("An error occurred while processing payment.");
+            }
+        }
+
+        public async Task<ServiceResult<Invoice>> CancelCheckout(int invoiceId)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.GetByIdAsync(invoiceId);
+                if (invoice == null)
+                {
+                    _logger.LogWarning("Invoice not found for invoiceId: {invoiceId}", invoiceId);
+                    return ServiceResult<Invoice>.CreateError("Invoice not found");
+                }
+
+
+                invoice.InvoiceStatus = InvoiceStatus.Serving;
+                invoice.PaymentMethod = "Unknown";
+
+                // var success = await _invoiceRepository.UpdateInvoice(invoice.InvoiceId, InvoiceStatus.Paid);
+                var success = await _invoiceRepository.UpdateInvoice(invoice);
+                return success
+                    ? ServiceResult<Invoice>.CreateSuccess(invoice, "Cancel Payment successful.")
+                    : ServiceResult<Invoice>.CreateError("Cancel Payment failed.");
             }
             catch (Exception ex)
             {

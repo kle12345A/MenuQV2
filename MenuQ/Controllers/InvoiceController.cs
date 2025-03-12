@@ -112,39 +112,29 @@ namespace MenuQ.Controllers
             return RedirectToAction("Index", "Invoice");
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> CancelPayment(int invoiceId, int customerId)
         {
-            var invoiceDto = await _invoiceService.GetInvoiceByCustomer(customerId);
-            if (invoiceDto == null)
+            var result = await _invoiceService.CancelCheckout(invoiceId);
+            if (!result.Success)
             {
-                return NotFound("Không tìm thấy hóa đơn.");
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("PaymentDetails", new { invoiceId, customerId });
             }
 
-            if (int.TryParse(invoiceDto.InvoiceStatus, out int status) && status == (int)InvoiceStatus.ProcessingPayment)
+            var checkoutRequest = await _requestService.GetCheckoutRequest(customerId);
+            if (checkoutRequest != null)
             {
-                var resetResult = await _invoiceService.UpdateInvoiceStatus(invoiceDto.InvoiceId, InvoiceStatus.Serving);
-                if (!resetResult.Success)
+                var updateRequest = await _requestService.RejectRequest(checkoutRequest.RequestId, 1);
+                if (!updateRequest.Success)
                 {
-                    TempData["ErrorMessage"] = "Không thể đặt lại trạng thái hóa đơn.";
-                    return RedirectToAction("Index");
-                }
-
-                await _invoiceService.ResetPaymentMethod(invoiceDto.InvoiceId);
-
-                var checkoutRequest = await _requestService.GetCheckoutRequest(customerId);
-                if (checkoutRequest != null)
-                {
-                    var updateRequest = await _requestService.RejectRequest(checkoutRequest.RequestId, 3);
-                    if (!updateRequest.Success)
-                    {
-                        TempData["ErrorMessage"] = "Không thể cập nhật trạng thái yêu cầu thanh toán.";
-                    }
+                    TempData["ErrorMessage"] = "Không thể cập nhật trạng thái yêu cầu thanh toán.";
                 }
             }
 
-            return RedirectToAction("Index", "Invoice");
+            return RedirectToAction("Index", "Requests");
         }
+
     }
 
 }

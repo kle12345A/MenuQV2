@@ -6,7 +6,6 @@ using DataAccess.Repository.Base;
 using DataAccess.Repository.cancellation;
 using DataAccess.Repository.invoice;
 using DataAccess.Repository.orderdetail;
-using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
 using DataAccess.Repository.servicecall;
 using Microsoft.Extensions.Logging;
@@ -83,7 +82,7 @@ namespace BussinessObject.request
                 var serviceCall = await _serviceCallRepository.GetServiceCallWithRequestId(request.RequestId);
                 string note = "Không có ghi chú";
 
-                //convert note sang tiếng việt
+                //convert note sang tiếng việt 
                 //if (serviceCall != null && !string.IsNullOrEmpty(serviceCall.Note))
                 //{
                 //    string normalizedNote = serviceCall.Note.Trim(); //Loại bỏ khoảng trắng thừa
@@ -109,7 +108,7 @@ namespace BussinessObject.request
                 var customerRequestDTO = new CustomerRequestDTO
                 {
                     RequestId = request.RequestId,
-                    TableId = request.TableId ?? 0,
+                    TableNumber = request.Table.TableNumber,
                     CustomerId = request.CustomerId ?? 0,
                     CustomerName = request.Customer.CustomerName,
                     RequestType = request.RequestType.RequestTypeName,
@@ -143,7 +142,8 @@ namespace BussinessObject.request
 
                 return request;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "Error getting pending requests");
                 return new Request();
             }
@@ -369,47 +369,47 @@ namespace BussinessObject.request
         }
 
         public async Task<int> AddRequestOrder(List<OrderItemDto> orderItems, OrderByDto orderBy)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var newRequest = new Request
                 {
-                    await _unitOfWork.BeginTransactionAsync();
-                    try
+                    TableId = orderBy.TableId,
+                    CustomerId = orderBy.CustomerId,
+                    RequestTypeId = 1,
+                    RequestStatusId = 1,
+                    CreatedAt = DateTime.Now,
+                };
+                await _requestRepository.AddAsync(newRequest);
+                await _unitOfWork.SaveChangesAsync();
+
+                var requesetId = newRequest.RequestId;
+                foreach (var orderItem in orderItems)
+                {
+                    var newOrderDetail = new OrderDetail
                     {
-                        var newRequest = new Request
-                        {
-                            TableId = orderBy.TableId,
-                            CustomerId = orderBy.CustomerId,
-                            RequestTypeId = 1,
-                            RequestStatusId = 1,
-                            CreatedAt = DateTime.Now,
-                        };
-                        await _requestRepository.AddAsync(newRequest);
-                        await _unitOfWork.SaveChangesAsync();
+                        RequestId = requesetId,
+                        ItemId = orderItem.Id,
+                        Quantity = orderItem.Quantity,
+                        Price = orderItem.Price * orderItem.Quantity,
+                        Note = "N/A"
+                    };
 
-                        var requesetId = newRequest.RequestId;
-                        foreach(var orderItem in orderItems)
-                        {
-                            var newOrderDetail = new OrderDetail
-                            {
-                                RequestId = requesetId,
-                                ItemId = orderItem.Id,
-                                Quantity = orderItem.Quantity,
-                                Price = orderItem.Price * orderItem.Quantity,
-                                Note = "N/A"
-                            };
-
-                            await _orderDetailRepository.AddAsync(newOrderDetail);
-                        }
-
-                        await _unitOfWork.SaveChangesAsync();
-                        await _unitOfWork.CommitTransactionAsync();
-
-                        return 1;
-                    }
-                    catch
-                    {
-                        await _unitOfWork.RollbackTransactionAsync();
-                        throw;
-                    }
+                    await _orderDetailRepository.AddAsync(newOrderDetail);
                 }
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return 1;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
 
         public async Task<Request> GetPendingFoodOrderRequest(int customerId)
         {
@@ -466,8 +466,6 @@ namespace BussinessObject.request
                 return ServiceResult<Request>.CreateError("An error occurred while processing payment request.");
             }
         }
-
-
 
         public async Task<List<Request>> GetAllRequestsAsync()
         {

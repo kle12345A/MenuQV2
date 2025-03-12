@@ -491,6 +491,16 @@
 
                                             </div>
                                         </div>
+                                        <div class="col mt-3">
+                                            <div class="card">
+                                               @*  <div class="card-body text-center">
+                                                    <!-- Canh giữa ảnh -->
+                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1024px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="Hình ảnh minh họa" class="img-fluid rounded">
+                                                </div> *@
+                                                <button class="btn btn-success" id="confirmPayment">Xác nhận thanh toán</button>
+                                                <button class="btn btn-danger" id="cancelPayment">Hủy thanh toán</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -520,18 +530,6 @@
 </body>
 </html>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-
-<button class="btn btn-success" id="confirmPayment">Xác nhận thanh toán</button>
-<button class="btn btn-danger" id="cancelPayment">Hủy thanh toán</button>
 
 <script>
     document.getElementById("confirmPayment").addEventListener("click", function () {

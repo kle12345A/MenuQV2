@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using BussinessObject.invoice;
 
 namespace MenuQ.Controllers
 {
@@ -18,14 +19,17 @@ namespace MenuQ.Controllers
         private readonly ICustomerService _customerService;
         private readonly ITableService _tableService;
         private readonly IRequestService _requestService;
+        private readonly IInvoiceService _invoiceService;
         public HomeAppController(ICustomerService customerService,
                              ITableService tableService,
                              IRequestService requestService,
+                             IInvoiceService invoiceService,
                              ILogger<HomeAppController> logger)
         {
             _customerService = customerService;
             _tableService = tableService;
             _requestService = requestService;
+            _invoiceService = invoiceService;
             _logger = logger;
         }
         public async Task<IActionResult> Index()
@@ -44,7 +48,6 @@ namespace MenuQ.Controllers
         [HttpGet]
         public async Task<IActionResult> PayOrder()
         {
-
             string username = Request.Cookies["username"];
             int tableId = int.Parse(Request.Cookies["tableId"]);
             Customer customer = await _customerService.GetCustomerByPhone(username);
@@ -58,8 +61,11 @@ namespace MenuQ.Controllers
         {
             try
             {
-                int customerId = int.Parse(form["CustomerId"]);
-                int tableId = int.Parse(form["TableId"]);
+                string username = Request.Cookies["username"];
+                int tableId = int.Parse(Request.Cookies["tableId"]);
+                Customer customer = await _customerService.GetCustomerByPhone(username);
+                var customerId = customer.CustomerId;
+
                 PaymentMethod paymentMethod = (PaymentMethod)int.Parse(form["paymentMethod"]);
 
                 var paymentRequestDto = new PaymentRequestDTO
@@ -90,7 +96,7 @@ namespace MenuQ.Controllers
         [HttpGet]
         public async Task<IActionResult> Login([FromQuery] int tableId)
         {
-            if(tableId == 0)
+            if (tableId == 0)
             {
                 return View("/Home/AccessDenied");
             }

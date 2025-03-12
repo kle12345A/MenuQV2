@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccess.DTOs;
 
 namespace BussinessObject.invoice
 {
@@ -19,10 +20,9 @@ namespace BussinessObject.invoice
         Task<bool> UpdateInvoiceWithNewOrderDetails(int invoiceId, List<OrderDetail> newOrderDetails);
         Task<ServiceResult<Invoice>> UpdateInvoiceStatus(int requestId, InvoiceStatus status);
         Task<ServiceResult<Invoice>> Checkout(int invoiceId);
+        Task<ServiceResult<Invoice>> CancelCheckout(int invoiceId);
         Task<bool> UpdatePaymentMethod(int invoiceId, string paymentMethod);
         Task<bool> ResetPaymentMethod(int invoiceId);
-
-        Task<ServiceResult<Invoice>> Checkout(int requestId, String paymentMethod);
         Task<decimal> CalculateTotalRevenueAsync();
         Task<decimal> CalculateTotalRevenueForCurrentYearAsync();
         Task<decimal> CalculateTotalRevenueForTodayAsync();

@@ -16,7 +16,7 @@ namespace BussinessObject.request
         Task<Request> GetPendingFoodOrderRequest(int customerId);
         Task<List<Request>> GetPendingRequests(string type = "All");
         Task<Request> GetRequestDetailsAsync(int requestId);
-        Task<Request> GetCheckoutRequest(int customerId);   
+        Task<Request> GetCheckoutRequest(int customerId);
         Task<List<CancellationReason>> GetActiveCancellationReasons();
         //get request with note
         Task<List<CustomerRequestDTO>> GetAllRequestsWithNotes();
