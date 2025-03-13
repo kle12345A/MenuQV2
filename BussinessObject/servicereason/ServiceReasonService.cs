@@ -17,5 +17,9 @@ namespace BussinessObject.servicereason
             _serviceReasonRepository = serviceReasonRepository;
         }
 
+        public async Task<List<ServiceReason>> GetAllActive()
+        {
+            return await _serviceReasonRepository.GetAllActive();
+        }
     }
 }

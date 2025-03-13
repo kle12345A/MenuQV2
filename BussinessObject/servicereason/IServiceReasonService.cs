@@ -7,6 +7,6 @@ namespace BussinessObject.servicereason
 {
     public interface IServiceReasonService : IBaseService<ServiceReason>
     {
-        
+        Task<List<ServiceReason>> GetAllActive();
     }
 }

@@ -1,5 +1,6 @@
 using BussinessObject;
 using BussinessObject.Dto;
+using BussinessObject.DTOs;
 using DataAccess.Enum;
 using DataAccess.Models;
 using DataAccess.Repository.Base;
@@ -8,7 +9,11 @@ using DataAccess.Repository.invoice;
 using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
+using DataAccess.Repository.servicecall;
+using MailKit.Search;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +28,7 @@ namespace BussinessObject.request
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly ICancellationReasonRepository _cancellationReasonRepository;
+        private readonly IServiceCallRepository _serviceCallRepository;
         private readonly ILogger<RequestService> _logger;
 
         public RequestService(IUnitOfWork unitOfWork,
@@ -30,12 +36,14 @@ namespace BussinessObject.request
             IOrderDetailRepository orderDetailRepository,
             ICancellationReasonRepository cancellationReasonRepository,
             IInvoiceRepository invoiceRepository,
+            IServiceCallRepository serviceCallRepository,
             ILogger<RequestService> logger) : base(unitOfWork)
         {
             _requestRepository = requestRepository;
             _orderDetailRepository = orderDetailRepository;
             _cancellationReasonRepository = cancellationReasonRepository;
             _invoiceRepository = invoiceRepository;
+            _serviceCallRepository = serviceCallRepository;
             _logger = logger;
         }
 
@@ -330,6 +338,49 @@ namespace BussinessObject.request
         public async Task<Request> GetPendingFoodOrderRequest(int customerId)
         {
             return await _requestRepository.GetPendingFoodOrderRequest(customerId);
+        }
+
+        public async Task<int> AddRequestService(ServiceCallResponseDto dto)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var newRequest = new Request
+                {
+                    TableId = dto.tableId,
+                    CustomerId = dto.customerId,
+                    RequestTypeId = 2,
+                    RequestStatusId = 1,
+                    CreatedAt = DateTime.Now,
+                };
+                await _requestRepository.AddAsync(newRequest);
+                await _unitOfWork.SaveChangesAsync();
+
+                var requesetId = newRequest.RequestId;
+                StringBuilder note = new StringBuilder();
+                foreach (var Service in dto.ListReson)
+                {
+                    note.Append(Service.ToString());
+                    note.Append(", ");
+                }
+                note.Append(dto.CustomService.ToString());
+                var ServiceCall = new ServiceCall
+                {
+                    RequestId = requesetId,
+                    ReasonId = 1,
+                    Note = note.ToString(),
+                };
+                await _serviceCallRepository.AddAsync(ServiceCall);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return 1;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

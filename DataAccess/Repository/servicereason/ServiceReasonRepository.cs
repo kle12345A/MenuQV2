@@ -1,5 +1,6 @@
 ﻿using DataAccess.Models;
 using DataAccess.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repository.servicereason
 {
@@ -7,6 +8,11 @@ namespace DataAccess.Repository.servicereason
     {
         public ServiceReasonRepository(MenuQContext context) : base(context)
         {
+        }
+
+        public Task<List<ServiceReason>> GetAllActive()
+        {
+            return _dbSet.Where(r => r.Status == true).ToListAsync();
         }
     }
 }

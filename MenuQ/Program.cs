@@ -1,5 +1,4 @@
-﻿
-using BussinessObject.account;
+﻿using BussinessObject.account;
 using BussinessObject.admin;
 using BussinessObject.area;
 using BussinessObject.cancellreason;
@@ -42,11 +41,10 @@ using DataAccess.Repository.table;
 using MenuQ.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using MenuQ.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
-
-
 // Cấu hình Session
 services.AddSession(options =>
 {
@@ -55,6 +53,7 @@ services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSignalR();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -132,7 +131,6 @@ builder.Services.AddControllersWithViews();
             app.UseStaticFiles();
 
             app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
@@ -142,8 +140,8 @@ app.MapControllerRoute(
 );
 
 app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.Run();
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHub<ServerHub>("/hub");
+app.Run();
    

@@ -39,6 +39,14 @@ namespace BussinessObject.customer
                 };
                 await _customerRepository.AddAsync(customer);
             }
+            else
+            {
+                if(customer.CustomerName != username)
+                {
+                    customer.CustomerName = username;
+                }
+                await _customerRepository.UpdateAsync(customer);
+            }
             return customer;
         }
     }
