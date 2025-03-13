@@ -42,6 +42,7 @@ using DataAccess.Repository.table;
 using MenuQ.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using MenuQ.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -55,6 +56,7 @@ services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSignalR();
 
 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -142,7 +144,8 @@ app.MapControllerRoute(
 );
 
 app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHub<ServerHub>("/hub");
 app.Run();
+   

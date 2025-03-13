@@ -206,5 +206,7 @@
 <script src="@Url.Content("~/js/jsFoodMart/plugins.js")"></script>
 <script src="@Url.Content("~/js/jsFoodMart/script.js")"></script>
 <script src="@Url.Content("~/js/jsFoodMart/cart.js")"></script>
+<script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </html>
 

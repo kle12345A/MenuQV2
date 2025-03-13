@@ -9,27 +9,39 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using BussinessObject.invoice;
+using BussinessObject.servicereason;
+using BussinessObject.servicecall;
+using Microsoft.AspNetCore.SignalR;
+using MenuQ.Hubs;
 
 namespace MenuQ.Controllers
 {
     public class HomeAppController : Controller
     {
         private readonly ILogger<HomeAppController> _logger;
+        private readonly IHubContext<ServerHub> _hub;
         private readonly ICustomerService _customerService;
         private readonly ITableService _tableService;
         private readonly IRequestService _requestService;
         private readonly IInvoiceService _invoiceService;
+        private readonly IServiceReasonService _reasonService;
+        private readonly IServiceCallService _callService;
         public HomeAppController(ICustomerService customerService,
                              ITableService tableService,
                              IRequestService requestService,
                              IInvoiceService invoiceService,
+                             IServiceReasonService serviceReasonService,
+                             IServiceCallService serviceCallService,
+                             IHubContext<ServerHub> hub,
                              ILogger<HomeAppController> logger)
         {
             _customerService = customerService;
             _tableService = tableService;
             _requestService = requestService;
             _invoiceService = invoiceService;
+            _reasonService = serviceReasonService;
+            _callService = serviceCallService;
+            _hub = hub;
             _logger = logger;
         }
         public async Task<IActionResult> Index()
@@ -138,6 +150,39 @@ namespace MenuQ.Controllers
                 Secure = true,
             });
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CallService([FromQuery]int customerId, int tableId)
+        {
+            ServiceCallResponseDto serviceCallDto = new ServiceCallResponseDto
+            {
+                customerId = customerId,
+                tableId = tableId,
+                ListService = await _reasonService.GetAllActive(),
+            };
+            return PartialView("_CallService", serviceCallDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CallService(ServiceCallResponseDto serviceCallDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid data" });
+            }
+            try
+            {
+
+                await _requestService.AddRequestService(serviceCallDto);
+                _hub.Clients.All.SendAsync("LoadRequest");
+                return Json(new { success = true, message = "Call Service successfully!" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error call service");
+                return Json(new { success = false, message = "Failed to call service." });
+            }
         }
     }
 }

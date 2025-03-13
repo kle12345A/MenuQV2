@@ -1,5 +1,5 @@
 using BussinessObject;
-using BussinessObject.DTOs;
+using BussinessObject.Dto;
 using DataAccess.Models;
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace BussinessObject.request
     {
         Task<int> AddRequestOrder(List<OrderItemDto> orderItems, OrderByDto orderBy);
         Task<ServiceResult<Request>> CreatePaymentRequest(PaymentRequestDTO requestDto);
+        Task<int> AddRequestService(ServiceCallResponseDto dto);
         Task<Request> GetPendingFoodOrderRequest(int customerId);
         Task<List<Request>> GetPendingRequests(string type = "All");
         Task<Request> GetRequestDetailsAsync(int requestId);

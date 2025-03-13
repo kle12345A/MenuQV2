@@ -31,6 +31,31 @@ namespace BussinessObject.customer
             return await _customerRepository.getCustomerByPhone(Phone);
         }
 
+        public async Task<Customer> CustomerLogin(string Phone, string username)
+        {
+            var customer = await _customerRepository.getCustomerByPhone(Phone);
+            if (customer == null)
+            {
+                customer = new Customer
+                {
+                    CustomerName = username,
+                    PhoneNumber = Phone,
+                    CreatedAt = DateTime.Now,
+                };
+                await _customerRepository.AddAsync(customer);
+            }
+            else
+            {
+                if(customer.CustomerName != username)
+                {
+                    customer.CustomerName = username;
+                }
+                await _customerRepository.UpdateAsync(customer);
+            }
+            return customer;
+        }
+    }
+}
 
         // Tính số lượng khách hàng ngày hôm nay
         public async Task<int> CalculateTotalCustomersForTodayAsync()
@@ -208,4 +233,3 @@ namespace BussinessObject.customer
             }
         }
     }
-

@@ -1,0 +1,203 @@
+﻿@model BussinessObject.DTOs.ServiceCallResponseDto
+@{
+}
+<div class="modal fade" id="callServiceModal" tabindex="-1" aria-labelledby="callServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="callServiceModalLabel">Lý do gọi nhân viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="callServiceForm">
+                    <input type="hidden" name="customerId" value="@Model.customerId" />
+                    <input type="hidden" name="tableId" value="@Model.tableId" />
+
+                    <div class="mb-3">
+                        <label for="CustomService" class="form-label">Nhập lý do gọi nhân viên</label>
+                        <input type="text" class="form-control" name="CustomService" id="CustomService" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Chọn nhanh lý do</label>
+                        <div class="d-flex flex-wrap gap-2 reason-buttons-container">
+                            @foreach (var service in Model.ListService)
+                            {
+                                <button type="button" class="btn btn-outline-primary reason-btn w-auto"
+                                        data-value="@service.ReasonText" id="service_@service.ReasonId">
+                                    @service.ReasonText
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Container cho các input ẩn của ListReson -->
+                    <div id="reasonsContainer"></div>
+
+                    <div class="alert alert-danger mt-3 d-none" id="validationAlert">
+                        Vui lòng nhập lý do gọi nhân viên hoặc chọn ít nhất 1 lý do nhanh
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Gọi nhân viên</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tùy chỉnh kích thước và hiển thị nút */
+    .reason-buttons-container {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 5px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+
+    .reason-btn {
+        min-width: 120px;
+        margin-bottom: 5px;
+        text-align: center;
+        white-space: normal; /* Cho phép text xuống dòng */
+        height: auto;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+        /* Tùy chỉnh màu sắc khi hover và active */
+        .reason-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .reason-btn.btn-primary {
+            font-weight: 500;
+        }
+</style>
+
+<script>
+    // Script tự thực thi ngay lập tức khi được tải
+    (function () {
+        console.log("Script đã được tải trong popup: " + new Date().toLocaleTimeString());
+
+        // Kiểm tra nếu DOM đã sẵn sàng
+        if (document.readyState === "loading") {
+            // Nếu chưa sẵn sàng, đăng ký sự kiện DOMContentLoaded
+            document.addEventListener("DOMContentLoaded", initializeFunctionality);
+        } else {
+            // Nếu đã sẵn sàng (đã tải xong), thực thi ngay lập tức
+            initializeFunctionality();
+        }
+
+        function initializeFunctionality() {
+            console.log("DOM của popup đã sẵn sàng, bắt đầu khởi tạo chức năng");
+
+            const callServiceForm = document.getElementById("callServiceForm");
+            const buttons = document.querySelectorAll(".reason-btn");
+            const reasonsContainer = document.getElementById("reasonsContainer");
+            const customServiceInput = document.getElementById("CustomService");
+            const validationAlert = document.getElementById("validationAlert");
+
+            console.log("Tìm thấy các phần tử:", {
+                form: callServiceForm ? "Tìm thấy" : "Không tìm thấy",
+                buttons: buttons.length + " nút",
+                reasonsContainer: reasonsContainer ? "Tìm thấy" : "Không tìm thấy",
+                customServiceInput: customServiceInput ? "Tìm thấy" : "Không tìm thấy",
+                validationAlert: validationAlert ? "Tìm thấy" : "Không tìm thấy"
+            });
+
+            // Kiểm tra các phần tử quan trọng
+            if (!callServiceForm || !reasonsContainer) {
+                console.error("Không tìm thấy các phần tử cần thiết trong popup!");
+                return;
+            }
+
+            let selectedReasons = [];
+
+            // Xử lý sự kiện khi click vào nút chọn lý do
+            buttons.forEach(button => {
+                button.addEventListener("click", function () {
+                    console.log("Click vào nút: " + this.textContent.trim());
+
+                    const value = this.getAttribute("data-value");
+                    console.log("Giá trị nút: " + value);
+
+                    // Kiểm tra xem lý do đã được chọn chưa
+                    const reasonIndex = selectedReasons.indexOf(value);
+
+                    if (reasonIndex !== -1) {
+                        // Nếu đã chọn trước đó, loại bỏ khỏi danh sách
+                        selectedReasons.splice(reasonIndex, 1);
+                        this.classList.remove("btn-primary");
+                        this.classList.add("btn-outline-primary");
+                        console.log("Đã bỏ chọn: " + value);
+                    } else {
+                        // Nếu chưa chọn, thêm vào danh sách
+                        selectedReasons.push(value);
+                        this.classList.remove("btn-outline-primary");
+                        this.classList.add("btn-primary");
+                        console.log("Đã chọn: " + value);
+                    }
+
+                    // Cập nhật các input ẩn cho ListReson
+                    updateReasonInputs();
+
+                    // Cập nhật trạng thái validation
+                    validateForm();
+                });
+            });
+
+            // Theo dõi thay đổi trong input CustomService
+            customServiceInput.addEventListener("input", function () {
+                validateForm();
+            });
+
+            // Hàm cập nhật các input ẩn cho ListReson
+            function updateReasonInputs() {
+                // Xóa tất cả các input ListReson hiện tại
+                reasonsContainer.innerHTML = '';
+
+                // Tạo input ẩn mới cho mỗi lý do được chọn
+                selectedReasons.forEach(reason => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ListReson';
+                    input.value = reason;
+                    reasonsContainer.appendChild(input);
+                });
+
+                console.log("Đã cập nhật " + selectedReasons.length + " input ListReson");
+            }
+
+            // Hàm kiểm tra xem form có hợp lệ không
+            function validateForm() {
+                const customServiceValue = customServiceInput.value.trim();
+                const isValid = customServiceValue !== "" || selectedReasons.length > 0;
+
+                if (isValid) {
+                    // Ẩn thông báo lỗi
+                    validationAlert.classList.add("d-none");
+                    customServiceInput.classList.remove("is-invalid");
+                } else {
+                    // Hiển thị thông báo lỗi
+                    validationAlert.classList.remove("d-none");
+                    customServiceInput.classList.add("is-invalid");
+                }
+
+                return isValid;
+            }
+
+            // Xử lý sự kiện khi submit form
+            callServiceForm.addEventListener("submit", function (event) {
+                if (!validateForm()) {
+                    // Ngăn form submit nếu không hợp lệ
+                    event.preventDefault();
+                    console.log("Form không hợp lệ - Đã ngăn submit");
+                    return false;
+                }
+            });
+
+            console.log("Đã khởi tạo xong chức năng cho popup");
+        }
+    })();
+</script>

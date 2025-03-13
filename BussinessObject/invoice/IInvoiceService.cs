@@ -20,7 +20,7 @@ namespace BussinessObject.invoice
         Task<bool> UpdateInvoiceWithNewOrderDetails(int invoiceId, List<OrderDetail> newOrderDetails);
         Task<ServiceResult<Invoice>> UpdateInvoiceStatus(int requestId, InvoiceStatus status);
         Task<ServiceResult<Invoice>> Checkout(int invoiceId);
-        Task<ServiceResult<Invoice>> CancelCheckout(int invoiceId);
+        Task<ServiceResult<Invoice>> git (int invoiceId);
         Task<bool> UpdatePaymentMethod(int invoiceId, string paymentMethod);
         Task<bool> ResetPaymentMethod(int invoiceId);
         Task<decimal> CalculateTotalRevenueAsync();

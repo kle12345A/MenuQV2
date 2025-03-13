@@ -8,7 +8,11 @@ using DataAccess.Repository.invoice;
 using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
 using DataAccess.Repository.servicecall;
+using DataAccess.Repository.servicecall;
+using MailKit.Search;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,7 +86,7 @@ namespace BussinessObject.request
                 var serviceCall = await _serviceCallRepository.GetServiceCallWithRequestId(request.RequestId);
                 string note = "Không có ghi chú";
 
-                //convert note sang tiếng việt 
+                //convert note sang tiếng việt
                 //if (serviceCall != null && !string.IsNullOrEmpty(serviceCall.Note))
                 //{
                 //    string normalizedNote = serviceCall.Note.Trim(); //Loại bỏ khoảng trắng thừa
@@ -448,7 +452,7 @@ namespace BussinessObject.request
                 {
                     RequestId = createdRequest.RequestId,
                     ReasonId = 3, // Lý do: Thanh toán
-                    //Note = PaymentMethodEnumHelper.GetVietnameseName(requestDto.PaymentMethod) 
+                    //Note = PaymentMethodEnumHelper.GetVietnameseName(requestDto.PaymentMethod)
                     Note = requestDto.PaymentMethod.ToString()
                 };
 
@@ -464,6 +468,49 @@ namespace BussinessObject.request
             {
                 _logger.LogError(ex, "❌ Error processing payment request.");
                 return ServiceResult<Request>.CreateError("An error occurred while processing payment request.");
+            }
+        }
+
+        public async Task<int> AddRequestService(ServiceCallResponseDto dto)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var newRequest = new Request
+                {
+                    TableId = dto.tableId,
+                    CustomerId = dto.customerId,
+                    RequestTypeId = 2,
+                    RequestStatusId = 1,
+                    CreatedAt = DateTime.Now,
+                };
+                await _requestRepository.AddAsync(newRequest);
+                await _unitOfWork.SaveChangesAsync();
+
+                var requesetId = newRequest.RequestId;
+                StringBuilder note = new StringBuilder();
+                foreach (var Service in dto.ListReson)
+                {
+                    note.Append(Service.ToString());
+                    note.Append(", ");
+                }
+                note.Append(dto.CustomService.ToString());
+                var ServiceCall = new ServiceCall
+                {
+                    RequestId = requesetId,
+                    ReasonId = 1,
+                    Note = note.ToString(),
+                };
+                await _serviceCallRepository.AddAsync(ServiceCall);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return 1;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
 

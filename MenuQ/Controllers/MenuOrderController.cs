@@ -3,7 +3,9 @@ using BussinessObject.DTOs;
 using BussinessObject.menu;
 using BussinessObject.request;
 using DataAccess.Models;
+using MenuQ.Hubs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MenuQ.Controllers
 {
@@ -11,15 +13,17 @@ namespace MenuQ.Controllers
     {
 
         private readonly ILogger<MenuOrderController> _logger;
+        private readonly IHubContext<ServerHub> _hub;
         private readonly IMenuItemService _menuService;
         private readonly IRequestService _requestService;
         private readonly ICustomerService _customerService;
         public MenuOrderController(IMenuItemService menuService, IRequestService requestService,ICustomerService customerService,
-            ILogger<MenuOrderController> logger)
+            IHubContext<ServerHub> hub,ILogger<MenuOrderController> logger)
         {
             _menuService = menuService;
             _requestService = requestService;
             _customerService = customerService;
+            _hub = hub;
             _logger = logger;
         }
         // Hiển thị danh sách menu
@@ -48,7 +52,7 @@ namespace MenuQ.Controllers
             };
 
             await _requestService.AddRequestOrder(cartItems, detail);
-
+            _hub.Clients.All.SendAsync("LoadRequest");
             return Ok(new { message = "Đặt món thành công!" });
         }
 
