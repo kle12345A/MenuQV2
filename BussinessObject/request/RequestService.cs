@@ -89,7 +89,8 @@ namespace BussinessObject.request
 
                 return request;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "Error getting pending requests");
                 return new Request();
             }
@@ -293,47 +294,47 @@ namespace BussinessObject.request
         }
 
         public async Task<int> AddRequestOrder(List<OrderItemDto> orderItems, OrderByDto orderBy)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var newRequest = new Request
                 {
-                    await _unitOfWork.BeginTransactionAsync();
-                    try
+                    TableId = orderBy.TableId,
+                    CustomerId = orderBy.CustomerId,
+                    RequestTypeId = 1,
+                    RequestStatusId = 1,
+                    CreatedAt = DateTime.Now,
+                };
+                await _requestRepository.AddAsync(newRequest);
+                await _unitOfWork.SaveChangesAsync();
+
+                var requesetId = newRequest.RequestId;
+                foreach (var orderItem in orderItems)
+                {
+                    var newOrderDetail = new OrderDetail
                     {
-                        var newRequest = new Request
-                        {
-                            TableId = orderBy.TableId,
-                            CustomerId = orderBy.CustomerId,
-                            RequestTypeId = 1,
-                            RequestStatusId = 1,
-                            CreatedAt = DateTime.Now,
-                        };
-                        await _requestRepository.AddAsync(newRequest);
-                        await _unitOfWork.SaveChangesAsync();
+                        RequestId = requesetId,
+                        ItemId = orderItem.Id,
+                        Quantity = orderItem.Quantity,
+                        Price = orderItem.Price * orderItem.Quantity,
+                        Note = "N/A"
+                    };
 
-                        var requesetId = newRequest.RequestId;
-                        foreach(var orderItem in orderItems)
-                        {
-                            var newOrderDetail = new OrderDetail
-                            {
-                                RequestId = requesetId,
-                                ItemId = orderItem.Id,
-                                Quantity = orderItem.Quantity,
-                                Price = orderItem.Price * orderItem.Quantity,
-                                Note = "N/A"
-                            };
-
-                            await _orderDetailRepository.AddAsync(newOrderDetail);
-                        }
-
-                        await _unitOfWork.SaveChangesAsync();
-                        await _unitOfWork.CommitTransactionAsync();
-
-                        return 1;
-                    }
-                    catch
-                    {
-                        await _unitOfWork.RollbackTransactionAsync();
-                        throw;
-                    }
+                    await _orderDetailRepository.AddAsync(newOrderDetail);
                 }
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return 1;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
 
         public async Task<Request> GetPendingFoodOrderRequest(int customerId)
         {
@@ -380,6 +381,27 @@ namespace BussinessObject.request
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
+            }
+        }
+
+        public async Task<List<Request>> GetAllRequestsAsync()
+        {
+            try
+            {
+                // Chỉ lấy các yêu cầu có trạng thái Accepted (3) hoặc Rejected (4)
+                var requests = await _requestRepository.GetAllAsync();
+                requests = requests.Where(r => r.RequestStatusId == 3 || r.RequestStatusId == 4).ToList();
+
+                foreach (var request in requests)
+                {
+                    await _requestRepository.LoadRequestRelations(request); // Load các quan hệ liên quan
+                }
+                return requests;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all requests");
+                return new List<Request>();
             }
         }
     }

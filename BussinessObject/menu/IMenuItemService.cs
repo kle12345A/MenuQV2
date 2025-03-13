@@ -18,6 +18,8 @@ namespace BussinessObject.menu
        //kien
         Task<int> AddAsync(MenuItem menuItem);
         Task<int> UpdateAsync(MenuItem menuItem);
+        Task<int> ImportMenuItemsFromExcelAsync(Stream fileStream);
+
 
 
     }

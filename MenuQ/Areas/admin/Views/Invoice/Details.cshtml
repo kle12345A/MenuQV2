@@ -1,0 +1,85 @@
+﻿@model DataAccess.DTOs.InvoiceDetailDTO
+
+@{
+    ViewData["Title"] = $"Hóa đơn: #{Model.InvoiceCode}";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
+}
+
+
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Đơn hàng</li>
+            <li class="breadcrumb-item active">Chi tiết đơn hàng</li>
+
+        </ol>
+        <div class="row mb-2">
+
+            <div class="col-sm-6">
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+
+            <div class="col-12">
+                <h2>Hóa đơn: #@Model.InvoiceCode</h2>
+
+                <div class="row">
+                    @* <div class="col-md-3 alert alert-success">📅 Ngày tạo đơn: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</div> *@
+                    <div class="col-md-3 alert alert-danger">👤 Khách hàng: @Model.CustomerName</div>
+                    <div class="col-md-3 alert alert-warning">📍 Bàn: @Model.TableId</div>
+                    <div class="col-md-3 alert alert-info">📞 Số điện thoại: @Model.PhoneNumber</div>
+                </div>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Tên món</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <tr>
+                                <td>@item.ItemName</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.TotalPrice.ToString("N0") VND</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-end">
+                    <ul class="list-group w-50">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>💵 Tổng tiền:</span>
+                            <strong>@Model.TotalAmount.ToString("N0") VND</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>💳 Phương thức:</span>
+                            <strong>@Model.PaymentMethod</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>📌 Trạng thái:</span>
+                            <strong class="text-@(Model.InvoiceStatus == "Serving" ? "primary" : Model.InvoiceStatus == "Paid" ? "success" : "danger")">
+                                @Model.InvoiceStatus
+                            </strong>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

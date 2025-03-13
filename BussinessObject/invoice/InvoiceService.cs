@@ -242,6 +242,252 @@ namespace BussinessObject.invoice
 
             return true;
         }
+        // Tính tổng doanh thu của tháng hiện tại (chỉ tính hóa đơn đã thanh toán)
+        public async Task<decimal> CalculateTotalRevenueAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoices();
+                var currentDate = DateTime.UtcNow;
+                var currentMonth = currentDate.Month;
+                var currentYear = currentDate.Year;
 
+                var monthlyInvoices = invoices
+                    .Where(i => i.CreatedAt.Month == currentMonth &&
+                                i.CreatedAt.Year == currentYear &&
+                                i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                decimal totalRevenue = monthlyInvoices.Sum(i => i.TotalAmount);
+
+                _logger.LogInformation("Successfully calculated Paid revenue for {Year}-{Month}: {TotalRevenue}",
+                    currentYear, currentMonth, totalRevenue);
+                return totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating Paid revenue for current month");
+                throw;
+            }
+        }
+
+        // Tính tổng doanh thu của năm hiện tại (chỉ tính hóa đơn đã thanh toán)
+        public async Task<decimal> CalculateTotalRevenueForCurrentYearAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoices();
+                var currentYear = DateTime.UtcNow.Year;
+
+                var yearlyInvoices = invoices
+                    .Where(i => i.CreatedAt.Year == currentYear &&
+                                i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                decimal totalRevenue = yearlyInvoices.Sum(i => i.TotalAmount);
+
+                _logger.LogInformation("Successfully calculated Paid revenue for current year {Year}: {TotalRevenue}",
+                    currentYear, totalRevenue);
+                return totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating Paid revenue for current year");
+                throw;
+            }
+        }
+
+        // Tính tổng doanh thu của ngày hôm nay (chỉ tính hóa đơn đã thanh toán)
+        public async Task<decimal> CalculateTotalRevenueForTodayAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoices();
+                var today = DateTime.UtcNow.Date;
+
+                var todayInvoices = invoices
+                    .Where(i => i.CreatedAt.Date == today &&
+                                i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                decimal totalRevenue = todayInvoices.Sum(i => i.TotalAmount);
+
+                _logger.LogInformation("Successfully calculated Paid revenue for today {Today}: {TotalRevenue}",
+                    today.ToString("yyyy-MM-dd"), totalRevenue);
+                return totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating Paid revenue for today");
+                throw;
+            }
+        }
+
+        // Tính tổng doanh thu của ngày hôm qua (chỉ tính hóa đơn đã thanh toán)
+        public async Task<decimal> CalculateTotalRevenueForYesterdayAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoices();
+                var yesterday = DateTime.UtcNow.Date.AddDays(-1);
+
+                var yesterdayInvoices = invoices
+                    .Where(i => i.CreatedAt.Date == yesterday &&
+                                i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                decimal totalRevenue = yesterdayInvoices.Sum(i => i.TotalAmount);
+
+                _logger.LogInformation("Successfully calculated Paid revenue for yesterday {Yesterday}: {TotalRevenue}",
+                    yesterday.ToString("yyyy-MM-dd"), totalRevenue);
+                return totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating Paid revenue for yesterday");
+                throw;
+            }
+        }
+
+        // Tính tổng doanh thu của tháng trước (chỉ tính hóa đơn đã thanh toán)
+        public async Task<decimal> CalculateTotalRevenueForLastMonthAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoices();
+                var currentDate = DateTime.UtcNow;
+                var lastMonthDate = currentDate.AddMonths(-1);
+                var lastMonth = lastMonthDate.Month;
+                var lastMonthYear = lastMonthDate.Year;
+
+                var lastMonthInvoices = invoices
+                    .Where(i => i.CreatedAt.Month == lastMonth &&
+                                i.CreatedAt.Year == lastMonthYear &&
+                                i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                decimal totalRevenue = lastMonthInvoices.Sum(i => i.TotalAmount);
+
+                _logger.LogInformation("Successfully calculated Paid revenue for last month {Year}-{Month}: {TotalRevenue}",
+                    lastMonthYear, lastMonth, totalRevenue);
+                return totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating Paid revenue for last month");
+                throw;
+            }
+        }
+
+        // Tính tổng doanh thu của năm trước (chỉ tính hóa đơn đã thanh toán)
+        public async Task<decimal> CalculateTotalRevenueForLastYearAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoices();
+                var lastYear = DateTime.UtcNow.Year - 1;
+
+                var lastYearInvoices = invoices
+                    .Where(i => i.CreatedAt.Year == lastYear &&
+                                i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                decimal totalRevenue = lastYearInvoices.Sum(i => i.TotalAmount);
+
+                _logger.LogInformation("Successfully calculated Paid revenue for last year {Year}: {TotalRevenue}",
+                    lastYear, totalRevenue);
+                return totalRevenue;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating Paid revenue for last year");
+                throw;
+            }
+        }
+
+        public async Task<List<Invoice>> GetAllInvoicesAsync()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllAsync();
+                _logger.LogInformation("Successfully retrieved all invoices. Total count: {Count}", invoices.Count);
+                return invoices.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all invoices");
+                throw;
+            }
+        }
+
+        public async Task<List<TopSellingItemDTO>> GetTopSellingItemsAsync(string timeRange, int topN = 5)
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllInvoiceAsync();
+                DateTime startDate;
+                DateTime endDate = DateTime.UtcNow;
+
+                // Xác định khoảng thời gian dựa trên timeRange
+                switch (timeRange)
+                {
+                    case "Today":
+                        startDate = DateTime.UtcNow.Date;
+                        endDate = startDate.AddDays(1);
+                        break;
+                    case "This Month":
+                        startDate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+                        endDate = startDate.AddMonths(1);
+                        break;
+                    case "This Year":
+                        startDate = new DateTime(DateTime.UtcNow.Year, 1, 1);
+                        endDate = startDate.AddYears(1);
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid time range", nameof(timeRange));
+                }
+
+                // Lọc các hóa đơn trong khoảng thời gian và trạng thái Paid
+                var filteredInvoices = invoices
+                    .Where(i => i.CreatedAt >= startDate && i.CreatedAt < endDate && i.InvoiceStatus == InvoiceStatus.Paid)
+                    .ToList();
+
+                // Lấy tất cả chi tiết đơn hàng từ các hóa đơn đã lọc
+                var orderDetails = filteredInvoices
+                    .SelectMany(i => i.Request.OrderDetails)
+                    .GroupBy(od => od.ItemId)
+                    .Select(g => new
+                    {
+                        ItemId = g.Key,
+                        QuantitySold = g.Sum(od => od.Quantity),
+                        TotalRevenue = g.Sum(od => od.Quantity * od.Price),
+                        Item = g.First().Item
+                    })
+                    .Where(x => x.Item != null) // Loại bỏ các bản ghi có Item là null
+                    .OrderByDescending(x => x.TotalRevenue)
+                    .Take(topN)
+                    .ToList();
+
+                // Chuyển đổi dữ liệu thành TopSellingItemDTO
+                var topSellingItems = orderDetails
+                    .Select(x => new TopSellingItemDTO
+                    {
+                        ItemName = x.Item.ItemName,
+                        Price = x.Item.Price,
+                        QuantitySold = x.QuantitySold,
+                        TotalRevenue = x.TotalRevenue,
+                        ImageUrl = x.Item.ImageUrl
+                    })
+                    .ToList();
+
+                _logger.LogInformation("Successfully retrieved top {TopN} selling items for {TimeRange}.", topN, timeRange);
+                return topSellingItems;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving top selling items for {TimeRange}", timeRange);
+                throw;
+            }
+        }
     }
 }

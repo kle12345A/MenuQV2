@@ -2,7 +2,6 @@
 
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -35,107 +34,127 @@
 
     <!-- Template Main CSS File -->
     <link href="@Url.Content("~/assets/css/style.css")" rel="stylesheet">
-
-    <!-- =======================================================
-    * Template Name: NiceAdmin
-    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-    * Updated: Apr 20 2024 with Bootstrap v5.3.3
-    * Author: BootstrapMade.com
-    * License: https://bootstrapmade.com/license/
-    ======================================================== -->
 </head>
 
 <body>
-
     <!-- ======= Header ======= -->
     <header id="header" class="header fixed-top d-flex align-items-center">
-
         <div class="d-flex align-items-center justify-content-between">
-            <a href="index.html" class="logo d-flex align-items-center">
-                <img src="assets/img/logo.png" alt="">
+            <a href="/" class="logo d-flex align-items-center">
+                <img src="@Url.Content("~/assets/img/logo.png")" alt="">
                 <span class="d-none d-lg-block">MenuQ</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
 
-
         <nav class="header-nav ms-auto">
             <ul class="d-flex align-items-center">
-
                 <li class="nav-item dropdown pe-3">
-
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <h6>Hi ! @User.Identity.Name</h6>
-                    </a><!-- End Profile Iamge Icon -->
-
-                    
+                    </a><!-- End Profile Image Icon -->
                 </li><!-- End Profile Nav -->
-
             </ul>
         </nav><!-- End Icons Navigation -->
-
     </header><!-- End Header -->
     <!-- ======= Sidebar ======= -->
     <aside id="sidebar" class="sidebar">
         <ul class="sidebar-nav" id="sidebar-nav">
-            <li class="nav-item">
-                <a class="nav-link " asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi bi-speedometer2"></i> <!-- Thay bi-grid bằng bi-speedometer2 -->
-                    <span>Dashboard</span>
-                </a>
-            </li><!-- End Dashboard Nav -->
+            <!-- Các mục chỉ dành cho Admin -->
+            @if (!User.IsInRole("Employee"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
+                <!-- End Dashboard Nav -->
+
+                <li class="nav-item">
+                    <a class="nav-link collapsed" data-bs-toggle="collapse" href="#icons-nav">
+                        <i class="bi bi-gem"></i><span>Quản Lý</span><i class="bi bi-chevron-down ms-auto"></i>
+                    </a>
+                    <ul id="icons-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a asp-area="Admin" asp-controller="Customer" asp-action="Index">
+                                <i class="bi bi-people-fill"></i><span>Quản Lý Khách Hàng</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-area="Admin" asp-controller="Employee" asp-action="Index">
+                                <i class="bi bi-person-workspace"></i><span>Quản Lý Nhân Viên</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link collapsed" asp-area="Admin" asp-controller="Account" asp-action="Index">
+                                <i class="bi bi-person-lock"></i><span>Quản Lý Tài Khoản</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-area="Admin" asp-controller="Table" asp-action="Index">
+                        <i class="bi bi-qr-code"></i>
+                        <span>QR Order</span>
+                    </a>
+                </li>
+
+                <!-- End Register Page Nav -->
+
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-area="Admin" asp-controller="Menu" asp-action="Index">
+                        <i class="bi bi-menu-button-wide"></i>
+                        <span>Menu</span>
+                    </a>
+                </li>
+
+                <!-- End Blank Page Nav -->
+            }
+
+            <!-- Các mục chung cho cả Admin và Employee -->
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-toggle="collapse" href="#icons-nav">
-                    <i class="bi bi-gem"></i><span>Quản Lý</span><i class="bi bi-chevron-down ms-auto"></i>
+                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Invoice" asp-action="Index">
+                    <i class="bi bi-receipt"></i>
+                    <span>Hóa Đơn</span>
                 </a>
-                <ul id="icons-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+            </li>
+            <!-- Dropdown Yêu Cầu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-toggle="collapse" href="#request-nav">
+                    <i class="bi bi-file-earmark-text"></i><span>Yêu Cầu</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="request-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                     <li>
-                        <a asp-area="Admin" asp-controller="Customer" asp-action="Index">
-                            <i class="bi bi-people-fill"></i><span>Quản Lý Khách Hàng</span>
+                        <a asp-area="Admin" asp-controller="Request" asp-action="Index">
+                            <i class="bi bi-file-earmark-check"></i><span>Yêu Cầu</span>
                         </a>
                     </li>
                     <li>
-                        <a asp-area="Admin" asp-controller="Employee" asp-action="Index">
-                            <i class="bi bi-person-workspace"></i><span>Quản Lý Nhân Viên</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link collapsed" asp-area="Admin" asp-controller="Account" asp-action="Index">
-                            <i class="bi bi-person-lock"></i><span>Quản Lý Tài Khoản</span>
+                        <a asp-area="Admin" asp-controller="Request" asp-action="RequestHistory">
+                            <i class="bi bi-clock-history"></i><span>Lịch sử yêu cầu</span>
                         </a>
                     </li>
                 </ul>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Table" asp-action="Index">
-                    <i class="bi bi-qr-code"></i> <!-- Thay bi-card-list bằng bi-qr-code -->
-                    <span>QR Order</span>
-                </a>
-            </li><!-- End Register Page Nav -->
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Menu" asp-action="Index">
-                    <i class="bi bi-menu-button-wide"></i> <!-- Thay bi-file-earmark bằng bi-menu-button-wide -->
-                    <span>Menu</span>
-                </a>
-            </li><!-- End Blank Page Nav -->
-
+            <!-- Luôn hiển thị mục Logout -->
             <li class="nav-item">
                 <a class="nav-link collapsed" asp-area="Admin" asp-controller="Auth" asp-action="Logout">
-                    <i class="bi bi-box-arrow-left"></i> <!-- Thay bi-box-arrow-in-right bằng bi-box-arrow-left -->
+                    <i class="bi bi-box-arrow-left"></i>
                     <span>Logout</span>
                 </a>
             </li><!-- End Logout Page Nav -->
         </ul>
     </aside>
-        <main id="main" class="main">
-            @RenderBody()
-        </main>
- 
-    <!-- Vendor JS Files -->
 
+    <main id="main" class="main">
+        @RenderBody()
+    </main>
+
+    <!-- Vendor JS Files -->
     <script src="@Url.Content("~/assets/vendor/apexcharts/apexcharts.min.js")"></script>
     <script src="@Url.Content("~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js")"></script>
     <script src="@Url.Content("~/assets/vendor/chart.js/chart.umd.js")"></script>
@@ -151,12 +170,9 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
 
     <!-- Template Main JS File -->
     <script src="@Url.Content("~/assets/js/main.js")"></script>
     @RenderSection("scripts", required: false)
 </body>
-
 </html>
-

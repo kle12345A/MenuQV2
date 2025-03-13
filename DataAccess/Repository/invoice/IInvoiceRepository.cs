@@ -19,7 +19,7 @@ namespace DataAccess.Repository.invoice
         Task<bool> CreateInvoice(Invoice invoice);
         Task<bool> UpdateInvoiceTotal(int invoiceId, decimal totalAmount);
         Task<bool> UpdateInvoiceStatus(int invoiceId, InvoiceStatus status);
-
+        Task<List<Invoice>> GetAllInvoiceAsync();
         Task<bool> SaveChanges();
     }
 }
