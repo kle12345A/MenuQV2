@@ -17,7 +17,7 @@ namespace MenuQ.Areas.admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var invoices = await _invoiceService.GetAllAsync();
+            var invoices = await _invoiceService.GetAllInvoiceAsync();
             return View(invoices);
         }
 

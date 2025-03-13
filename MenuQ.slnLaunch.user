@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "MenuQ\\MenuQ.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
