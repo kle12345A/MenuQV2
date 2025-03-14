@@ -10,11 +10,57 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
-<!-- Hiển thị thông báo -->
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-info">@TempData["Message"]</div>
-}
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
+</style>
+
+<!-- Toast Container -->
+<div class="toast-container">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000">
+        <div class="toast-header bg-success text-white">
+            <strong class="mr-auto">Thông báo</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            @TempData["SuccessMessage"]
+        </div>
+    </div>
+</div>
 
 <!-- Tiêu đề -->
 <section class="content-header">
@@ -23,10 +69,6 @@
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
             <li class="breadcrumb-item active">Lịch sử yêu cầu</li>
         </ol>
-        <div class="row mb-2">
-            <div class="col-sm-6">
-            </div>
-        </div>
     </div>
 </section>
 
@@ -43,7 +85,7 @@
                         @if (Model != null && Model.Any())
                         {
                             <table class="table table-hover table-bordered text-center align-middle">
-                                <thead class="thead-dark">
+                                <thead>
                                     <tr>
                                         <th>Mã yêu cầu</th>
                                         <th>Khách hàng</th>
@@ -61,7 +103,9 @@
                                             <td>@(request.RequestStatus != null ? request.RequestStatus.StatusName : "N/A")</td>
                                             <td>@(request.CreatedAt.HasValue ? request.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm:ss") : "N/A")</td>
                                             <td>
-                                                <a asp-action="DetailsHistory" asp-route-id="@request.RequestId" class="btn btn-primary btn-sm">Xem chi tiết</a>
+                                                <a asp-action="DetailsHistory" asp-route-id="@request.RequestId" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-info-circle"></i> Xem chi tiết
+                                                </a>
                                             </td>
                                         </tr>
                                     }
@@ -90,3 +134,19 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            var errorMessage = '@TempData["ErrorMessage"]';
+
+            if (successMessage) {
+                $('#successToast').toast('show');
+            }
+            if (errorMessage) {
+                toastr.error(errorMessage, 'Lỗi!', { timeOut: 3000 });
+            }
+        });
+    </script>
+}

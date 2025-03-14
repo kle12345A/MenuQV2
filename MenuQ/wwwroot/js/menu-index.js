@@ -46,15 +46,9 @@ function updateMenuItemsTable(data) {
                     </td>
                     <td class="item-category">${item.categoryName}</td>
                    <td>
-    <a href="/Menu/Edit/${item.itemId}" class="btn btn-sm btn-primary">
-        <i class="fas fa-edit"></i> Sửa
-    </a>
-    <a href="/Menu/Details/${item.itemId}" class="btn btn-sm btn-info">
-        <i class="fas fa-info-circle"></i> Chi tiết
-    </a>
-    <a href="/Menu/Delete/${item.itemId}" class="btn btn-sm btn-danger btn-delete">
-        <i class="fas fa-trash-alt"></i> Xóa
-    </a>
+   <a href="/Admin/Menu/Edit/${item.itemId}" class="btn btn-sm btn-primary">
+<a href="/Admin/Menu/Details/${item.itemId}" class="btn btn-sm btn-info">
+<a href="/Admin/Menu/Delete/${item.itemId}" class="btn btn-sm btn-danger btn-delete">
 </td>
 
                 </tr>`;

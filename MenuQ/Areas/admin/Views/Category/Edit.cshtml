@@ -1,8 +1,8 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model DataAccess.Models.Employee
+@model DataAccess.Models.Category
 
 @{
-    ViewData["Title"] = "Chỉnh Sửa Nhân Viên";
+    ViewData["Title"] = "Chỉnh Sửa Danh Mục";
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
@@ -35,8 +35,8 @@
     <div class="container-fluid">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a asp-action="Index">Danh sách nhân viên</a></li>
-            <li class="breadcrumb-item active">Chỉnh sửa nhân viên</li>
+            <li class="breadcrumb-item"><a asp-action="Index">Danh sách danh mục</a></li>
+            <li class="breadcrumb-item active">Chỉnh sửa danh mục</li>
         </ol>
     </div>
 </section>
@@ -48,36 +48,25 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Chỉnh Sửa Nhân Viên</h3>
+                        <h3 class="card-title">Chỉnh Sửa Danh Mục</h3>
                     </div>
                     <div class="card-body">
                         <form asp-action="Edit" method="post">
-                            <input type="hidden" asp-for="EmployeeId" />
+                            <input type="hidden" asp-for="CategoryId" />
 
                             <div class="mb-3">
-                                <label asp-for="FullName" class="form-label">Họ và tên</label>
-                                <input asp-for="FullName" class="form-control" required />
-                                <span asp-validation-for="FullName" class="text-danger"></span>
+                                <label asp-for="CategoryName" class="form-label">Tên danh mục</label>
+                                <input asp-for="CategoryName" class="form-control" required />
+                                <span asp-validation-for="CategoryName" class="text-danger"></span>
                             </div>
 
                             <div class="mb-3">
-                                <label asp-for="AccountId" class="form-label">Tài khoản</label>
-                                <select asp-for="AccountId" asp-items="ViewBag.AccountList" class="form-control" required>
-                                    <option value="">-- Chọn tài khoản --</option>
+                                <label asp-for="Status" class="form-label">Trạng thái</label>
+                                <select asp-for="Status" class="form-control">
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
                                 </select>
-                                <span asp-validation-for="AccountId" class="text-danger"></span>
-                            </div>
-
-                            <div class="mb-3">
-                                <label asp-for="Position" class="form-label">Chức vụ</label>
-                                <input asp-for="Position" class="form-control" required />
-                                <span asp-validation-for="Position" class="text-danger"></span>
-                            </div>
-
-                            <div class="mb-3">
-                                <label asp-for="HireDate" class="form-label">Ngày vào làm</label>
-                                <input asp-for="HireDate" type="date" class="form-control" required />
-                                <span asp-validation-for="HireDate" class="text-danger"></span>
+                                <span asp-validation-for="Status" class="text-danger"></span>
                             </div>
 
                             <div class="d-flex justify-content-between">

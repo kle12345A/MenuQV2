@@ -6,32 +6,93 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/QrPrint.css" />
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-<div class="qr-page-container">
-    <h1 class="qr-title">In QR Codes</h1>
-    <h2 class="qr-subtitle">Khu vực: @Model.AreaName</h2> <!-- Hiển thị tên khu vực -->
+<style>
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
 
-    <div class="qr-container">
-        @if (Model.QrCodes != null && Model.QrCodes.Any())
-        {
-            foreach (var qrCode in Model.QrCodes)
-            {
-                <div class="qr-item">
-                    <div class="text-top">@qrCode.TopText</div>
-                    <div class="table-name">Bàn: @qrCode.TableName</div> <!-- Hiển thị tên bàn -->
-                    <canvas id="qrcode-@qrCode.TableId"></canvas>
-                    <div class="text-bottom">@qrCode.BottomText</div>
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
 
-                </div>
-            }
-        }
-        else
-        {
-            <p class="no-qr-message">Không có QR Code nào để in.</p>
-        }
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .qr-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .qr-item {
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .text-top, .text-bottom, .table-name {
+        margin: 5px 0;
+    }
+</style>
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Thiết lập mã QR</a></li>
+            <li class="breadcrumb-item active">In QR Code</li>
+        </ol>
     </div>
-</div>
+</section>
+
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">In QR Code - Khu vực: @Model.AreaName</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="qr-container">
+                            @if (Model.QrCodes != null && Model.QrCodes.Any())
+                            {
+                                foreach (var qrCode in Model.QrCodes)
+                                {
+                                    <div class="qr-item">
+                                        <div class="text-top">@qrCode.TopText</div>
+                                        <div class="table-name">Bàn: @qrCode.TableName</div>
+                                        <canvas id="qrcode-@qrCode.TableId"></canvas>
+                                        <div class="text-bottom">@qrCode.BottomText</div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="no-qr-message">Không có QR Code nào để in.</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 <script>

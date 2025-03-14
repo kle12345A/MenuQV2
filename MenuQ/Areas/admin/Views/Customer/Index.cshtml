@@ -1,6 +1,6 @@
 ﻿@model IPagedList<DataAccess.Models.Customer>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@using X.PagedList;
+@using X.PagedList
 @using X.PagedList.Mvc.Core
 @using X.PagedList.Mvc.Core.Common
 @using X.PagedList.Web.Common
@@ -10,17 +10,41 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
 <!-- Tiêu đề -->
 <section class="content-header">
     <div class="container-fluid">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item active">Khách hàng</li>
+            <li class="breadcrumb-item active">Danh sách khách hàng</li>
         </ol>
-        <div class="row mb-2">
-            <div class="col-sm-6">
-            </div>
-        </div>
     </div>
 </section>
 
@@ -29,18 +53,13 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <h3 class="card-title">Danh sách khách hàng</h3>
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Nút (nếu cần) -->
-                        <a asp-action="Create" class="btn btn-success" style="display:none;">
-                            <i class="fas fa-plus"></i> Thêm khách hàng
-                        </a>
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách khách hàng</h3>
                     </div>
-
                     <div class="card-body">
                         <table class="table table-hover table-bordered text-center align-middle">
-                            <thead class="thead-dark">
+                            <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Tên khách hàng</th>
@@ -51,9 +70,9 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td>@item.CustomerId</td>
-                                        <td>@item.CustomerName</td>
-                                        <td>@item.PhoneNumber</td>
+                                        <td>@Html.DisplayFor(modelItem => item.CustomerId)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.CustomerName)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
                                     </tr>
                                 }
                             </tbody>
@@ -76,20 +95,3 @@
         </div>
     </div>
 </section>
-
-<style>
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .badge {
-        font-size: 14px;
-        padding: 5px 10px;
-        border-radius: 5px;
-    }
-
-    .text-success {
-        color: #28a745;
-        font-weight: bold;
-    }
-</style>

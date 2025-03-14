@@ -6,60 +6,120 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
-<h2>Chỉnh Sửa Món Ăn</h2>
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
-    <input type="hidden" asp-for="ItemId" />
+<style>
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
 
-    <div class="mb-3">
-        <label class="form-label">Tên món ăn</label>
-        <input asp-for="ItemName" class="form-control" required />
-        <span asp-validation-for="ItemName" class="text-danger"></span>
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Danh sách món ăn</a></li>
+            <li class="breadcrumb-item active">Chỉnh sửa món ăn</li>
+        </ol>
     </div>
+</section>
 
-    <div class="mb-3">
-        <label class="form-label">Mô tả</label>
-        <textarea asp-for="Descriptions" class="form-control"></textarea>
-    </div>
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Chỉnh Sửa Món Ăn</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                            <input type="hidden" asp-for="ItemId" />
 
-    <div class="mb-3">
-        <label class="form-label">Giá</label>
-        <input asp-for="Price" type="number" class="form-control" required />
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tên món ăn</label>
+                                <input asp-for="ItemName" class="form-control" required />
+                                <span asp-validation-for="ItemName" class="text-danger"></span>
+                            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Ảnh hiện tại</label><br>
-        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-        {
-            <img src="@Model.ImageUrl" alt="Ảnh món ăn" class="img-thumbnail" style="max-width: 200px;" />
-        }
-        else
-        {
-            <p>Chưa có ảnh</p>
-        }
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô tả</label>
+                                <textarea asp-for="Descriptions" class="form-control"></textarea>
+                            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Cập nhật ảnh mới (tùy chọn)</label>
-        <input type="file" name="ImageFile" class="form-control" accept="image/*" />
-        <span class="text-danger">@ViewData["ImageError"]</span>
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Giá</label>
+                                <input asp-for="Price" type="number" class="form-control" required />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
 
-    <div class="form-group">
-        <label asp-for="CategoryId" class="control-label"></label>
-        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
-            <option value="">Chọn loại món ăn</option>
-        </select>
-    </div>
-    <span asp-validation-for="CategoryId" class="text-danger"></span>
-    <div class="mb-3">
-        <label class="form-label">Trạng thái</label>
-        <select asp-for="Status" class="form-control">
-            <option value="true">Hoạt động</option>
-            <option value="false">Ngừng hoạt động</option>
-        </select>
-    </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ảnh hiện tại</label><br>
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl" alt="Ảnh món ăn" class="img-thumbnail" style="max-width: 200px;" />
+                                }
+                                else
+                                {
+                                    <p>Chưa có ảnh</p>
+                                }
+                            </div>
 
-    <button type="submit" class="btn btn-primary">Cập nhật</button>
-    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
-</form>
+                            <div class="mb-3">
+                                <label class="form-label">Cập nhật ảnh mới (tùy chọn)</label>
+                                <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+                                <span class="text-danger">@ViewData["ImageError"]</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="CategoryId" class="form-label">Danh mục</label>
+                                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                                    <option value="">Chọn loại món ăn</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Trạng thái</label>
+                                <select asp-for="Status" class="form-control">
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Ngừng hoạt động</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Cập nhật
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
