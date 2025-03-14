@@ -28,23 +28,15 @@ namespace MenuQ.Areas.admin.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index(string type = "All", int? page = 1)
+        public async Task<IActionResult> Index(string type = "All")
         {
-            var pendingRequests = await _requestService.GetPendingRequests(type);
+            //var pendingRequests = await _requestService.GetPendingRequests(type);
+            var pendingRequests = await _requestService.GetAllRequestsWithNotes();
             var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
 
-            // Cấu hình phân trang
-            int pageNumber = page ?? 1;
-            int pageSize = 2;
-
-            // Chuyển danh sách yêu cầu thành PagedList
-            var pagedRequests = pendingRequests.ToPagedList(pageNumber, pageSize);
-
-            // Truyền dữ liệu vào ViewBag
             ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
-            ViewBag.Type = type;
 
-            return View(pagedRequests);
+            return View(pendingRequests);
         }
 
         // Hiển thị danh sách lịch sử yêu cầu với phân trang
@@ -62,23 +54,23 @@ namespace MenuQ.Areas.admin.Controllers
             return View(pagedRequests);
         }
 
-        // Hiển thị chi tiết yêu cầu
         public async Task<IActionResult> Details(int id)
         {
-            // Kiểm tra Request có tồn tại không
+            //Kiểm tra Request có tồn tại không
             var request = await _requestService.GetRequestDetailsAsync(id);
             if (request == null)
             {
                 return NotFound();
             }
 
-            // Nếu là "Food Order" (RequestTypeId = 1) hoặc "Other" (RequestTypeId = 3), cập nhật trạng thái sang "InProcess"
+            //Nếu là "Food Order" (RequestTypeId = 1) và trạng thái là Pending (1), cập nhật sang "InProcess" (2)
+            //if (request.RequestTypeId == 1 && request.RequestStatusId == 1 )
             if (request.RequestTypeId == 1 || request.RequestTypeId == 3)
             {
                 var result = await _requestService.ProcessRequest(id);
                 if (result.Success)
                 {
-                    // Lấy lại request mới nhất từ database sau khi cập nhật
+                    //Lấy lại request mới nhất từ database sau khi cập nhật
                     request = await _requestService.GetRequestDetailsAsync(id);
                 }
                 else
@@ -87,7 +79,7 @@ namespace MenuQ.Areas.admin.Controllers
                 }
             }
 
-            // Lấy danh sách lý do hủy
+            //Lấy danh sách lý do hủy
             var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
             ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
 

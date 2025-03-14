@@ -1,56 +1,89 @@
-﻿@model DataAccess.Models.Employee
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model DataAccess.Models.Employee
 
 @{
-    ViewData["Title"] = "Danh sách nhân viên";
+    ViewData["Title"] = "Tạo Nhân Viên";
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
+
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<style>
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<!-- Tiêu đề -->
 <section class="content-header">
     <div class="container-fluid">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Danh sách nhân viên</a></li>
             <li class="breadcrumb-item active">Tạo nhân viên</li>
         </ol>
     </div>
 </section>
 
+<!-- Nội dung chính -->
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Tạo nhân viên</h3>
+                    <div class="card-header">
+                        <h3 class="card-title">Tạo Nhân Viên</h3>
                     </div>
                     <div class="card-body">
                         <form asp-action="Create" method="post">
-                            <div class="form-group mb-3">
-                                <label asp-for="AccountId" class="form-label">Chọn Tài Khoản:</label>
-                                <select asp-for="AccountId" asp-items="ViewBag.AccountList" class="form-select" required>
+                            <div class="mb-3">
+                                <label asp-for="AccountId" class="form-label">Chọn tài khoản</label>
+                                <select asp-for="AccountId" asp-items="ViewBag.AccountList" class="form-control" required>
                                     <option value="">-- Chọn tài khoản --</option>
                                 </select>
                                 <span asp-validation-for="AccountId" class="text-danger"></span>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label asp-for="FullName" class="form-label">Họ và Tên:</label>
+                            <div class="mb-3">
+                                <label asp-for="FullName" class="form-label">Họ và tên</label>
                                 <input asp-for="FullName" class="form-control" required />
                                 <span asp-validation-for="FullName" class="text-danger"></span>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label asp-for="Position" class="form-label">Chức vụ:</label>
+                            <div class="mb-3">
+                                <label asp-for="Position" class="form-label">Chức vụ</label>
                                 <input asp-for="Position" class="form-control" required />
                                 <span asp-validation-for="Position" class="text-danger"></span>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label asp-for="HireDate" class="form-label">Ngày tuyển dụng:</label>
+                            <div class="mb-3">
+                                <label asp-for="HireDate" class="form-label">Ngày tuyển dụng</label>
                                 <input asp-for="HireDate" type="date" class="form-control" required />
                                 <span asp-validation-for="HireDate" class="text-danger"></span>
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Lưu</button>
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Thêm
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -58,3 +91,7 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
