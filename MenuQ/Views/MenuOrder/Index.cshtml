@@ -44,7 +44,7 @@
                                                 </figure>
                                                 <h3>@product.ItemName</h3>
                                                 <span class="qyt">@product.Descriptions</span>
-                                                <span class="price">@(product.Price)0</span>
+                                                <span class="price">@(product.Price.ToString("0.##"))</span>
                                                 <div class="d-flex align-items-center justify-content-between">
                                                 <a href="#" class="nav-link add-to-cart"
                                                    data-name="@product.ItemName"

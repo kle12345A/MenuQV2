@@ -32,7 +32,7 @@
                             <svg width="16" height="16"><use xlink:href="#plus"></use></svg>
                         </button>
                     </div>
-                    <span class="text-body-secondary me-3">${item.price * item.quantity}.000</span>
+                    <span class="text-body-secondary me-3">${item.price * item.quantity}</span>
                     <button class="btn btn-sm btn-outline-danger remove-item" data-index="${index}">
                         <svg width="24" height="24"><use xlink:href="#trash"></use></svg>
                     </button>
@@ -46,11 +46,11 @@
 
         const totalItem = document.createElement("li");
         totalItem.classList.add("list-group-item", "d-flex", "justify-content-between");
-        totalItem.innerHTML = `<span>Tổng: (VND)</span><strong>${totalPrice}.000</strong>`;
+        totalItem.innerHTML = `<span>Tổng: (VND)</span><strong>${totalPrice}</strong>`;
         cartItemsContainer.appendChild(totalItem);
 
         cartCount.textContent = totalItems;
-        totalPriceElement.textContent = `${totalPrice}.000`;
+        totalPriceElement.textContent = `${totalPrice}`;
 
         saveCart();
     }

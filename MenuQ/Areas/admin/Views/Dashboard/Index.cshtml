@@ -33,7 +33,7 @@
                                     <i class="bi bi-currency-dollar"></i>
                                 </div>
                                 <div class="ps-3">
-                                    <h6 id="revenue-value">@Model.TotalRevenue.ToString("#,##0.00") VNĐ</h6>
+                                    <h6 id="revenue-value">@Model.TotalRevenue.ToString("#,##") VNĐ</h6>
                                     <span id="revenue-change-percentage" class="@(ViewBag.SelectedChangePercentage >= 0 ? "text-success" : "text-danger") small pt-1 fw-bold">
                                         @(Math.Abs((double)ViewBag.SelectedChangePercentage).ToString("F2"))%
                                     </span>
@@ -150,9 +150,9 @@
                                             <tr>
                                                 <th scope="row"><a href="#"><img src="@(item.ImageUrl ?? "assets/img/default-product.jpg")" alt=""></a></th>
                                                 <td><a href="#" class="text-primary fw-bold">@item.ItemName</a></td>
-                                                <td>@item.Price.ToString("#,##0.00") VNĐ</td>
+                                                <td>@item.Price.ToString("#,##") VNĐ</td>
                                                 <td class="fw-bold">@item.QuantitySold</td>
-                                                <td>@item.TotalRevenue.ToString("#,##0.00") VNĐ</td>
+                                                <td>@item.TotalRevenue.ToString("#,##") VNĐ</td>
                                             </tr>
                                         }
                                     }

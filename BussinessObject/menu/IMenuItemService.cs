@@ -13,6 +13,7 @@ namespace BussinessObject.menu
     {
         //hau
         Task<IEnumerable<MenuItem>> GetAllAsync();
+        Task<IEnumerable<MenuItem>> GetAllMenuAsync();
         Task<int> UpdateModelAsync(MenuItem menuItemModel, int id);
         Task<int> DeleteAsync(int id);
        //kien

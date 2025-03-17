@@ -54,7 +54,7 @@ namespace MenuQ.Areas.admin.Controllers
 
             // Cấu hình phân trang
             int pageNumber = page ?? 1; // Trang hiện tại, mặc định là 1 nếu không có tham số
-            int pageSize = 2; // Số mục trên mỗi trang, bạn có thể thay đổi
+            int pageSize = 5; // Số mục trên mỗi trang, bạn có thể thay đổi
 
             // Chuyển danh sách yêu cầu thành PagedList
             var pagedRequests = requests.ToPagedList(pageNumber, pageSize);

@@ -1,5 +1,4 @@
-﻿
-using BussinessObject.account;
+﻿using BussinessObject.account;
 using BussinessObject.admin;
 using BussinessObject.area;
 using BussinessObject.cancellreason;

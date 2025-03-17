@@ -53,14 +53,15 @@ public partial class MenuQContext : DbContext
 
     public virtual DbSet<Table> Tables { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
 
         if (!optionsBuilder.IsConfigured)
         {
             var configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-                    .Build();
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
             var sqlConnectionStr = configuration.GetConnectionString("MenuQDB");
             optionsBuilder.UseSqlServer(sqlConnectionStr, config =>
             {

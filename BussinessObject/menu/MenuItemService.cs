@@ -179,5 +179,12 @@ namespace BussinessObject.menu
                 }
             }
         }
+
+        public async Task<IEnumerable<MenuItem>> GetAllMenuAsync()
+        {
+            return await _menuItemRepository.GetAll().Where(m => m.Status == true)
+           .Include(m => m.Category)
+           .ToListAsync();
+        }
     }
 }

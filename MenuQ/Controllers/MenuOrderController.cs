@@ -29,7 +29,7 @@ namespace MenuQ.Controllers
         // Hiển thị danh sách menu
         public async Task<IActionResult> Index()
         {
-            var menuItems = await _menuService.GetAllAsync();
+            var menuItems = await _menuService.GetAllMenuAsync();
             _logger.LogInformation($"Converted to list, final count: {menuItems.ToList()}");
             return View(menuItems);
 
