@@ -6,20 +6,59 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .badge-warning {
+        background-color: #FFDE21;
+        color: black;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+</style>
 
 <!-- Tiêu đề -->
 <section class="content-header">
     <div class="container-fluid">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item active">Đơn hàng</li>
+            <li class="breadcrumb-item active">Danh sách đơn hàng</li>
         </ol>
-        <div class="row mb-2">
-
-            <div class="col-sm-6">
-            </div>
-
-        </div>
     </div>
 </section>
 
@@ -27,20 +66,17 @@
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-
             <div class="col-12">
-                <h3 class="card-title">Đơn hàng</h3>
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-
-                   
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách đơn hàng</h3>
                     </div>
-
                     <div class="card-body">
                         <table class="table table-hover table-bordered text-center align-middle">
-                            <thead class="thead-dark">
+                            <thead>
                                 <tr>
                                     <th>Mã đơn</th>
+                                    <th>Thời gian</th>
                                     <th>Vị trí</th>
                                     <th>Khách hàng</th>
                                     <th>Số điện thoại</th>
@@ -57,14 +93,31 @@
                                                 @invoice.InvoiceCode
                                             </a>
                                         </td>
-                                        <td>@(invoice.TableId.HasValue ? $"Bàn {invoice.TableId}" : "Chưa gán")</td> <!-- 🟢 Hiển thị TableID -->
+                                        <td>@invoice.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                        <td>@invoice.TableName</td>
                                         <td>@invoice.CustomerName</td>
                                         <td>@invoice.PhoneNumber</td>
                                         <td>@invoice.TotalAmount.ToString("N0") VND</td>
                                         <td>
-                                            <span class="badge bg-@(invoice.InvoiceStatus == "Serving" ? "primary" : invoice.InvoiceStatus == "Paid" ? "success" : "danger")">
-                                                @invoice.InvoiceStatus
-                                            </span>
+                                            @{
+                                                string statusClass = invoice.InvoiceStatus switch
+                                                {
+                                                    "Serving" => "badge-primary",
+                                                    "ProcessingPayment" => "badge-warning",
+                                                    "Paid" => "badge-success",
+                                                    "Cancelled" => "badge-danger",
+                                                    _ => "badge-secondary"
+                                                };
+                                                string statusText = invoice.InvoiceStatus switch
+                                                {
+                                                    "Serving" => "Đang phục vụ",
+                                                    "ProcessingPayment" => "Đang thanh toán",
+                                                    "Paid" => "Đã thanh toán",
+                                                    "Cancelled" => "Đã huỷ",
+                                                    _ => "Không xác định"
+                                                };
+                                            }
+                                            <span class="badge @statusClass">@statusText</span>
                                         </td>
                                     </tr>
                                 }
@@ -76,13 +129,3 @@
         </div>
     </div>
 </section>
-
-
-
-
-
-
-
-
-
-

@@ -6,26 +6,89 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
-<h2>Chi Tiết Món Ăn</h2>
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-<div class="card">
-    <div class="card-body">
-        <h4 class="card-title">@Model.ItemName</h4>
-        <p class="card-text"><strong>Mô tả:</strong> @Model.Descriptions</p>
-        <p class="card-text"><strong>Giá:</strong> @Model.Price VNĐ</p>
-        <p class="card-text"><strong>Loại:</strong> @Model.Category?.CategoryName</p>
-@*         <p class="card-text"><strong>Trạng thái:</strong> @(Model.Status ? "Hoạt động" : "Ngừng hoạt động")</p>
- *@
-        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-        {
-            <img src="@Model.ImageUrl" alt="Ảnh món ăn" class="img-thumbnail" style="max-width: 300px;" />
-        }
-        else
-        {
-            <p><em>Chưa có ảnh</em></p>
-        }
+<style>
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Danh sách món ăn</a></li>
+            <li class="breadcrumb-item active">Chi tiết món ăn</li>
+        </ol>
     </div>
-</div>
+</section>
 
-<a asp-action="Edit" asp-route-id="@Model.ItemId" class="btn btn-primary mt-3">Chỉnh Sửa</a>
-<a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Chi Tiết Món Ăn</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Tên món ăn:</strong> @Model.ItemName</p>
+                                <p><strong>Mô tả:</strong> @Model.Descriptions</p>
+                                <p><strong>Giá:</strong> @Model.Price.ToString("N0") VNĐ</p>
+                                <p><strong>Danh mục:</strong> @Model.Category?.CategoryName</p>
+                                <p>
+                                    <strong>Trạng thái:</strong>
+                                    @if (Model.Status == true)
+                                    {
+                                        <span class="badge badge-success">Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Ngừng hoạt động</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl" alt="Ảnh món ăn" class="img-thumbnail" style="max-width: 300px;" />
+                                }
+                                else
+                                {
+                                    <p><em>Chưa có ảnh</em></p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@Model.ItemId" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Chỉnh sửa
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,27 +1,74 @@
 ﻿@model BussinessObject.DTOs.InvoiceDetailDTO
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     ViewData["Title"] = $"Hóa đơn: #{Model.InvoiceCode}";
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .single-total {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+        .single-total.total-payable {
+            font-weight: bold;
+        }
+
+        .single-total p.value {
+            padding-right: 10px;
+        }
+</style>
 
 <!-- Tiêu đề -->
 <section class="content-header">
     <div class="container-fluid">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item active">Đơn hàng</li>
-            <li class="breadcrumb-item active">Chi tiết đơn hàng</li>
-
+            <li class="breadcrumb-item"><a asp-controller="Invoice" asp-action="Index">Danh sách đơn hàng</a></li>
+            <li class="breadcrumb-item active">Chi tiết hóa đơn</li>
         </ol>
-        <div class="row mb-2">
-
-            <div class="col-sm-6">
-            </div>
-
-        </div>
     </div>
 </section>
 
@@ -29,56 +76,104 @@
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-
             <div class="col-12">
-                <h2>Hóa đơn: #@Model.InvoiceCode</h2>
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Hóa đơn: #@Model.InvoiceCode</h3>
+                        <button type="button" class="close" onclick="history.back()">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <p><i class="fas fa-calendar mr-2"></i> <strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><i class="fas fa-user mr-2"></i> <strong>Khách hàng:</strong> @Model.CustomerName</p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><i class="fas fa-table mr-2"></i> <strong>Bàn:</strong> @Model.TableName</p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><i class="fas fa-phone mr-2"></i> <strong>Số điện thoại:</strong> @Model.PhoneNumber</p>
+                            </div>
+                        </div>
 
-                <div class="row">
-                    @* <div class="col-md-3 alert alert-success">📅 Ngày tạo đơn: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</div> *@
-                    <div class="col-md-3 alert alert-danger">👤 Khách hàng: @Model.CustomerName</div>
-                    <div class="col-md-3 alert alert-warning">📍 Bàn: @Model.TableId</div>
-                    <div class="col-md-3 alert alert-info">📞 Số điện thoại: @Model.PhoneNumber</div>
+                        <h6>Chi tiết hóa đơn</h6>
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tên món</th>
+                                    <th>Số lượng</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderDetails)
+                                {
+                                    <tr>
+                                        <td>@item.ItemName</td>
+                                        <td>@item.Quantity</td>
+                                        <td class="text-right">@item.TotalPrice.ToString("N0") VND</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="d-flex justify-content-end">
+                            <div class="checkout-total">
+                                <div class="single-total">
+                                    <p class="value">Tổng:</p>
+                                    <p class="price">@Model.TotalAmount.ToString("N0") VND</p>
+                                </div>
+                                <div class="single-total">
+                                    <p class="value">Giảm giá:</p>
+                                    <p class="price">0</p>
+                                </div>
+                                <div class="single-total">
+                                    <p class="value">Thuế:</p>
+                                    <p class="price">0</p>
+                                </div>
+                                <hr />
+                                <div class="single-total total-payable">
+                                    <p class="value">Tổng tiền:</p>
+                                    <p class="price">@Model.TotalAmount.ToString("N0") VND</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <p>
+                                <strong>Phương thức:</strong>
+                                @{
+                                    string paymentMethod = Model.PaymentMethod switch
+                                    {
+                                        "CreditCardAtTable" => "Chuyển khoản tại bàn",
+                                        "CreditCardAtCounter" => "Chuyển khoản tại quầy",
+                                        "CashAtCounter" => "Thanh toán tiền mặt tại quầy",
+                                        _ => "Không xác định"
+                                    };
+                                }
+                                @paymentMethod
+                            </p>
+                            <p>
+                                <strong>Trạng thái:</strong>
+                                @{
+                                    string invoiceStatus = Model.InvoiceStatus switch
+                                    {
+                                        "Serving" => "Đang phục vụ",
+                                        "ProcessingPayment" => "Đang thanh toán",
+                                        "Paid" => "Đã thanh toán",
+                                        "Cancelled" => "Đã huỷ",
+                                        _ => "Không xác định"
+                                    };
+                                }
+                                @invoiceStatus
+                            </p>
+                        </div>
+                    </div>
                 </div>
-
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Tên món</th>
-                            <th>Số lượng</th>
-                            <th>Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.OrderDetails)
-                        {
-                            <tr>
-                                <td>@item.ItemName</td>
-                                <td>@item.Quantity</td>
-                                <td>@item.TotalPrice.ToString("N0") VND</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-                <div class="d-flex justify-content-end">
-                    <ul class="list-group w-50">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>💵 Tổng tiền:</span>
-                            <strong>@Model.TotalAmount.ToString("N0") VND</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>💳 Phương thức:</span>
-                            <strong>@Model.PaymentMethod</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>📌 Trạng thái:</span>
-                            <strong class="text-@(Model.InvoiceStatus == "Serving" ? "primary" : Model.InvoiceStatus == "Paid" ? "success" : "danger")">
-                                @Model.InvoiceStatus
-                            </strong>
-                        </li>
-                    </ul>
-                </div>
-
             </div>
         </div>
     </div>

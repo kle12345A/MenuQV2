@@ -1,123 +1,21 @@
-﻿@using X.PagedList
-@using X.PagedList.Mvc.Core
-@using X.PagedList.Mvc.Core.Common
-@using X.PagedList.Web.Common
-@model IPagedList<DataAccess.Models.Request>
-
+﻿@model IEnumerable<BussinessObject.DTOs.CustomerRequestDTO>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
-    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
     ViewData["Title"] = "Danh sách Yêu cầu";
+    Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
-<!-- Hiển thị thông báo -->
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-info">@TempData["Message"]</div>
-}
-
-<!-- Tiêu đề -->
-<section class="content-header">
-    <div class="container-fluid">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item active">Yêu cầu</li>
-        </ol>
-        <div class="row mb-2">
-            <div class="col-sm-6">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Nội dung chính -->
-<section class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <h3 class="card-title">Danh sách yêu cầu</h3>
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                    </div>
-
-                    <div class="card-body">
-                        <table class="table table-hover table-bordered text-center align-middle">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Mã Yêu cầu</th>
-                                    <th>Khách hàng</th>
-                                    <th>Trạng thái</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model != null && Model.Any())
-                                {
-                                    @foreach (var req in Model)
-                                    {
-                                        <tr>
-                                            <td>@req.RequestId</td>
-                                            <td>@req.Customer?.CustomerName</td>
-                                            <td>@req.RequestStatus?.StatusName</td>
-                                            <td>@req.CreatedAt?.ToString("dd/MM/yyyy")</td>
-                                            <td>
-                                                <a asp-action="Details" asp-route-id="@req.RequestId" class="btn btn-info">Chi tiết</a>
-                                                <form asp-action="Accept" asp-route-id="@req.RequestId" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-success">Chấp nhận</button>
-                                                </form>
-                                                <form asp-action="Reject" asp-route-id="@req.RequestId" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <select name="reasonId" class="form-control d-inline-block" style="width: auto;">
-                                                        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
-                                                        {
-                                                            <option value="@reason.Value">@reason.Text</option>
-                                                        }
-                                                    </select>
-                                                    <button type="submit" class="btn btn-danger">Từ chối</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="5">Không có yêu cầu nào để hiển thị.</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-
-                        <!-- Phân trang -->
-                        <!-- Phân trang -->
-                        <div class="d-flex justify-content-center">
-                            @Html.PagedListPager(Model, page => Url.Action("Index", new { type = ViewBag.Type, page }),
-                                     new PagedListRenderOptions
-                            {
-                                Display = PagedListDisplayMode.IfNeeded,
-                                UlElementClasses = new[] { "pagination" },
-                                LiElementClasses = new[] { "page-item" },
-                                PageClasses = new[] { "page-link" }
-                            })
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 <style>
     .table-hover tbody tr:hover {
         background-color: #f8f9fa;
-    }
-
-    .img-thumbnail {
-        border-radius: 8px;
-        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .badge {
@@ -126,34 +24,194 @@
         border-radius: 5px;
     }
 
-    .text-success {
-        color: #28a745;
-        font-weight: bold;
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .badge-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        color: #dc3545;
+        background-color: white;
+        border: 1px solid #dc3545;
+        margin-right: 8px;
+    }
+
+    .btn-action {
+        color: white;
+        background-color: #007bff;
     }
 </style>
 
-@section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Tiêu đề -->
+<section class="content-header">
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Danh sách Yêu cầu</li>
+        </ol>
+    </div>
+</section>
 
-    <script>
-        $(document).ready(function () {
-            var successMessage = '@TempData["SuccessMessage"]';
-            var errorMessage = '@TempData["ErrorMessage"]';
+<!-- Nội dung chính -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Danh sách Yêu cầu</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover table-bordered text-center align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Bàn</th>
+                                    <th>Thời gian</th>
+                                    <th>Khách hàng</th>
+                                    <th>Yêu cầu</th>
+                                    <th>Ghi chú</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var req in Model)
+                                {
+                                    <tr>
+                                        <td>Bàn @req.TableNumber</td>
+                                        <td>@req.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@req.CustomerName</td>
+                                        <td>@req.RequestType</td>
+                                        <td>@req.Note</td>
+                                        <td>
+                                            @if (req.RequestType == "Food Order")
+                                            {
+                                                <form asp-action="Details" asp-route-id="@req.RequestId" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-action">Xử lý</button>
+                                                </form>
+                                            }
+                                            else if (req.RequestType == "Waiter Asssistant")
+                                            {
+                                                <button type="button" class="btn btn-cancel btn-open-cancel-modal"
+                                                        data-toggle="modal"
+                                                        data-target="#cancelModal"
+                                                        data-request-id="@req.RequestId">
+                                                    Hủy
+                                                </button>
+                                                <form asp-action="Accept" asp-route-id="@req.RequestId" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-action">Phục vụ</button>
+                                                </form>
+                                            }
+                                            else if (req.RequestType == "Checkout")
+                                            {
+                                                <button type="button" class="btn btn-cancel btn-open-cancel-modal"
+                                                        data-toggle="modal"
+                                                        data-target="#cancelModal"
+                                                        data-request-id="@req.RequestId">
+                                                    Hủy
+                                                </button>
+                                                <button type="button" class="btn btn-action btn-payment"
+                                                        data-customer-id="@req.CustomerId"
+                                                        data-payment-method="@req.Note">
+                                                    Thanh toán
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
 
-            if (successMessage) {
-                toastr.success(successMessage, 'Thành công!', { timeOut: 3000 });
-            }
-            if (errorMessage) {
-                toastr.error(errorMessage, 'Lỗi!', { timeOut: 3000 });
-            }
+                        <!-- Modal Hủy Yêu Cầu -->
+                        <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy yêu cầu</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form id="cancelForm" asp-action="Reject" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="modal-body">
+                                            <input type="hidden" id="cancelRequestId" name="requestId">
+                                            <p>Bạn có chắc chắn muốn hủy yêu cầu này không?</p>
+                                            <label for="reasonId">Chọn lý do hủy:</label>
+                                            <select id="reasonId" name="reasonId" class="form-control" required>
+                                                <option value="">-- Chọn lý do --</option>
+                                                @foreach (var reason in ViewBag.CancellationReasons as SelectList)
+                                                {
+                                                    <option value="@reason.Value">@reason.Text</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy bỏ</button>
+                                            <button type="submit" id="confirmCancel" class="btn btn-danger" disabled>Đồng ý</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var cancelModal = document.getElementById("cancelModal");
+
+        cancelModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget;
+            var requestId = button.getAttribute("data-request-id");
+
+            var modalInput = document.getElementById("cancelRequestId");
+            modalInput.value = requestId;
+
+            var confirmButton = document.getElementById("confirmCancel");
+            confirmButton.disabled = true;
         });
 
-        window.addEventListener("pageshow", function (event) {
-            if (event.persisted) { // Nếu trang được load từ cache khi nhấn "Back"
-                console.log("🔄 Page restored from cache, reloading...");
-                window.location.reload(); // Reload trang để cập nhật dữ liệu mới nhất
-            }
+        document.getElementById("reasonId").addEventListener("change", function () {
+            var confirmButton = document.getElementById("confirmCancel");
+            confirmButton.disabled = !this.value;
         });
-    </script>
-}
+
+        document.querySelectorAll(".btn-payment").forEach(button => {
+            button.addEventListener("click", function () {
+                var customerId = this.getAttribute("data-customer-id");
+                var paymentMethod = this.getAttribute("data-payment-method");
+                window.location.href = `/Invoice/PaymentDetails?customerId=${customerId}&paymentMethod=${paymentMethod}`;
+            });
+        });
+    });
+
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            console.log("🔄 Page restored from cache, reloading...");
+            window.location.reload();
+        }
+    });
+</script>

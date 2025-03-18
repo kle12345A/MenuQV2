@@ -6,10 +6,36 @@
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
-<!-- Font Awesome để hiển thị icon -->
-<link />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link rel="stylesheet" href="~/css/TableIndex.css">
+<!-- Liên kết các thư viện cần thiết -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<style>
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .qr-container {
+        text-align: center;
+    }
+</style>
+
+<!-- Tiêu đề -->
 <section class="content-header">
     <div class="container-fluid">
         <ol class="breadcrumb">
@@ -19,6 +45,7 @@
     </div>
 </section>
 
+<!-- Nội dung chính -->
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -26,7 +53,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="text-center">Tạo mã QR</h3>
+                        <h3 class="card-title">Tạo mã QR</h3>
                     </div>
                     <div class="card-body">
                         <form method="post" enctype="multipart/form-data" id="qrForm">
@@ -50,7 +77,6 @@
                             <div class="form-group">
                                 <label for="table-input">Số Lượng bàn</label>
                                 <input type="number" id="table-input" class="form-control" name="tableNumber" placeholder="Nhập số bàn" required min="1" max="100" onchange="validateForm()" />
-
                                 <span id="table-error" style="color: red; font-size: 10px"></span>
                             </div>
                             <div class="form-group">
@@ -64,7 +90,6 @@
                                     </div>
                                 </div>
                             </div>
-
 
                             <div class="form-group">
                                 <label for="top-text">Chữ trên QR</label>
@@ -96,13 +121,12 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="text-center">Mẫu in</h3>
+                        <h3 class="card-title">Mẫu in</h3>
                     </div>
                     <div class="card-body text-center">
                         <div class="qr-container">
                             <div class="text-top" id="textTop"></div>
                             <div class="text-top1" id="textTop1"></div>
-
                             <canvas id="qrcode1"></canvas>
                             <div class="text-bottom" id="textBottom"></div>
                         </div>
@@ -110,14 +134,11 @@
                     <div class="card-footer d-flex justify-content-center">
                         <button type="button" id="printButton" class="btn btn-secondary" style="display:none" onclick="redirectToPrintQR()">Tải mẫu in</button>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </section>
-
-
 
 <!-- Modal chọn bàn -->
 <div class="modal fade" id="tableModal" tabindex="-1" role="dialog">
@@ -125,7 +146,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Chọn bàn</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
                 @foreach (var area in Model)
@@ -150,8 +171,6 @@
         </div>
     </div>
 </div>
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
 <script src="~/js/TableIndex.js"></script>
@@ -181,7 +200,6 @@
                     section.style.display = 'none';
                 }
             });
-            // Clear the selected tables and input value
             document.querySelectorAll('.table-checkbox').forEach(checkbox => {
                 checkbox.checked = false;
             });
@@ -191,19 +209,18 @@
         areaSelect.addEventListener("change", function () {
             updateTextTop1();
             updateMaxTableNumber();
-            refreshTableList(); // Làm mới danh sách các bàn khi khu vực thay đổi
+            refreshTableList();
         });
 
         tableInput.addEventListener("input", updateTextTop1);
 
-        // Kích hoạt sự kiện thay đổi để hiển thị bàn của khu vực đầu tiên khi tải trang
         function initialize() {
             const areaSelect = document.getElementById("area-input");
             if (areaSelect.options.length > 0) {
                 areaSelect.selectedIndex = 0;
                 updateTextTop1();
                 updateMaxTableNumber();
-                refreshTableList(); // Làm mới danh sách các bàn cho khu vực đầu tiên
+                refreshTableList();
                 areaSelect.dispatchEvent(new Event('change'));
             }
         }
@@ -224,13 +241,10 @@
         let area = document.getElementById("area-input").options[document.getElementById("area-input").selectedIndex].text;
         document.getElementById("SelectedArea").innerText = area;
 
-        // Hiển thị mã QR chỉ cho bàn đầu tiên
         if (selectedTables.length > 0) {
-            let firstTable = selectedTables[0]; // Chỉ lấy bàn đầu tiên
+            let firstTable = selectedTables[0];
             let qrData = encodeURIComponent(`Khu vực: ${area} - Bàn: ${firstTable}`);
             document.getElementById("QRImage").src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
-
-            // Cập nhật textTop1 với khu vực và bàn đầu tiên
             document.getElementById("textTop1").innerText = `${area} - Bàn ${firstTable}`;
         } else {
             document.getElementById("QRImage").src = "";
@@ -284,7 +298,6 @@
         const baseURL = "https://sample.com";
         if (baseURL.trim() !== "") {
             const urlWithParams = `Thank For Use MenuQ`;
-
             generateQRCode("qrcode1", urlWithParams, color, backgroundColor);
         } else {
             alert("Please enter a base URL to generate a QR code.");
@@ -334,8 +347,6 @@
         const bottomText = encodeURIComponent(document.getElementById("bottom-text").value);
         const color = encodeURIComponent(document.getElementById("color-input").value);
         const backgroundColor = encodeURIComponent(document.getElementById("background-color-input").value);
-
-        // Lấy tất cả tên bàn đã chọn
         let selectedTables = document.getElementById("TableInput").value;
 
         if (!areaId || !tableNumber) {

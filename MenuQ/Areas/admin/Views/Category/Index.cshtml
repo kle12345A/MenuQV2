@@ -1,4 +1,4 @@
-﻿@model IPagedList<DataAccess.Models.Employee>
+﻿@model IPagedList<DataAccess.Models.Category>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @using X.PagedList
 @using X.PagedList.Mvc.Core
@@ -6,7 +6,7 @@
 @using X.PagedList.Web.Common
 
 @{
-    ViewData["Title"] = "Danh sách nhân viên";
+    ViewData["Title"] = "Danh sách danh mục";
     Layout = "~/Areas/Admin/Views/_AdminLayout.cshtml";
 }
 
@@ -36,6 +36,14 @@
         background-color: #dc3545;
         color: white;
     }
+
+    /* Style cho toast */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
 </style>
 
 <!-- Toast Container -->
@@ -44,7 +52,7 @@
         <div class="toast-header bg-success text-white">
             <strong class="mr-auto">Thông báo</strong>
             <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                <span aria-hidden="true">×</span>
+                <span aria-hidden="true">&times;</span>
             </button>
         </div>
         <div class="toast-body">
@@ -58,7 +66,7 @@
     <div class="container-fluid">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
-            <li class="breadcrumb-item active">Danh sách nhân viên</li>
+            <li class="breadcrumb-item active">Danh sách danh mục</li>
         </ol>
     </div>
 </section>
@@ -68,51 +76,43 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
+                <h3 class="card-title">Danh sách danh mục</h3>
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Danh sách nhân viên</h3>
-                        <a asp-area="Admin" asp-controller="Employee" asp-action="Create" class="btn btn-success">
-                            <i class="fas fa-plus"></i> Thêm nhân viên
+                        <!-- Nút thêm danh mục -->
+                        <a asp-area="Admin" asp-controller="Category" asp-action="Create" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Thêm danh mục
                         </a>
                     </div>
+
                     <div class="card-body">
                         <table class="table table-hover table-bordered text-center align-middle">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Email</th>
-                                    <th>Số điện thoại</th>
-                                    <th>Họ và tên</th>
-                                    <th>Chức vụ</th>
-                                    <th>Ngày tuyển dụng</th>
-                                    <th>Trạng thái tài khoản</th>
-                                    <th style="width: 20%;">Hành động</th>
+                                    <th>Id</th>
+                                    <th>Tên</th>
+                                    <th>Trạng thái</th>
+                                    <th style="width:40%;">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td>@Html.DisplayFor(modelItem => item.EmployeeId)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Account.Email)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Account.PhoneNumber)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.FullName)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Position)</td>
-                                        <td>@Html.DisplayFor(modelItem => item.HireDate)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.CategoryId)</td>
+                                        <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
                                         <td>
-                                            @if (item.Account.Active == true)
+                                            @if (item.Status == true)
                                             {
                                                 <span class="badge badge-success">Hoạt động</span>
                                             }
                                             else
                                             {
-                                                <span class="badge badge-danger">Nghỉ việc</span>
+                                                <span class="badge badge-danger">Không hoạt động</span>
                                             }
                                         </td>
                                         <td>
-                                            <a asp-action="Edit" asp-route-id="@item.EmployeeId" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-edit"></i> Sửa
-                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-primary btn-sm">Chỉnh sửa</a>
                                         </td>
                                     </tr>
                                 }
@@ -140,6 +140,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Kiểm tra nếu có thông báo trong TempData thì hiển thị toast
         @if (TempData["SuccessMessage"] != null)
         {
             <text>
