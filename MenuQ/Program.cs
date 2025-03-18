@@ -129,6 +129,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.MapHub<ServerHub>("/hub");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -145,6 +146,5 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapHub<ServerHub>("/hub");
 app.Run();
    

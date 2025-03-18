@@ -1,6 +1,5 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,6 +88,7 @@
 <script src="@Url.Content("~/js/jsFoodMart/plugins.js")"></script>
 <script src="@Url.Content("~/js/jsFoodMart/script.js")"></script>
 <script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
 <script>
     fetch('/appsettings.json')
         .then(response => response.json())
@@ -110,4 +110,3 @@
 @await RenderSectionAsync("Scripts", required: false)
 
 </html>
-

@@ -47,7 +47,7 @@ namespace MenuQ.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            string username = Request.Cookies["username"];
+            string username = Request.Cookies["customerUsername"];
             int tableId = int.Parse(Request.Cookies["tableId"]);
 
             Customer customer = await _customerService.GetCustomerByPhone(username);
@@ -61,7 +61,7 @@ namespace MenuQ.Controllers
         [HttpGet]
         public async Task<IActionResult> PayOrder()
         {
-            string username = Request.Cookies["username"];
+            string username = Request.Cookies["customerUsername"];
             int tableId = int.Parse(Request.Cookies["tableId"]);
             Customer customer = await _customerService.GetCustomerByPhone(username);
             var customerId = customer.CustomerId;
@@ -74,7 +74,7 @@ namespace MenuQ.Controllers
         {
             try
             {
-                string username = Request.Cookies["username"];
+                string username = Request.Cookies["customerUsername"];
                 int tableId = int.Parse(Request.Cookies["tableId"]);
                 Customer customer = await _customerService.GetCustomerByPhone(username);
                 var customerId = customer.CustomerId;
@@ -106,55 +106,59 @@ namespace MenuQ.Controllers
             }
         }
 
-            [HttpGet]
-            public async Task<IActionResult> Login([FromQuery] int tableId)
+        [HttpGet]
+        public async Task<IActionResult> Login([FromQuery] int tableId)
+        {
+            if (tableId == 0)
             {
-                if (tableId == 0)
-                {
-                    return View("/Home/AccessDenied");
-                }
-                else
-                {
-                    Response.Cookies.Append("tableId", tableId.ToString(), new CookieOptions
-                    {
-                        Expires = DateTime.UtcNow.AddHours(3),
-                        HttpOnly = true,
-                        Secure = true,
-                    });
-                }
-                return View();
+                return View("/Home/AccessDenied");
             }
-
-            [HttpPost]
-            public async Task<IActionResult> Login(LoginCustomerDto dto)
+            else
             {
-                var customer = await _customerService.CustomerLogin(dto.PhoneNumber, dto.Username);
-                var claims = new List<Claim>
+                Response.Cookies.Append("tableId", tableId.ToString(), new CookieOptions
+                {
+                    Expires = DateTime.UtcNow.AddHours(3),
+                    HttpOnly = true,
+                    Secure = true,
+                });
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginCustomerDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+            var customer = await _customerService.CustomerLogin(dto.PhoneNumber, dto.Username);
+            var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, customer.PhoneNumber),
                     new Claim(ClaimTypes.NameIdentifier, customer.PhoneNumber),
                     new Claim(ClaimTypes.Role, "Customer"),
                 };
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties
-                {
-                    IsPersistent = false,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(2)
-                };
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = false,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(2)
+            };
 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
-                Response.Cookies.Append("username", customer.PhoneNumber, new CookieOptions
-                {
-                    Expires = DateTime.UtcNow.AddHours(3),
-                    HttpOnly = true,
-                    Secure = true,
-                });
-                return RedirectToAction("Index");
-            }
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+            Response.Cookies.Append("customerUsername", customer.PhoneNumber, new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddHours(3),
+                HttpOnly = true,
+                Secure = true,
+            });
+            return RedirectToAction("Index");
+        }
 
         [HttpGet]
-        public async Task<IActionResult> CallService([FromQuery]int customerId, int tableId)
+        public async Task<IActionResult> CallService([FromQuery] int customerId, int tableId)
         {
             ServiceCallResponseDto serviceCallDto = new ServiceCallResponseDto
             {

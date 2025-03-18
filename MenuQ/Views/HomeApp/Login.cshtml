@@ -58,20 +58,20 @@
                                         <p class="text-center small">Quý khách vui lòng nhập số điện thoại và để nhà hàng có thể vụ và xác nhận đơn</p>
                                     </div>
 
-                                    <form asp-action="Login" asp-controller="HomeApp" method="post" class="row g-3 needs-validation" novalidate>
+                                    <form asp-action="Login" asp-controller="HomeApp" method="post" class="row g-3 needs-validation">
 
                                         <div class="col-12">
                                             <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
                                             <div class="input-group has-validation">
                            
-                                                <input type="text" asp-for="PhoneNumber" class="form-control"  required>
+                                                <input type="text" asp-for="PhoneNumber" class="form-control" >
                                                 <div class="invalid-feedback"><span asp-validation-for="PhoneNumber" class="text-danger"></span></div>
                                             </div>
                                         </div>
 
                                         <div class="col-12">
-                                            <label for="yourPassword" class="form-label">Tên</label>
-                                            <input type="text" asp-for="Username" class="form-control" required>
+                                            <label asp-for="Username" class="form-label">Tên</label>
+                                            <input type="text" asp-for="Username" class="form-control">
                                             <div class="invalid-feedback"><span asp-validation-for="Username" class="text-danger"></span></div>
                                         </div>
 
@@ -101,8 +101,10 @@
     <script src="~/assets/vendor/quill/quill.js"></script>
     <script src="~/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
-    <script src="~/assets/vendor/php-email-form/validate.js"></script>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <!-- Template Main JS File -->
     <script src="~/assets/js/main.js"></script>
 
