@@ -11,5 +11,6 @@ namespace BussinessObject.category
     public interface ICategoryService : IBaseService<Category>  
     {
         Task<Category> AddCategory(Category category);
+        Task<IEnumerable<Category>> GetAllCategories();
     }
 }

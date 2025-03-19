@@ -13,6 +13,11 @@ namespace DataAccess.Repository.category
             _dbContext =  context;
         }
 
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        {
+            return await _dbSet.Where(c => c.Status == true).ToListAsync();
+        }
+
         public async Task<Category?> GetFirstOrDefaultAsync(Expression<Func<Category, bool>> predicate)
         {
             return await _dbContext.Set<Category>().FirstOrDefaultAsync(predicate);

@@ -39,5 +39,10 @@ namespace BussinessObject.category
 
             return category;
         }
+
+        public async Task<IEnumerable<Category>> GetAllCategories()
+        {
+            return await _categoryRepository.GetAllCategoriesAsync();
+        }
     }
 }

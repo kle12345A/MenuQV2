@@ -12,5 +12,6 @@ namespace DataAccess.Repository.category
     public interface ICategoryRepository : IBaseRepository<Category>
     {
         Task<Category?> GetFirstOrDefaultAsync(Expression<Func<Category, bool>> predicate);
+        Task<IEnumerable<Category>> GetAllCategoriesAsync();
     }
 }

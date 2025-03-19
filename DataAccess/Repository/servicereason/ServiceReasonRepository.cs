@@ -12,7 +12,7 @@ namespace DataAccess.Repository.servicereason
 
         public Task<List<ServiceReason>> GetAllActive()
         {
-            return _dbSet.Where(r => r.Status == true).ToListAsync();
+            return _dbSet.Where(r => r.Status == true && !r.ReasonText.Equals("DEFAULT")).ToListAsync();
         }
     }
 }

@@ -1,3 +1,4 @@
+using BussinessObject.category;
 using BussinessObject.customer;
 using BussinessObject.DTOs;
 using BussinessObject.menu;
@@ -17,18 +18,25 @@ namespace MenuQ.Controllers
         private readonly IMenuItemService _menuService;
         private readonly IRequestService _requestService;
         private readonly ICustomerService _customerService;
-        public MenuOrderController(IMenuItemService menuService, IRequestService requestService,ICustomerService customerService,
+        private readonly ICategoryService _categoryService;
+        public MenuOrderController(IMenuItemService menuService,
+            IRequestService requestService,
+            ICustomerService customerService,
+            ICategoryService categoryService,
             IHubContext<ServerHub> hub,ILogger<MenuOrderController> logger)
         {
             _menuService = menuService;
             _requestService = requestService;
             _customerService = customerService;
+            _categoryService = categoryService;
             _hub = hub;
             _logger = logger;
         }
         // Hiển thị danh sách menu
         public async Task<IActionResult> Index()
         {
+            var categories = await _categoryService.GetAllCategories();
+            ViewBag.categories = categories;
             var menuItems = await _menuService.GetAllMenuAsync();
             _logger.LogInformation($"Converted to list, final count: {menuItems.ToList()}");
             return View(menuItems);

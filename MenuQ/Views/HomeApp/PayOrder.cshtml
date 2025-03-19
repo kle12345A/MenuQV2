@@ -514,9 +514,59 @@
             </div>
         </section>
     </main>
+
     <!-- End #main -->
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer"></footer>
+    <!-- Place this at the bottom of your HTML body before scripts -->
+    <div class="modal fade" id="messageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var errorMessage = @Json.Serialize(TempData["ErrorMessage"]);
+
+            if (errorMessage) {
+                showMessageModal('Error', errorMessage, 'danger');
+            }
+
+            function showMessageModal(title, message, type) {
+                var modal = document.getElementById('messageModal');
+                var modalTitle = modal.querySelector('.modal-title');
+                var modalBody = modal.querySelector('.modal-body p');
+                var modalHeader = modal.querySelector('.modal-header');
+
+                // Set content
+                modalTitle.textContent = title;
+                modalBody.textContent = message;
+
+                // Clear previous color classes
+                modalHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+
+                // Add appropriate styling
+               if (type === 'danger') {
+                    modalHeader.classList.add('bg-danger', 'text-white');
+                }
+
+                // Show the modal
+                var bootstrapModal = new bootstrap.Modal(modal);
+                bootstrapModal.show();
+            }
+        });
+    </script>
     <!-- End Footer -->
     <!-- Vendor JS Files -->
     <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>

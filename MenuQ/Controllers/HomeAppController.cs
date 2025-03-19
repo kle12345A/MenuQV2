@@ -95,7 +95,6 @@ namespace MenuQ.Controllers
                     return RedirectToAction("PayOrder");
                 }
                 _hub.Clients.All.SendAsync("LoadRequest");
-                TempData["SuccessMessage"] = "Payment request created successfully.";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -181,6 +180,7 @@ namespace MenuQ.Controllers
             }
             try
             {
+                _logger.LogError("day la lỗi gửi" + serviceCallDto.CustomService);
 
                 await _requestService.AddRequestService(serviceCallDto);
                 _hub.Clients.All.SendAsync("LoadRequest");
