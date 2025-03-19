@@ -53,7 +53,8 @@ public partial class MenuQContext : DbContext
 
     public virtual DbSet<Table> Tables { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
 
         if (!optionsBuilder.IsConfigured)
         {
