@@ -64,9 +64,18 @@ services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         options.LogoutPath = "/Admin/Auth/Logout"; // Đường dẫn đăng xuất
         options.AccessDeniedPath = "/Home/AccessDenied"; // Đường dẫn khi bị từ chối quyền truy cập
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None; // không yêu cầu http nhưng mà bị vấn đề bảo mật chỉ dùng để thử nghiệm
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
+
+services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(3);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Cho phép HTTP
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
 
 // Cấu hình DbContext với SQL Server
 builder.Services.AddDbContext<MenuQContext>(options =>
@@ -135,9 +144,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseStatusCodePagesWithRedirects("/Errors/{0}");
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"

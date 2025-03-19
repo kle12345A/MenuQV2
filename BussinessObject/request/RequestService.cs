@@ -13,6 +13,7 @@ using MailKit.Search;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -494,7 +495,14 @@ namespace BussinessObject.request
                     note.Append(Service.ToString());
                     note.Append(", ");
                 }
+                if(dto.CustomService.IsNullOrEmpty())
+                {
+                     note.Remove(note.Length - 2, 2);
+                }
+                else
+                {
                 note.Append(dto.CustomService.ToString());
+                }
                 var ServiceCall = new ServiceCall
                 {
                     RequestId = requesetId,

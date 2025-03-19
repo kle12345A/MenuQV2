@@ -730,3 +730,33 @@ h1,h2,h3,h4,h5,h6 {
     height: 740px;
   }
 }
+
+
+.position-relative {
+    position: relative;
+}
+
+.badge-number {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(40%, -40%);
+    font-size: 12px;
+    padding: 4px 6px;
+    border-radius: 50%;
+}
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+/* Optional: Add a shadow to the navbar when it's fixed */
+.sticky-top {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+    /* Ensure the navbar has a background to prevent content from showing through */
+    .sticky-top .row {
+        background-color: #fff;
+    }

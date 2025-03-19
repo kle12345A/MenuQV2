@@ -119,7 +119,7 @@
 </div>
 
 
-<header>
+<header class="sticky-top">
     <div class="container-fluid">
         <div class="row py-3 border-bottom">
 
@@ -165,8 +165,9 @@
                         </a>
                     </li>
                     <li class="d-lg-none">
-                        <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+                        <a href="#" class="rounded-circle bg-light p-2 mx-1 position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="#cart"></use></svg>
+                            <span class="badge bg-success badge-number" id="cart-count">3</span>
                         </a>
                     </li>
                     <li class="d-lg-none">
@@ -178,7 +179,8 @@
 
                 <div class="cart text-end d-none d-lg-block dropdown">
                     <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                        <span class="fs-6 text-muted dropdown-toggle">Món đã đặt</span>
+                        <span class="fs-6 text-muted dropdown-toggle">Món đã đặt<span class="badge bg-success" id="cart-count">3</span></span>
+                        
                         @* <span class="total-price fs-5 fw-bold">$1290.00</span> *@
                     </button>
                 </div>

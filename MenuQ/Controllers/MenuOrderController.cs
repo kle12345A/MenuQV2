@@ -42,7 +42,7 @@ namespace MenuQ.Controllers
             {
                 return BadRequest("Giỏ hàng trống hoặc dữ liệu không đúng định dạng.");
             }
-            string username = Request.Cookies["username"];
+            string username = Request.Cookies["customerUsername"];
             int tableId = int.Parse(Request.Cookies["tableId"]);
             Customer customer = await _customerService.GetCustomerByPhone(username);
             OrderByDto detail = new OrderByDto

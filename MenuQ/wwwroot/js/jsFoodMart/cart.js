@@ -1,6 +1,6 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
     const cartItemsContainer = document.getElementById("cart-items");
-    const cartCount = document.getElementById("cart-count");
+    const cartCount = document.querySelectorAll('[id="cart-count"]');
     const totalPriceElement = document.getElementById("total-price");
 
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -49,7 +49,9 @@
         totalItem.innerHTML = `<span>Tổng: (VND)</span><strong>${totalPrice}</strong>`;
         cartItemsContainer.appendChild(totalItem);
 
-        cartCount.textContent = totalItems;
+        cartCount.forEach(element => {
+            element.textContent = totalItems;
+        });
         totalPriceElement.textContent = `${totalPrice}`;
 
         saveCart();

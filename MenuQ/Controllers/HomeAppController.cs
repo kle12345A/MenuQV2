@@ -119,7 +119,6 @@ namespace MenuQ.Controllers
                 {
                     Expires = DateTime.UtcNow.AddHours(3),
                     HttpOnly = true,
-                    Secure = true,
                 });
             }
             return View();
@@ -152,7 +151,8 @@ namespace MenuQ.Controllers
             {
                 Expires = DateTime.UtcNow.AddHours(3),
                 HttpOnly = true,
-                Secure = true,
+                Secure = false,
+                SameSite = SameSiteMode.Lax
             });
             return RedirectToAction("Index");
         }
@@ -174,6 +174,9 @@ namespace MenuQ.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogError("ModelState Errors: {errors}",
+    string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+
                 return Json(new { success = false, message = "Invalid data" });
             }
             try
