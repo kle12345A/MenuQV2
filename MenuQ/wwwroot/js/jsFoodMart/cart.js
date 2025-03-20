@@ -4,9 +4,16 @@
     const totalPriceElement = document.getElementById("total-price");
 
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let expiry = localStorage.getItem("cart_expiry");
 
+    if (expiry && new Date().getTime() > expiry) {
+        localStorage.removeItem("cart");
+        localStorage.removeItem("cart_expiry");
+        cart = [];
+    }
     function saveCart() {
         localStorage.setItem("cart", JSON.stringify(cart));
+        localStorage.setItem("cart_expiry", new Date().getTime() + 3 * 60 * 60 * 1000);
     }
 
     function updateCartUI() {

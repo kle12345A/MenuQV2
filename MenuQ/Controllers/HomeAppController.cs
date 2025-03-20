@@ -74,9 +74,9 @@ namespace MenuQ.Controllers
         {
             try
             {
-                string username = Request.Cookies["customerUsername"];
+                string phone = Request.Cookies["customerUsername"];
                 int tableId = int.Parse(Request.Cookies["tableId"]);
-                Customer customer = await _customerService.GetCustomerByPhone(username);
+                Customer customer = await _customerService.GetCustomerByPhone(phone);
                 var customerId = customer.CustomerId;
 
                 PaymentMethod paymentMethod = (PaymentMethod)int.Parse(form["paymentMethod"]);
@@ -106,10 +106,27 @@ namespace MenuQ.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login([FromQuery] int tableId)
+        public async Task<IActionResult> Login([FromQuery] int? tableId)
         {
-            if (tableId == 0)
+            var tableInCookie = Request.Cookies["tableId"];
+            if (tableId == null)
             {
+                if (tableInCookie != null)
+                {
+                    Response.Cookies.Append("tableId", tableInCookie, new CookieOptions
+                    {
+                        Expires = DateTime.UtcNow.AddHours(3),
+                        HttpOnly = true,
+                    });
+                    var currentCus = await _customerService.GetCustomerByPhone(Request.Cookies["customerUsername"]);
+                    LoginCustomerDto dto = new LoginCustomerDto
+                    {
+                        Username = currentCus.CustomerName,
+                        PhoneNumber = currentCus.PhoneNumber,
+                    };
+                    return View(dto);
+                }
+                else
                 return View("/Home/AccessDenied");
             }
             else

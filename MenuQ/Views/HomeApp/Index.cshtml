@@ -73,7 +73,17 @@
     <!-- Thông tin vị trí và tên khách -->
     <div class="container mt-3">
         <p class="text-muted">Vị trí hiện tại: <strong>Bàn số @ViewBag.Table.TableNumber - Khu vực: @ViewBag.Table.Area?.AreaName</strong></p>
-        <p class="text-muted">Tên khách: <strong>@Model.CustomerName</strong></p>
+        
+        <div class="d-flex align-items-center">
+            <p class="text-muted mb-0">Tên khách: <strong>@Model.CustomerName</strong></p>
+            <span>
+                <a asp-controller="HomeApp" asp-action="Login" class="rounded-circle bg-light p-2 mx-1">
+                    <svg width="16" height="16" viewBox="0 0 20 20"><use xlink:href="#user"></use></svg>
+                </a>
+            </span>
+        </div>
+
+        
     </div>
     <div class="container mt-3">
         <p class="text-muted text-center"><strong>Bạn cần hỗ trợ gì?</strong></p>

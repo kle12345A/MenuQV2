@@ -14,5 +14,11 @@ namespace DataAccess.Repository.servicereason
         {
             return _dbSet.Where(r => r.Status == true && !r.ReasonText.Equals("DEFAULT")).ToListAsync();
         }
+
+        public async Task<int> GetReasonDefaultId()
+        {
+            var reason = await _dbSet.FirstOrDefaultAsync(r => r.ReasonText == "DEFAULT");
+            return reason == null ? 0 : reason.ReasonId;
+        }
     }
 }

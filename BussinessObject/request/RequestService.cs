@@ -9,6 +9,7 @@ using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
 using DataAccess.Repository.servicecall;
 using DataAccess.Repository.servicecall;
+using DataAccess.Repository.servicereason;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,7 @@ namespace BussinessObject.request
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly ICancellationReasonRepository _cancellationReasonRepository;
         private readonly IServiceCallRepository _serviceCallRepository;
+        private readonly IServiceReasonRepository _serviceReasonRepository;
         private readonly ILogger<RequestService> _logger;
 
         public RequestService(IUnitOfWork unitOfWork,
@@ -37,6 +39,7 @@ namespace BussinessObject.request
             ICancellationReasonRepository cancellationReasonRepository,
             IInvoiceRepository invoiceRepository,
             IServiceCallRepository serviceCallRepository,
+            IServiceReasonRepository serviceReasonRepository,
             ILogger<RequestService> logger) : base(unitOfWork)
         {
             _requestRepository = requestRepository;
@@ -44,6 +47,7 @@ namespace BussinessObject.request
             _cancellationReasonRepository = cancellationReasonRepository;
             _invoiceRepository = invoiceRepository;
             _serviceCallRepository = serviceCallRepository;
+            _serviceReasonRepository = serviceReasonRepository;
             _logger = logger;
         }
 
@@ -503,10 +507,12 @@ namespace BussinessObject.request
                 {
                 note.Append(dto.CustomService.ToString());
                 }
+                var ReasonId = await _serviceReasonRepository.GetReasonDefaultId();
+                
                 var ServiceCall = new ServiceCall
                 {
                     RequestId = requesetId,
-                    ReasonId = 1,
+                    ReasonId = ReasonId,
                     Note = note.ToString(),
                 };
                 await _serviceCallRepository.AddAsync(ServiceCall);
