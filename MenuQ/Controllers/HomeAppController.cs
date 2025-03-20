@@ -14,6 +14,7 @@ using BussinessObject.servicecall;
 using Microsoft.AspNetCore.SignalR;
 using MenuQ.Hubs;
 using BussinessObject.invoice;
+using DataAccess.Models.VnPay;
 
 namespace MenuQ.Controllers
 {
@@ -105,6 +106,7 @@ namespace MenuQ.Controllers
             }
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Login([FromQuery] int? tableId)
         {
@@ -127,7 +129,7 @@ namespace MenuQ.Controllers
                     return View(dto);
                 }
                 else
-                return View("/Home/AccessDenied");
+                    return View("/Home/AccessDenied");
             }
             else
             {

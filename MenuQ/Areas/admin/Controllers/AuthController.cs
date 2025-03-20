@@ -165,7 +165,7 @@ namespace MenuQ.Areas.Admin.Controllers
             }
             else if (account.Role.RoleName == "Employee")
             {
-                return RedirectToAction("Index", "Request");
+                return RedirectToAction("Index", "Requests");
             }
             else
             {

@@ -5,9 +5,9 @@
     ViewData["Title"] = "Danh sách hoá đơn";
 }
 
-<html lang="vi">
-
 <head>
+        <title>Hoá đơn</title>
+
     <style>
         .table {
             width: 100%;
@@ -179,12 +179,21 @@
 
                         </div>
                     </div>
-                    <!-- End Table with stripped rows -->
-
                 </div>
             </div>
         </section>
-    </main><!-- End #main -->
+    </main>
 </body>
-
+    <script src="~/microsoft/signalr/dist/browser/signalr.js"></script>
 </html>
+
+<script>
+    "use strict";
+
+    var con = new signalR.HubConnectionBuilder().withUrl("/hub").build();
+
+    con.on("LoadRequest", function () { location.reload(); });
+    con.start().then().catch(function (err) {
+        return console.log(err.toString());
+    });
+</script>

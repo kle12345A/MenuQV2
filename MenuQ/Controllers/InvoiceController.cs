@@ -90,7 +90,7 @@ namespace MenuQ.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPayment(int invoiceId, int customerId)
         {
@@ -121,7 +121,7 @@ namespace MenuQ.Controllers
             return RedirectToAction("Index", "Requests");
         }
 
-        [HttpGet]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelPayment(int invoiceId, int customerId)
         {
