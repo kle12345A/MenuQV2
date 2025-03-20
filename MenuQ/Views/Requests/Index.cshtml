@@ -218,8 +218,7 @@
                                                     <label for="reasonId">Chọn lý do hủy:</label>
                                                     <select id="reasonId" name="reasonId" class="form-control" required>
                                                         <option value="">-- Chọn lý do --</option>
-                                                        @foreach (var reason in ViewBag.CancellationReasons as
-                                                                                                                SelectList)
+                                                        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
                                                         {
                                                             <option value="@reason.Value">@reason.Text</option>
                                                         }
@@ -250,17 +249,6 @@
 </body>
 
 </html>
-
-<script>
-    "use strict";
-
-    var con = new signalR.HubConnectionBuilder().withUrl("/hub").build();
-
-    con.on("LoadRequest", function () { location.reload(); });
-    con.start().then().catch(function (err) {
-        return console.log(err.toString());
-    });
-</script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         var cancelModal = document.getElementById("cancelModal");

@@ -2,10 +2,12 @@
 using BussinessObject.request;
 using DataAccess.Models;
 using DataAccess.Repository.cancellation;
+using MenuQ.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace MenuQ.Controllers
@@ -20,12 +22,17 @@ namespace MenuQ.Controllers
     {
         private readonly IRequestService _requestService;
         private readonly ICancellReasonService _cancellationService;
+        private readonly IHubContext<ServerHub> _hub;
         private readonly ILogger<RequestsController> _logger;
 
-        public RequestsController(IRequestService requestService, ICancellReasonService cancellationService, ILogger<RequestsController> logger)
+        public RequestsController(IRequestService requestService,
+            ICancellReasonService cancellationService,
+            IHubContext<ServerHub> hub,
+            ILogger<RequestsController> logger)
         {
             _requestService = requestService;
             _cancellationService = cancellationService;
+            _hub = hub;
             _logger = logger;
         }
 
@@ -125,6 +132,7 @@ namespace MenuQ.Controllers
             }
             var result = await _requestService.AcceptRequest(id, accountId.Value);
             TempData["Message"] = result.Message;
+            _hub.Clients.All.SendAsync("LoadRequest");
             return RedirectToAction("Index");
         }
 
