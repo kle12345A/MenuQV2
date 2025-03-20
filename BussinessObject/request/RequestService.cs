@@ -436,7 +436,7 @@ namespace BussinessObject.request
                     return ServiceResult<Request>.CreateError("No active invoice found for payment.");
                 }
 
-                // 🟢 Tạo Request thanh toán
+                // Tạo Request thanh toán
                 var paymentRequest = new Request
                 {
                     TableId = requestDto.TableId,
@@ -452,12 +452,12 @@ namespace BussinessObject.request
                     return ServiceResult<Request>.CreateError("Failed to create payment request.");
                 }
 
-                // 🟢 Tạo ServiceCall với lý do thanh toán (ReasonID = 3) và lưu PaymentMethod vào Note
+                // Tạo ServiceCall với lý do thanh toán (ReasonID = 3) và lưu PaymentMethod vào Note
+                var reasonId = await _serviceReasonRepository.GetReasonDefaultId();
                 var serviceCall = new ServiceCall
                 {
                     RequestId = createdRequest.RequestId,
-                    ReasonId = 3, // Lý do: Thanh toán
-                    //Note = PaymentMethodEnumHelper.GetVietnameseName(requestDto.PaymentMethod)
+                    ReasonId = reasonId, // Lý do: Thanh toán-default
                     Note = requestDto.PaymentMethod.ToString()
                 };
 

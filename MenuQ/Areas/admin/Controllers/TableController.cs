@@ -10,11 +10,13 @@ namespace MenuQ.Areas.admin.Controllers
     [Area("Admin")]
     public class TableController : Controller
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAreaService _areaService;
 
-        public TableController(IAreaService areaService)
+        public TableController(IAreaService areaService, IHttpContextAccessor httpContextAccessor)
         {
             _areaService = areaService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IActionResult> Index()
@@ -61,15 +63,19 @@ namespace MenuQ.Areas.admin.Controllers
                 backgroundColor = backgroundColor
             });
         }
+        public string GetDomain()
+        {
+            return _httpContextAccessor.HttpContext?.Request.Host.Value ?? "Unknown Domain";
+        }
 
         public async Task<IActionResult> PrintQR(int areaId, int tableCount, string topText, string bottomText, string color, string backgroundColor, string selectedTables)
         {
             var tables = await _areaService.GetTablesByAreaIdAsync(areaId, tableCount);
             var area = await _areaService.GetByIdAsync(areaId);
-
+            string domain = GetDomain();
             // Tách danh sách tên bàn từ chuỗi URL
             var tableNames = selectedTables.Split(',').Select(t => t.Trim()).ToList();
-
+            var fullDomain = $"{Request.Scheme}://{Request.Host.Value}";
             var qrCodes = tables.Select((table, index) => new QrCodeDetails
             {
                 AreaId = areaId,
@@ -80,7 +86,7 @@ namespace MenuQ.Areas.admin.Controllers
 
                 BackgroundColor = backgroundColor,
 
-                Url = $"https://localhost:7257/HomeApp/Login?tableId={table.TableId}",
+                Url = $"{fullDomain}/HomeApp/Login?tableId={table.TableId}",
                 TableName = tableNames.ElementAtOrDefault(index) // Thêm tên bàn tương ứng từ danh sách
 
             }).ToList();

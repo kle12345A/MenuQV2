@@ -41,7 +41,7 @@ namespace BussinessObject.account
                     AccountId = accountModel.AccountId,
                     UserName = accountModel.UserName,
                     Email = accountModel.Email,
-                    Password = HashPassword(accountModel.Password), 
+                    Password = HashPassword(accountModel.Password),
                     PhoneNumber = accountModel.PhoneNumber,
                     RoleId = accountModel.RoleId,
                     Active = accountModel.Active,
@@ -145,7 +145,7 @@ namespace BussinessObject.account
                 {
                     UserName = accountModel.UserName,
                     Email = accountModel.Email,
-                    Password = accountModel.Password, // Cần mã hóa mật khẩu
+                    Password = HashPassword(accountModel.Password), // Cần mã hóa mật khẩu
                     PhoneNumber = accountModel.PhoneNumber,
                     RoleId = accountModel.RoleId,
                     Active = accountModel.Active,
