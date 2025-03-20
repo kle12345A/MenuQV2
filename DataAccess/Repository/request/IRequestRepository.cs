@@ -30,6 +30,8 @@ namespace DataAccess.Repository.request
 
         Task<List<Request>> GetAcceptedOrdersAsync(string filter = "Accepted");
 
+        Task<Request> createVnpayRequest(int customerId, int tableId);
+
         Task<bool> SaveChanges();
     }
 }
