@@ -2,6 +2,8 @@
 using BussinessObject.request;
 using DataAccess.Models;
 using DataAccess.Repository.cancellation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
@@ -13,7 +15,7 @@ namespace MenuQ.Controllers
         public int Id { get; set; }
     }
 
-
+    [Authorize(Roles = "Admin,Employee")]
     public class RequestsController : Controller
     {
         private readonly IRequestService _requestService;
@@ -27,14 +29,45 @@ namespace MenuQ.Controllers
             _logger = logger;
         }
 
+        public class RequestTypeCount
+        {
+            public int All { get; set; }
+            public int FoodOrder { get; set; }
+            public int Waiter { get; set; }
+            public int Checkout { get; set; }
+        }
+
         // Hiển thị danh sách yêu cầu
         public async Task<IActionResult> Index(string type = "All")
         {
             //var pendingRequests = await _requestService.GetPendingRequests(type);
             var pendingRequests = await _requestService.GetAllRequestsWithNotes();
+
+            var counts = new RequestTypeCount
+            {
+                All = pendingRequests.Count(),
+                FoodOrder = pendingRequests.Count(r => r.RequestType.Equals("Food Order")),
+                Waiter = pendingRequests.Count(r => r.RequestType.Equals("Waiter Assistant")),
+                Checkout = pendingRequests.Count(r => r.RequestType.Equals("Checkout")),
+            };
+
+            ViewBag.Counts = counts;
+            ViewBag.CurrentType = type;
+
             var cancellationReasons = await _cancellationService.GetActiveCancellationReasons();
 
             ViewBag.CancellationReasons = new SelectList(cancellationReasons, "ReasonId", "ReasonText");
+
+            //filter
+            if (type != "All")
+            {
+                pendingRequests = pendingRequests
+                    .Where(r => (type == "FoodOrder" && r.RequestType == "Food Order") ||
+                                (type == "ServiceCall" && r.RequestType == "Waiter Assistant") ||
+                                (type == "Payment" && r.RequestType == "Checkout"))
+                    .ToList();
+            }
+
 
             return View(pendingRequests);
         }
@@ -84,7 +117,13 @@ namespace MenuQ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Accept(int id)
         {
-            var result = await _requestService.AcceptRequest(id);
+            int? accountId = HttpContext.Session.GetInt32("Acc");
+            if (accountId == null)
+            {
+                TempData["Message"] = "Bạn cần đăng nhập.";
+                return RedirectToAction("Index", "Auth", new { area = "Admin" });
+            }
+            var result = await _requestService.AcceptRequest(id, accountId.Value);
             TempData["Message"] = result.Message;
             return RedirectToAction("Index");
         }
@@ -94,6 +133,12 @@ namespace MenuQ.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, int reasonId)
         {
+            int? accountId = HttpContext.Session.GetInt32("Acc");
+            if (accountId == null)
+            {
+                TempData["Message"] = "Bạn cần đăng nhập.";
+                return RedirectToAction("Index", "Auth", new { area = "Admin" });
+            }
             if (reasonId <= 0)
             {
                 TempData["Message"] = "Invalid cancellation reason.";
@@ -101,7 +146,7 @@ namespace MenuQ.Controllers
             }
 
             _logger.LogInformation("Reject RequestID: {RequestId} with ReasonID: {ReasonId}", id, reasonId);
-            var result = await _requestService.RejectRequest(id, reasonId);
+            var result = await _requestService.RejectRequest(id, reasonId, accountId.Value);
 
             TempData["Message"] = result.Message;
             return RedirectToAction("Index");

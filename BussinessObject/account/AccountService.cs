@@ -41,7 +41,7 @@ namespace BussinessObject.account
                     AccountId = accountModel.AccountId,
                     UserName = accountModel.UserName,
                     Email = accountModel.Email,
-                    Password = HashPassword(accountModel.Password), 
+                    Password = HashPassword(accountModel.Password),
                     PhoneNumber = accountModel.PhoneNumber,
                     RoleId = accountModel.RoleId,
                     Active = accountModel.Active,

@@ -3,11 +3,13 @@ using BussinessObject.invoice;
 using BussinessObject.request;
 using DataAccess.Enum;
 using DataAccess.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.WebSockets;
 
 namespace MenuQ.Controllers
 {
+    [Authorize(Roles = "Admin,Employee")]
     public class InvoiceController : Controller
     {
         private readonly IInvoiceService _invoiceService;
@@ -89,6 +91,7 @@ namespace MenuQ.Controllers
 
 
         [HttpGet]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPayment(int invoiceId, int customerId)
         {
             var result = await _invoiceService.Checkout(invoiceId);
@@ -101,7 +104,13 @@ namespace MenuQ.Controllers
             var checkoutRequest = await _requestService.GetCheckoutRequest(customerId);
             if (checkoutRequest != null)
             {
-                var updateRequest = await _requestService.AcceptRequest(checkoutRequest.RequestId);
+                int? accountId = HttpContext.Session.GetInt32("Acc");
+                if (accountId == null)
+                {
+                    TempData["Message"] = "Bạn cần đăng nhập.";
+                    return RedirectToAction("Index", "Auth", new { area = "Admin" });
+                }
+                var updateRequest = await _requestService.AcceptRequest(checkoutRequest.RequestId, accountId.Value);
                 if (!updateRequest.Success)
                 {
                     TempData["ErrorMessage"] = "Không thể cập nhật trạng thái yêu cầu thanh toán.";
@@ -109,10 +118,11 @@ namespace MenuQ.Controllers
             }
 
             TempData["SuccessMessage"] = "Thanh toán thành công!";
-            return RedirectToAction("Index", "Invoice");
+            return RedirectToAction("Index", "Requests");
         }
 
         [HttpGet]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelPayment(int invoiceId, int customerId)
         {
             var result = await _invoiceService.CancelCheckout(invoiceId);
@@ -125,7 +135,13 @@ namespace MenuQ.Controllers
             var checkoutRequest = await _requestService.GetCheckoutRequest(customerId);
             if (checkoutRequest != null)
             {
-                var updateRequest = await _requestService.RejectRequest(checkoutRequest.RequestId, 1);
+                int? accountId = HttpContext.Session.GetInt32("Acc");
+                if (accountId == null)
+                {
+                    TempData["Message"] = "Bạn cần đăng nhập.";
+                    return RedirectToAction("Index", "Auth", new { area = "Admin" });
+                }
+                var updateRequest = await _requestService.RejectRequest(checkoutRequest.RequestId, 1, accountId.Value);
                 if (!updateRequest.Success)
                 {
                     TempData["ErrorMessage"] = "Không thể cập nhật trạng thái yêu cầu thanh toán.";

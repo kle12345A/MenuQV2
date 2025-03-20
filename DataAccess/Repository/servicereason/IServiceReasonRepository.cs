@@ -11,5 +11,7 @@ namespace DataAccess.Repository.servicereason
     public interface IServiceReasonRepository : IBaseRepository<ServiceReason>
     {
         Task<List<ServiceReason>> GetAllActive();
+
+        Task<int> GetReasonDefaultId();
     }
 }
