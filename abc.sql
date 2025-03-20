@@ -507,7 +507,7 @@ VALUES
 INSERT INTO RequestTypes (RequestTypeName)
 VALUES
 ('Food Order'),
-('Waiter Asssistant'),
+('Waiter Assistant'),
 ('Checkout');
 
 INSERT INTO ServiceReasons (ReasonText, Status)
