@@ -258,6 +258,8 @@ public partial class MenuQContext : DbContext
         {
             entity.HasKey(e => e.OperatingHourId).HasName("PK__Operatin__EDD5E24F11B9E0B5");
 
+            entity.Property(e => e.RestaurantName).HasColumnName("RestaurantName");
+            entity.Property(e => e.ImageURL).HasColumnName("ImageURL");
             entity.Property(e => e.OperatingHourId).HasColumnName("OperatingHourID");
             entity.Property(e => e.IsOpen).HasDefaultValue(true);
         });
