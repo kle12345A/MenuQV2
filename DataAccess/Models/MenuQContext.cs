@@ -89,14 +89,14 @@ public partial class MenuQContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UserName)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
@@ -114,10 +114,10 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
             entity.Property(e => e.FullName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Position)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
 
             entity.HasOne(d => d.Account).WithOne(p => p.Admin)
                 .HasForeignKey<Admin>(d => d.AccountId)
@@ -132,7 +132,7 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.AreaId).HasColumnName("AreaID");
             entity.Property(e => e.AreaName)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Status).HasDefaultValue(true);
         });
 
@@ -143,7 +143,7 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.ReasonId).HasColumnName("ReasonID");
             entity.Property(e => e.ReasonText)
                 .HasMaxLength(200)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Status).HasDefaultValue(true);
         });
 
@@ -154,7 +154,7 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Status).HasDefaultValue(true);
         });
 
@@ -168,7 +168,7 @@ public partial class MenuQContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.CustomerName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -184,10 +184,10 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
             entity.Property(e => e.FullName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Position)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
 
             entity.HasOne(d => d.Account).WithOne(p => p.Employee)
                 .HasForeignKey<Employee>(d => d.AccountId)
@@ -208,7 +208,7 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.PaymentDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
@@ -245,7 +245,7 @@ public partial class MenuQContext : DbContext
                 .HasColumnName("ImageURL");
             entity.Property(e => e.ItemName)
                 .HasMaxLength(200)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.Status).HasDefaultValue(true);
 
@@ -346,7 +346,7 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
-                .IsUnicode(false);
+                .IsUnicode(true);
         });
 
         modelBuilder.Entity<ServiceCall>(entity =>
@@ -388,7 +388,7 @@ public partial class MenuQContext : DbContext
             entity.Property(e => e.Status).HasDefaultValue(true);
             entity.Property(e => e.TableNumber)
                 .HasMaxLength(10)
-                .IsUnicode(false);
+                .IsUnicode(true);
             entity.Property(e => e.TableStatus)
                 .HasMaxLength(20)
                 .IsUnicode(false)
