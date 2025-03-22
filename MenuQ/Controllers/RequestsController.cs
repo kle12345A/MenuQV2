@@ -206,11 +206,5 @@ namespace MenuQ.Controllers
             _logger.LogInformation("ResetStatus API success for RequestID: {RequestId}");
             return Json(new { success = true, message = result.Message });
         }
-
-
-
-
-
-
     }
 }

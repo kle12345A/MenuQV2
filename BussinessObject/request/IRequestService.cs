@@ -32,6 +32,8 @@ namespace BussinessObject.request
 
         Task<List<Request>> GetAcceptedOrdersAsync(string filter = "Accepted");
 
+        Task<ServiceResult<Request>> CreateVnPayRequestAsync(int customerId, int tableId);
+
         Task<List<Request>> GetAllRequestsAsync();
     }
 }

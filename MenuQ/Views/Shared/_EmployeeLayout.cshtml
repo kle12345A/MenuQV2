@@ -1,12 +1,11 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-
-    <title>Requests</title>
     <meta content="" name="description" />
     <meta content="" name="keywords" />
 
@@ -177,51 +176,52 @@
     </header>
     <!-- End Header -->
 
-<div class="d-flex">
-    <aside id="sidebar" class="sidebar">
-              <ul class="sidebar-nav" id="sidebar-nav">
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="">
-                    <i class="bi bi-grid"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <!-- End Dashboard Nav -->
+    <div class="d-flex">
+        <aside id="sidebar" class="sidebar">
+            <ul class="sidebar-nav" id="sidebar-nav">
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="">
+                        <i class="bi bi-grid"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <!-- End Dashboard Nav -->
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-menu-button-wide"></i><span>Yêu cầu</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="components-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a asp-controller="Requests" asp-action="Index">
-                            <i class="bi bi-circle"></i><span>Tất cả yêu cầu</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-menu-button-wide"></i><span>Yêu cầu</span><i
+                            class="bi bi-chevron-down ms-auto"></i>
+                    </a>
+                    <ul id="components-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a asp-controller="Requests" asp-action="Index">
+                                <i class="bi bi-circle"></i><span>Tất cả yêu cầu</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-journal-text"></i><span>Hoá đơn</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="forms-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a asp-controller="Invoice" asp-action="Index">
-                            <i class="bi bi-circle"></i><span>Tất cả hoá đơn</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                        <i class="bi bi-journal-text"></i><span>Hoá đơn</span><i class="bi bi-chevron-down ms-auto"></i>
+                    </a>
+                    <ul id="forms-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                        <li>
+                            <a asp-controller="Invoice" asp-action="Index">
+                                <i class="bi bi-circle"></i><span>Tất cả hoá đơn</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-            <!-- End Charts Nav -->
-        </ul>
-    </aside>
+                <!-- End Charts Nav -->
+            </ul>
+        </aside>
 
-    <main class="main-content container-fluid px-4 py-3">
-        @RenderBody()
-    </main>
-</div>
+        <main class="main-content container-fluid px-4 py-3">
+            @RenderBody()
+        </main>
+    </div>
     <footer id="footer" class="footer">
         <div class="container">
             &copy; 2025 - MenuQ - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -248,7 +248,4 @@
             return console.log(err.toString());
         });
     </script>
-    <!-- Template Main JS File -->
-    <script src="~/assets/js/main.js"></script>
-
 </body>

@@ -42,6 +42,7 @@ using MenuQ.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using MenuQ.Hubs;
+using BussinessObject.vnpay;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -121,7 +122,10 @@ services.AddScoped<IRequestTypeService, RequestTypeService>();
 services.AddScoped<IServiceCallService, ServiceCallService>();
 services.AddScoped<IServiceReasonService, ServiceReasonService>();
 services.AddScoped<ITableService, TableService>();
+services.AddScoped<IVnPayService, VnPayService>();
+
 builder.Services.AddScoped<IFileService, FileService>();
+
 
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));

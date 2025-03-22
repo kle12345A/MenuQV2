@@ -2,6 +2,7 @@
 using DataAccess.Models;
 using DataAccess.Repository.Base;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace DataAccess.Repository.request
 {
@@ -240,6 +241,21 @@ namespace DataAccess.Repository.request
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Request> createVnpayRequest(int customerId, int tableId)
+        {
+            var newRequest = new Request
+            {
+                CustomerId = customerId,
+                TableId = tableId,
+                RequestTypeId = 3, // Checkout
+                RequestStatusId = 2, // InProcess
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Requests.Add(newRequest);
+            await SaveChanges();
+            return newRequest;
+        }
 
 
     }

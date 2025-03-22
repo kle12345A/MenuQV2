@@ -53,6 +53,8 @@ public partial class MenuQContext : DbContext
 
     public virtual DbSet<Table> Tables { get; set; }
 
+    public virtual DbSet<VnPayTransaction> VnPayTransactions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
@@ -239,7 +241,7 @@ public partial class MenuQContext : DbContext
 
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
-            entity.Property(e => e.Descriptions).HasColumnType("text");
+            entity.Property(e => e.Descriptions).HasColumnType("Ntext");
             entity.Property(e => e.ImageUrl)
                 .HasColumnType("text")
                 .HasColumnName("ImageURL");
@@ -270,7 +272,7 @@ public partial class MenuQContext : DbContext
 
             entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
-            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.Note).HasColumnType("Ntext");
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
 
@@ -354,7 +356,7 @@ public partial class MenuQContext : DbContext
             entity.HasKey(e => e.ServiceCallId).HasName("PK__ServiceC__9BA67A595D74E845");
 
             entity.Property(e => e.ServiceCallId).HasColumnName("ServiceCallID");
-            entity.Property(e => e.Note).HasColumnType("text");
+            entity.Property(e => e.Note).HasColumnType("Ntext");
             entity.Property(e => e.ReasonId).HasColumnName("ReasonID");
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
 
@@ -379,24 +381,35 @@ public partial class MenuQContext : DbContext
         });
 
         modelBuilder.Entity<Table>(entity =>
+                {
+                    entity.HasKey(e => e.TableId).HasName("PK__Tables__7D5F018ED91C90F1");
+
+                    entity.Property(e => e.TableId).HasColumnName("TableID");
+                    entity.Property(e => e.AreaId).HasColumnName("AreaID");
+                    entity.Property(e => e.SeatCapacity).HasDefaultValue(4);
+                    entity.Property(e => e.Status).HasDefaultValue(true);
+                    entity.Property(e => e.TableNumber)
+                        .HasMaxLength(10)
+                        .IsUnicode(true);
+                    entity.Property(e => e.TableStatus)
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasDefaultValue("Available");
+
+                    entity.HasOne(d => d.Area).WithMany(p => p.Tables)
+                        .HasForeignKey(d => d.AreaId)
+                        .HasConstraintName("FK__Tables__AreaID__0B91BA14");
+                });
+        modelBuilder.Entity<VnPayTransaction>(entity =>
         {
-            entity.HasKey(e => e.TableId).HasName("PK__Tables__7D5F018ED91C90F1");
+            entity.HasKey(e => e.Id).HasName("PK__VnPayTra__3214EC078DC40A29");
 
-            entity.Property(e => e.TableId).HasColumnName("TableID");
-            entity.Property(e => e.AreaId).HasColumnName("AreaID");
-            entity.Property(e => e.SeatCapacity).HasDefaultValue(4);
-            entity.Property(e => e.Status).HasDefaultValue(true);
-            entity.Property(e => e.TableNumber)
-                .HasMaxLength(10)
-                .IsUnicode(true);
-            entity.Property(e => e.TableStatus)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("Available");
-
-            entity.HasOne(d => d.Area).WithMany(p => p.Tables)
-                .HasForeignKey(d => d.AreaId)
-                .HasConstraintName("FK__Tables__AreaID__0B91BA14");
+            entity.Property(e => e.DateCreated).HasColumnType("datetime");
+            entity.Property(e => e.OrderDescription).HasMaxLength(255);
+            entity.Property(e => e.OrderId).HasMaxLength(100);
+            entity.Property(e => e.PaymentId).HasMaxLength(100);
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+            entity.Property(e => e.TransactionId).HasMaxLength(100);
         });
 
         OnModelCreatingPartial(modelBuilder);

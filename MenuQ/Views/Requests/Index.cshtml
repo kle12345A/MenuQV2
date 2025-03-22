@@ -5,9 +5,9 @@
     Layout = "~/Views/Shared/_EmployeeLayout.cshtml";
 }
 
-<html lang="vi">
-
 <head>
+    <title>Yêu cầu</title>
+
     <style>
         .table {
             width: 100%;
@@ -162,7 +162,26 @@
                                             <td>Bàn @req.TableNumber</td>
                                             <td>@req.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                                             <td>@req.CustomerName</td>
-                                            <td>@req.RequestType</td>
+                                            <td>
+                                                @if (req.RequestType == "Food Order")
+                                                {
+                                                    <span>Gọi món</span>
+                                                }
+                                                else if (req.RequestType == "Waiter Assistant")
+                                                {
+                                                    <span>Gọi nhân viên</span>
+                                                }
+                                                else if (req.RequestType == "Checkout")
+                                                {
+                                                    <span>Thanh toán</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@req.RequestType</span>
+                                                    <!-- Hiển thị mặc định nếu không thuộc 3 loại trên -->
+                                                }
+                                            </td>
+
                                             <td>@req.Note</td>
                                             <td>
                                                 @if (req.RequestType == "Food Order") // RequestTypeID = 1
@@ -173,7 +192,7 @@
                                                         <button type="submit" class="btn btn-action">Xử lý</button>
                                                     </form>
                                                 }
-                                                else if (req.RequestType == "Waiter Asssistant") // RequestTypeID = 2
+                                                else if (req.RequestType == "Waiter Assistant") // RequestTypeID = 2
                                                 {
                                                     <button type="button" class="btn btn-cancel btn-open-cancel-modal"
                                                         data-bs-toggle="modal" data-bs-target="#cancelModal"
@@ -218,7 +237,8 @@
                                                     <label for="reasonId">Chọn lý do hủy:</label>
                                                     <select id="reasonId" name="reasonId" class="form-control" required>
                                                         <option value="">-- Chọn lý do --</option>
-                                                        @foreach (var reason in ViewBag.CancellationReasons as SelectList)
+                                                        @foreach (var reason in ViewBag.CancellationReasons as
+                                                                                                                SelectList)
                                                         {
                                                             <option value="@reason.Value">@reason.Text</option>
                                                         }

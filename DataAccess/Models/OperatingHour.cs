@@ -7,9 +7,9 @@ public partial class OperatingHour
 {
     public int OperatingHourId { get; set; }
 
-    public String RestaurantName { get; set; }
+    public String RestaurantName { get; set;}
 
-    public String ImageURL { get; set; }
+    public String ImageURL { get; set;}
 
     public TimeOnly OpeningTime { get; set; }
 

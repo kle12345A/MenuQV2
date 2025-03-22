@@ -3,8 +3,10 @@ using BussinessObject.invoice;
 using BussinessObject.request;
 using DataAccess.Enum;
 using DataAccess.Models;
+using MenuQ.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Net.WebSockets;
 
 namespace MenuQ.Controllers
@@ -14,11 +16,13 @@ namespace MenuQ.Controllers
     {
         private readonly IInvoiceService _invoiceService;
         private readonly IRequestService _requestService;
+        private readonly IHubContext<ServerHub> _hub;
 
-        public InvoiceController(IInvoiceService invoiceService, IRequestService requestService)
+        public InvoiceController(IInvoiceService invoiceService, IRequestService requestService, IHubContext<ServerHub> hub)
         {
             _invoiceService = invoiceService;
             _requestService = requestService;
+            _hub = hub;
         }
 
         public async Task<IActionResult> Index()
@@ -90,7 +94,7 @@ namespace MenuQ.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmPayment(int invoiceId, int customerId)
         {
@@ -118,10 +122,11 @@ namespace MenuQ.Controllers
             }
 
             TempData["SuccessMessage"] = "Thanh toán thành công!";
+            _hub.Clients.All.SendAsync("LoadRequest");
             return RedirectToAction("Index", "Requests");
         }
 
-        [HttpGet]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CancelPayment(int invoiceId, int customerId)
         {
@@ -147,7 +152,7 @@ namespace MenuQ.Controllers
                     TempData["ErrorMessage"] = "Không thể cập nhật trạng thái yêu cầu thanh toán.";
                 }
             }
-
+            _hub.Clients.All.SendAsync("LoadRequest");
             return RedirectToAction("Index", "Requests");
         }
 

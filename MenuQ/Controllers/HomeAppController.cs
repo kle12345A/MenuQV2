@@ -14,6 +14,8 @@ using BussinessObject.servicecall;
 using Microsoft.AspNetCore.SignalR;
 using MenuQ.Hubs;
 using BussinessObject.invoice;
+using DataAccess.Models.VnPay;
+using BussinessObject.vnpay;
 
 namespace MenuQ.Controllers
 {
@@ -70,7 +72,7 @@ namespace MenuQ.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PaymentRequest(IFormCollection form)
+        public async Task<IActionResult> PaymentRequest(IFormCollection form, [FromServices] IVnPayService _vnPayService, [FromServices] IConfiguration _configuration)
         {
             try
             {
@@ -80,6 +82,48 @@ namespace MenuQ.Controllers
                 var customerId = customer.CustomerId;
 
                 PaymentMethod paymentMethod = (PaymentMethod)int.Parse(form["paymentMethod"]);
+
+                if (string.IsNullOrEmpty(form["TotalAmount"]) || !double.TryParse(form["TotalAmount"], out double amount))
+                {
+                    _logger.LogError("PaymentRequest failed: 'TotalAmount' is missing or invalid.");
+                    TempData["ErrorMessage"] = "Số tiền thanh toán không hợp lệ.";
+                    return RedirectToAction("PayOrder");
+                }
+
+                // 🔹 **Nếu khách hàng chọn thanh toán qua VNPAY**
+                if (paymentMethod == PaymentMethod.CreditCardAtCounter || paymentMethod == PaymentMethod.CreditCardAtTable)
+                {
+                    // 🔹 **Tạo request checkout với RequestType = 3 và lấy `RequestId`**
+                    var checkoutRequestResult = await _requestService.CreateVnPayRequestAsync(customerId, tableId);
+                    if (!checkoutRequestResult.Success)
+                    {
+                        TempData["ErrorMessage"] = checkoutRequestResult.Message;
+                        return RedirectToAction("PayOrder");
+                    }
+
+                    var checkoutRequest = checkoutRequestResult.Data; // 🆕 Lấy `RequestId`
+
+                    var vnpayConfig = _configuration.GetSection("Vnpay");
+                    bool hasVnPay = !string.IsNullOrEmpty(vnpayConfig["TmnCode"]) && !string.IsNullOrEmpty(vnpayConfig["HashSecret"]);
+
+                    if (hasVnPay)
+                    {
+                        var paymentModel = new PaymentInformationModel
+                        {
+                            OrderId = checkoutRequest.RequestId, // 🆕 Truyền RequestId từ DB
+                            OrderType = "order",
+                            Amount = amount,
+                            OrderDescription = $"Thanh toán bàn {tableId}",
+                            Name = customer.CustomerName
+                        };
+
+                        string paymentUrl = _vnPayService.CreatePaymentUrl(paymentModel, HttpContext);
+                        if (!string.IsNullOrEmpty(paymentUrl))
+                        {
+                            return Redirect(paymentUrl); // Chuyển hướng đến cổng VNPAY
+                        }
+                    }
+                }
 
                 var paymentRequestDto = new PaymentRequestDTO
                 {
@@ -94,13 +138,14 @@ namespace MenuQ.Controllers
                     TempData["ErrorMessage"] = result.Message;
                     return RedirectToAction("PayOrder");
                 }
+
                 _hub.Clients.All.SendAsync("LoadRequest");
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating payment request.");
-                TempData["ErrorMessage"] = "An error occurred while processing payment.";
+                _logger.LogError(ex, "Error processing payment request.");
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi xử lý thanh toán.";
                 return RedirectToAction("PayOrder");
             }
         }
@@ -127,7 +172,7 @@ namespace MenuQ.Controllers
                     return View(dto);
                 }
                 else
-                return View("/Home/AccessDenied");
+                    return View("/Home/AccessDenied");
             }
             else
             {

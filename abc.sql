@@ -1,3 +1,4 @@
+--create database [MenuQ]
 
 USE [MenuQ]
 GO
@@ -166,6 +167,8 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[OperatingHours](
 	[OperatingHourID] [int] IDENTITY(1,1) NOT NULL,
+	[RestaurantName] nvarchar(100),
+	[ImageURL] [nvarchar](max) NULL,
 	[OpeningTime] [time](7) NOT NULL,
 	[ClosingTime] [time](7) NOT NULL,
 	[IsOpen] [bit] NULL,
@@ -350,10 +353,7 @@ ALTER TABLE [dbo].[Categories] ADD  DEFAULT ((1)) FOR [Status]
 GO
 ALTER TABLE [dbo].[Customers] ADD  DEFAULT (getdate()) FOR [CreatedAt]
 GO
-ALTER TABLE [dbo].[Invoices] ADD  DEFAULT (getdate()) FOR [CreatedAt]
-GO
-ALTER TABLE [dbo].[Invoices] ADD  DEFAULT ((1)) FOR [InvoiceStatus]
-GO
+
 ALTER TABLE [dbo].[MenuItems] ADD  DEFAULT ((1)) FOR [Status]
 GO
 ALTER TABLE [dbo].[MenuItems] ADD  DEFAULT ((0)) FOR [IsHot]
@@ -476,13 +476,13 @@ VALUES
 ('Phạm Thị Hoà', '0977554433', GETDATE());
 
 
--- Insert into Accounts
+-- Insert into Accounts. Password "Kuroneko"
 INSERT INTO Accounts (Email, Password, UserName, PhoneNumber, RoleID, Active, CreatedAt)
 VALUES
-('admin@gmail.com', '123456', 'admin', '0987654321', 1, 1, GETDATE()),
-('employee1@gmail.com', '123456', 'employee1', '0981234567', 2, 1, GETDATE()),
-('chef1@gmail.com', '123456', 'chef1', '0988887777', 3, 1, GETDATE()),
-('cashier1@gmail.com', '123456', 'cashier1', '0977776666', 4, 1, GETDATE());
+('admin@gmail.com', 'YWG0/U9EjSFSyFodYZOFjw==:tXL3wkW/NQN5w+Lcsta+gkN9ke/j9vQFxxK4LZZpkBU=', 'admin', '0987654321', 1, 1, GETDATE()),
+('employee1@gmail.com', 'YWG0/U9EjSFSyFodYZOFjw==:tXL3wkW/NQN5w+Lcsta+gkN9ke/j9vQFxxK4LZZpkBU=', 'employee1', '0981234567', 2, 1, GETDATE()),
+('chef1@gmail.com', 'YWG0/U9EjSFSyFodYZOFjw==:tXL3wkW/NQN5w+Lcsta+gkN9ke/j9vQFxxK4LZZpkBU=', 'chef1', '0988887777', 2, 1, GETDATE()),
+('cashier1@gmail.com', 'YWG0/U9EjSFSyFodYZOFjw==:tXL3wkW/NQN5w+Lcsta+gkN9ke/j9vQFxxK4LZZpkBU=', 'cashier1', '0977776666', 2, 1, GETDATE());
 
 -- Insert into Admins
 INSERT INTO Admins (AccountID, FullName, Position)
@@ -507,7 +507,7 @@ VALUES
 INSERT INTO RequestTypes (RequestTypeName)
 VALUES
 ('Food Order'),
-('Waiter Asssistant'),
+('Waiter Assistant'),
 ('Checkout');
 
 INSERT INTO ServiceReasons (ReasonText, Status)
@@ -554,11 +554,12 @@ VALUES
 (4, N'Bánh Croissant', N'Bánh sừng bò bơ thơm béo', 29000, 'https://www.highlandscoffee.com.vn/vnt_upload/product/HLCPOSTOFFICE_DRAFT/PNG_FINAL/4_FOOD_MENU/thumbs/270_crop_CROP_Cake_1png.jpg', 1, 0, 0),
 (4, N'Bánh Mì Que', N'Bánh mì que giòn rụm', 25000, 'https://www.highlandscoffee.com.vn/vnt_upload/product/HLCPOSTOFFICE_DRAFT/PNG_FINAL/4_FOOD_MENU/thumbs/270_crop_CROP_Cake_2png.jpg', 1, 0, 0);
 
-
-CREATE TABLE [dbo].[OperatingHours](
-	[OperatingHourID] [int] IDENTITY(1,1) NOT NULL,
-	[RestaurantName] nvarchar(100),
-	[ImageURL] [nvarchar](max) NULL,
-	[OpeningTime] [time](7) NOT NULL,
-	[ClosingTime] [time](7) NOT NULL,
-	[IsOpen] [bit] NULL,
+CREATE TABLE [dbo].[VnPayTransactions] (
+    [Id]            INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    [OrderDescription] NVARCHAR(255),
+    [TransactionId] NVARCHAR(100),
+    [OrderId]       NVARCHAR(100),
+    [PaymentMethod] NVARCHAR(50),
+    [PaymentId]     NVARCHAR(100),
+    [DateCreated]   DATETIME      
+);

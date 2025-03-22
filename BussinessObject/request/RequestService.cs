@@ -8,7 +8,6 @@ using DataAccess.Repository.invoice;
 using DataAccess.Repository.orderdetail;
 using DataAccess.Repository.request;
 using DataAccess.Repository.servicecall;
-using DataAccess.Repository.servicecall;
 using DataAccess.Repository.servicereason;
 using MailKit.Search;
 using Microsoft.AspNetCore.Http.Features;
@@ -527,6 +526,22 @@ namespace BussinessObject.request
                 throw;
             }
         }
+
+        public async Task<ServiceResult<Request>> CreateVnPayRequestAsync(int customerId, int tableId)
+        {
+            try
+            {
+                var newRequest = await _requestRepository.createVnpayRequest(customerId, tableId);
+                return ServiceResult<Request>.CreateSuccess(newRequest);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi tạo request thanh toán.");
+                return ServiceResult<Request>.CreateError("Không thể tạo yêu cầu thanh toán.");
+            }
+        }
+
+
 
         public async Task<List<Request>> GetAllRequestsAsync()
         {
