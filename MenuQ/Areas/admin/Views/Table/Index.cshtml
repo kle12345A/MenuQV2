@@ -146,7 +146,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Chọn bàn</h5>
-                <button type="button" class="close" data-dismiss="modal">×</button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
             <div class="modal-body">
                 @foreach (var area in Model)
@@ -180,17 +182,26 @@
         const tableInput = document.getElementById("table-input");
         const textTop1 = document.getElementById("textTop1");
 
+        // Hàm cập nhật preview (Mẫu in) để hiển thị khu vực và bàn đầu tiên
         function updateTextTop1() {
-            const areaName = areaSelect.options[areaSelect.selectedIndex].text;
-            const firstTable = document.querySelector('.table-checkbox:checked') ? document.querySelector('.table-checkbox:checked').value : "";
+            const areaSelect = document.getElementById("area-input");
+            const tableInput = document.getElementById("table-input");
+            const textTop1 = document.getElementById("textTop1");
+            const selectedTables = document.getElementById("TableInput").value.split(',').map(t => t.trim()).filter(t => t !== '');
+
+            const areaName = areaSelect.options[areaSelect.selectedIndex]?.text || '';
+            const firstTable = selectedTables.length > 0 ? selectedTables[0] : '';
 
             if (areaName && firstTable) {
                 textTop1.innerText = `${areaName} - Bàn ${firstTable}`;
+            } else if (areaName) {
+                textTop1.innerText = `${areaName} - Chọn bàn`;
             } else {
-                textTop1.innerText = areaName ? `${areaName} - Chọn bàn` : "";
+                textTop1.innerText = '';
             }
         }
 
+        // Hàm làm mới danh sách bàn trong modal khi thay đổi khu vực
         function refreshTableList() {
             const selectedAreaId = areaSelect.value;
             document.querySelectorAll('.area-section').forEach(section => {
@@ -204,16 +215,23 @@
                 checkbox.checked = false;
             });
             document.getElementById("TableInput").value = "";
+            updateTextTop1(); // Cập nhật preview sau khi làm mới danh sách bàn
         }
 
+        // Sự kiện thay đổi khu vực
         areaSelect.addEventListener("change", function () {
             updateTextTop1();
             updateMaxTableNumber();
             refreshTableList();
         });
 
-        tableInput.addEventListener("input", updateTextTop1);
+        // Sự kiện nhập số lượng bàn
+        tableInput.addEventListener("input", function () {
+            updateTextTop1();
+            validateForm();
+        });
 
+        // Hàm khởi tạo khi trang được tải
         function initialize() {
             const areaSelect = document.getElementById("area-input");
             if (areaSelect.options.length > 0) {
@@ -228,32 +246,36 @@
         window.onload = initialize;
     });
 
+    // Xử lý sự kiện xác nhận chọn bàn trong modal
     document.getElementById("confirmTables").addEventListener("click", function () {
         let selectedTables = [];
         document.querySelectorAll('.table-checkbox:checked').forEach(checkbox => {
             selectedTables.push(checkbox.value);
         });
 
-        let tableText = selectedTables.length > 0 ? selectedTables.join(", ") : "-";
-        document.getElementById("TableInput").value = tableText;
-        document.getElementById("SelectedTable").innerText = tableText;
+        const tableInput = document.getElementById("table-input").value;
+        const maxSelectedTables = parseInt(tableInput, 10);
 
-        let area = document.getElementById("area-input").options[document.getElementById("area-input").selectedIndex].text;
-        document.getElementById("SelectedArea").innerText = area;
-
-        if (selectedTables.length > 0) {
-            let firstTable = selectedTables[0];
-            let qrData = encodeURIComponent(`Khu vực: ${area} - Bàn: ${firstTable}`);
-            document.getElementById("QRImage").src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
-            document.getElementById("textTop1").innerText = `${area} - Bàn ${firstTable}`;
+        // Kiểm tra số lượng bàn đã chọn không vượt quá số lượng nhập vào
+        if (selectedTables.length > maxSelectedTables) {
+            alert(`Bạn chỉ có thể chọn tối đa ${maxSelectedTables} bàn.`);
         } else {
-            document.getElementById("QRImage").src = "";
-            document.getElementById("textTop1").innerText = "";
+            // Nếu không có lỗi về số lượng bàn, cập nhật danh sách bàn
+            let tableText = selectedTables.length > 0 ? selectedTables.join(", ") : "-";
+            document.getElementById("TableInput").value = tableText;
+
+            // Cập nhật preview ngay sau khi xác nhận
+            updateTextTop1();
+
+            // Tạo mã QR ngay lập tức sau khi xác nhận
+            generateQRCodeWithCustomOptions();
         }
 
+        // Đóng modal ngay lập tức, bất kể có lỗi hay không
         $('#tableModal').modal('hide');
     });
 
+    // Hàm kiểm tra số lượng bàn nhập vào
     function validateForm() {
         let isValid = true;
         const tableInput = document.getElementById("table-input");
@@ -264,21 +286,25 @@
 
         if (table < 1 || table > maxTableNumber || isNaN(table)) {
             tableError.style.display = "inline";
-            tableError.textContent = `Please enter a valid table number (1-${maxTableNumber}).`;
+            tableError.textContent = `Vui lòng nhập số bàn hợp lệ (1-${maxTableNumber}).`;
             isValid = false;
-            clearQRCode()
+            clearQRCode();
         } else {
             tableError.style.display = "none";
-            generateQRCodeWithCustomOptions()
-            tableInput.setAttribute("max", maxTableNumber);
+            // Chỉ tạo mã QR nếu đã chọn bàn
+            const selectedTables = document.getElementById("TableInput").value.split(',').map(t => t.trim()).filter(t => t !== '');
+            if (selectedTables.length > 0) {
+                generateQRCodeWithCustomOptions();
+            }
         }
         return isValid;
     }
 
+    // Hàm cập nhật số lượng bàn tối đa dựa trên khu vực
     function updateMaxTableNumber() {
-        var areaSelect = document.getElementById("area-input");
-        var selectedOption = areaSelect.options[areaSelect.selectedIndex];
-        var maxTableNumber = selectedOption.getAttribute("data-max");
+        const areaSelect = document.getElementById("area-input");
+        const selectedOption = areaSelect.options[areaSelect.selectedIndex];
+        const maxTableNumber = selectedOption.getAttribute("data-max");
         const tableInput = document.getElementById("table-input");
 
         tableInput.setAttribute("max", maxTableNumber);
@@ -286,24 +312,52 @@
         document.getElementById("table-error").style.display = "none";
     }
 
+    // Hàm tạo mã QR và cập nhật preview
     function generateQRCodeWithCustomOptions() {
         const color = document.getElementById("color-input").value;
         const backgroundColor = document.getElementById("background-color-input").value;
         const topText = document.getElementById("top-text").value;
         const bottomText = document.getElementById("bottom-text").value;
+        const areaSelect = document.getElementById("area-input");
+        const tableNumber = document.getElementById("table-input").value.trim();
+        const selectedTables = document.getElementById("TableInput").value.split(',').map(t => t.trim()).filter(t => t !== '');
 
+        // Kiểm tra số bàn hợp lệ
+        if (!tableNumber || isNaN(tableNumber) || parseInt(tableNumber) < 1) {
+            alert("Vui lòng nhập số bàn hợp lệ.");
+            return;
+        }
+
+        // Kiểm tra khu vực đã được chọn
+        if (areaSelect.selectedIndex === -1 || areaSelect.value === "") {
+            alert("Vui lòng chọn khu vực.");
+            return;
+        }
+
+        // Kiểm tra đã chọn ít nhất một bàn
+        if (selectedTables.length === 0) {
+            alert("Vui lòng chọn ít nhất một bàn.");
+            return;
+        }
+
+        const areaName = areaSelect.options[areaSelect.selectedIndex].text;
+        const firstTable = selectedTables[0]; // Sử dụng bàn đầu tiên để hiển thị preview
+
+        // Cập nhật preview
         document.getElementById("textTop").innerText = topText;
+        document.getElementById("textTop1").innerText = `${areaName} - Bàn ${firstTable}`;
         document.getElementById("textBottom").innerText = bottomText;
 
-        const baseURL = "https://sample.com";
+        const baseURL = "https://sample.com"; // Thay bằng URL thực tế nếu cần
         if (baseURL.trim() !== "") {
-            const urlWithParams = `Thank For Use MenuQ`;
+            const urlWithParams = `Thank For Use MenuQ`; // Thay bằng URL thực tế nếu cần
             generateQRCode("qrcode1", urlWithParams, color, backgroundColor);
         } else {
-            alert("Please enter a base URL to generate a QR code.");
+            alert("Vui lòng nhập URL cơ sở để tạo mã QR.");
         }
     }
 
+    // Hàm tạo mã QR
     function generateQRCode(canvasId, text, color, backgroundColor) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext("2d");
@@ -327,10 +381,7 @@
         });
     }
 
-    document.getElementById("editTableBtn").addEventListener("click", function () {
-        $('#tableModal').modal('show');
-    });
-
+    // Hàm xóa mã QR và preview
     function clearQRCode() {
         const canvas = document.getElementById("qrcode1");
         const ctx = canvas.getContext("2d");
@@ -340,6 +391,7 @@
         document.getElementById("printButton").style.display = "none";
     }
 
+    // Hàm chuyển hướng đến trang in QR
     function redirectToPrintQR() {
         const areaId = document.getElementById("area-input").value;
         const tableNumber = document.getElementById("table-input").value;
@@ -356,4 +408,19 @@
 
         window.location.href = `/Admin/Table/PrintQR?areaId=${areaId}&tableCount=${tableNumber}&topText=${topText}&bottomText=${bottomText}&color=${color}&backgroundColor=${backgroundColor}&selectedTables=${encodeURIComponent(selectedTables)}`;
     }
+
+    // Sự kiện mở modal chọn bàn
+    document.getElementById("editTableBtn").addEventListener("click", function () {
+        $('#tableModal').modal('show');
+    });
+
+    // Đảm bảo modal đóng đúng cách khi ấn "X"
+    document.querySelector('.modal .close').addEventListener('click', function () {
+        $('#tableModal').modal('hide');
+    });
+
+    // Xóa backdrop khi modal đã đóng
+    $('#tableModal').on('hidden.bs.modal', function () {
+        $('.modal-backdrop').remove();
+    });
 </script>
