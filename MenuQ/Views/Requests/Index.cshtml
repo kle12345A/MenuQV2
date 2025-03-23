@@ -181,8 +181,24 @@
                                                     <!-- Hiển thị mặc định nếu không thuộc 3 loại trên -->
                                                 }
                                             </td>
-
-                                            <td>@req.Note</td>
+                                            <td>
+                                                @if (req.Note == "CreditCardAtTable")    
+                                                {
+                                                    <span>
+                                                        Thanh toán chuyển khoản tại bàn
+                                                    </span>
+                                                }
+                                                else if (req.Note == "CreditCardAtCounter"){
+                                                    <span>
+                                                        Thanh toán chuyển khoản tại quầy
+                                                    </span>
+                                                }
+                                                else if (req.Note == "CashAtCounter"){
+                                                    <span>
+                                                        Thanh toán tiền mặt tại quầy
+                                                    </span>
+                                                } 
+                                            </td>
                                             <td>
                                                 @if (req.RequestType == "Food Order") // RequestTypeID = 1
                                                 {
