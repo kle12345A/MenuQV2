@@ -53,7 +53,7 @@
                                         <small class="text-muted">Giá: @detail.Price.ToString("N0")</small>
                                     </td>
                                     <td>@detail.Note</td>
-                                    <td class="text-right">@((detail.Quantity * detail.Price).ToString("N0"))</td>
+                                    <td class="text-right">@((detail.Price).ToString("N0"))</td>
                                 </tr>
                             }
                         </tbody>
@@ -62,7 +62,7 @@
                                 <td colspan="3" class="text-right">Tạm tính:</main>
                                     </main>:</td>
                                 <td class="text-right">
-                                    @Model.OrderDetails.Sum(d => d.Quantity * d.Price).ToString("N0")đ
+                                    @Model.OrderDetails.Sum(d => d.Price).ToString("N0")đ
                                 </td>
                             </tr>
                         </tfoot>
@@ -131,8 +131,7 @@
                         <p><strong>Mã yêu cầu:</strong> @Model.RequestId</p>
                         <p><strong>Khách hàng:</strong> @Model.Customer.CustomerName</p>
                         <p><strong>Số điện thoại:</strong> @Model.Customer.PhoneNumber</p>
-                        <p><strong>Tổng tiền:</strong> @Model.OrderDetails.Sum(d => d.Quantity *
-                            d.Price).ToString("N0")đ </ p >
+                        <p><strong>Tổng tiền:</strong> @Model.OrderDetails.Sum(d => d.Price).ToString("N0")đ </ p >
                     </div>
                     <div class="modal-footer d-flex justify-content-between">
                         <button type="button" class="btn btn-secondary"
